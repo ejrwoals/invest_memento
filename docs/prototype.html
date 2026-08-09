@@ -179,12 +179,12 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
   color:var(--ink-1);padding-left:var(--s3)}
 
 .tperiod{position:relative}
-.tperiod__h{display:grid;grid-template-columns:var(--gutter) 1fr;align-items:center;gap:var(--s4);
-  margin:var(--s4) 0 var(--s3);font-weight:400}
-.tperiod__h span{justify-self:end;font-family:var(--font-mono);font-size:var(--text-micro);
-  letter-spacing:.08em;color:var(--ink-2);background:var(--paper-0);padding:2px 8px 2px 0}
-.tperiod__h i{display:block;height:1px;background:var(--line-0)}
-.tperiod:first-of-type .tperiod__h{margin-top:0}
+.tperiod__h{position:relative;z-index:1;display:flex;align-items:center;gap:var(--s4);
+  margin:var(--s5) 0 var(--s4);font-weight:400}
+.tperiod__h i{flex:1;height:1px;background:var(--line-0)}
+.tperiod__h span{flex:0 0 auto;font-family:var(--font-mono);font-size:var(--text-micro);
+  letter-spacing:.14em;color:var(--ink-2);background:var(--paper-0);padding:0 2px}
+.tperiod:first-of-type .tperiod__h{margin-top:var(--s4)}
 
 .titem{position:relative;display:grid;grid-template-columns:var(--gutter) 1fr;gap:var(--s4);
   align-items:start;margin-bottom:10px}
@@ -402,8 +402,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .tnow__mark{position:absolute;left:5px;top:50%;justify-self:auto;
     transform:translate(-50%,-50%);margin:0}
   .tnow__label{padding-left:0}
-  .tperiod__h{grid-template-columns:auto 1fr;padding-left:24px;gap:10px}
-  .tperiod__h span{justify-self:start;padding:0}
+  .tperiod__h{gap:10px}
   .tmore{grid-template-columns:1fr;padding-left:24px}
   .tmore button{justify-self:start}
 }
@@ -485,7 +484,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </div>
 
             <section class="tperiod">
-              <h4 class="tperiod__h"><span>이번 주</span><i aria-hidden="true"></i></h4>
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>이번 주</span><i aria-hidden="true"></i></h4>
               <div class="titem titem--near">
                 <div class="titem__when"><b>12.31</b>D-5</div>
                 <span class="titem__dot" aria-hidden="true"></span>
@@ -498,7 +497,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </section>
 
             <section class="tperiod">
-              <h4 class="tperiod__h"><span>~1개월</span><i aria-hidden="true"></i></h4>
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>~1개월</span><i aria-hidden="true"></i></h4>
               <div class="titem">
                 <div class="titem__when"><b>01.20</b>D-25</div>
                 <span class="titem__dot" aria-hidden="true"></span>
@@ -511,7 +510,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </section>
 
             <section class="tperiod">
-              <h4 class="tperiod__h"><span>~3개월</span><i aria-hidden="true"></i></h4>
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>~3개월</span><i aria-hidden="true"></i></h4>
               <div class="titem titem--range">
                 <div class="titem__when"><b>02~03월</b>기간</div>
                 <span class="titem__dot" aria-hidden="true"></span>
@@ -533,7 +532,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </section>
 
             <section class="tperiod">
-              <h4 class="tperiod__h"><span>~6개월</span><i aria-hidden="true"></i></h4>
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>~6개월</span><i aria-hidden="true"></i></h4>
               <div class="titem titem--far">
                 <div class="titem__when"><b>06.30</b>D-186</div>
                 <span class="titem__dot" aria-hidden="true"></span>
@@ -555,7 +554,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </section>
 
             <section class="tperiod">
-              <h4 class="tperiod__h"><span>그 이후</span><i aria-hidden="true"></i></h4>
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>그 이후</span><i aria-hidden="true"></i></h4>
               <div class="titem titem--far">
                 <div class="titem__when"><b>12.31</b>1년 뒤</div>
                 <span class="titem__dot" aria-hidden="true"></span>
