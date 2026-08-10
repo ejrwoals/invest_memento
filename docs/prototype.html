@@ -391,6 +391,56 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   font-variant-numeric:tabular-nums;font-size:var(--text-subhead)}
 .slider{width:100%;height:24px;accent-color:var(--ink-2);margin-top:var(--s3)}
 
+/* ── 지표 추이 차트 ─────────────────────────────── */
+.ichart{position:relative;background:var(--paper-0);border:1px solid var(--line-0);
+  border-radius:var(--r3);padding:var(--s4) var(--s4) var(--s3)}
+.ichart__h{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:baseline;
+  justify-content:space-between;margin-bottom:var(--s3)}
+.ichart__t{font-size:var(--text-sm);font-weight:600}
+.ichart__t small{display:block;font-weight:400;font-size:var(--text-caption);
+  color:var(--ink-2);margin-top:2px}
+.ichart__now{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-subhead);color:var(--ink-0);text-align:right}
+.ichart__now span{display:block;font-size:var(--text-micro);color:var(--ink-2);margin-top:2px}
+.ichart__plot{position:relative}
+.ichart svg{display:block;width:100%;height:150px;overflow:visible}
+.ilab{position:absolute;font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-micro);color:var(--ink-2);background:var(--paper-0);
+  padding:0 5px;transform:translateY(-50%);white-space:nowrap;pointer-events:none}
+.ilab--cross{transform:translate(-50%,-100%);background:none;padding:0;color:var(--ink-1)}
+/* 축약형 — 노트 상세 카드에서 한눈에 */
+.spark{display:grid;grid-template-columns:1fr 132px;gap:var(--s3);align-items:center;
+  padding:10px 0;border-bottom:1px solid var(--line-0)}
+.spark:last-of-type{border-bottom:none}
+.spark__l{min-width:0}
+.spark__n{font-size:var(--text-caption);color:var(--ink-1)}
+.spark__v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-micro);color:var(--ink-2);margin-top:2px}
+.spark svg{display:block;width:100%;height:38px}
+.spark--miss .spark__v span{color:var(--countdown)}
+.ichart__foot{display:flex;justify-content:space-between;gap:var(--s3);margin-top:6px;
+  font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2)}
+.ichart__legend{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:var(--s3);
+  padding-top:var(--s3);border-top:1px solid var(--line-0);
+  font-size:var(--text-caption);color:var(--ink-2)}
+.ichart__legend span{display:flex;align-items:center;gap:7px}
+.ichart__legend i{width:16px;height:0;flex:0 0 auto}
+.tip{position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-100%);
+  background:var(--ink-0);color:var(--paper-0);padding:6px 9px;border-radius:var(--r2);
+  font-family:var(--font-mono);font-size:var(--text-micro);white-space:nowrap;z-index:2;
+  transition:opacity var(--dur-1) var(--ease-calm)}
+.ichart.is-hot .tip{opacity:1}
+.ichart table{width:100%;border-collapse:collapse;margin-top:var(--s3);
+  font-size:var(--text-caption)}
+.ichart table th,.ichart table td{text-align:left;padding:5px 8px;
+  border-bottom:1px solid var(--line-0)}
+.ichart table td:last-child,.ichart table th:last-child{text-align:right;
+  font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.ichart details{margin-top:var(--s3)}
+.ichart summary{font-size:var(--text-caption);color:var(--ink-2);cursor:pointer;
+  min-height:32px;display:flex;align-items:center}
+.ichart summary:hover{color:var(--ink-0)}
+
 /* ── 반응형: 세로 긴 화면 ─────────────────────────── */
 @container (max-width: 767px){
   .pad{padding:var(--s4)}
@@ -434,6 +484,12 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .tmore button{justify-self:start}
   .galae__pie{flex-direction:column;align-items:flex-start;gap:var(--s4)}
   .pie{align-self:center}
+  .ichart svg{height:124px}
+  .ichart__h{flex-direction:column;align-items:flex-start;gap:4px}
+  .ichart__now{text-align:left}
+  .ilab--cross{transform:translate(-100%,-100%)}
+  .ichart__legend{flex-direction:column;gap:8px}
+  .spark{grid-template-columns:1fr 96px}
 }
 .mob-only{display:none}
 </style>
@@ -685,6 +741,39 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <div style="font-size:var(--text-caption);color:var(--ink-1)">
                     지표 <span class="num">2개 중 1개</span> 달성
                   </div>
+                  <div class="spark">
+                    <div class="spark__l">
+                      <div class="spark__n">삼성전자 95,000원 이상</div>
+                      <div class="spark__v">달성 11.18 · 지금 97,400</div>
+                    </div>
+                    <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                      <rect x="0" y="37.3" width="640"
+                            height="81.7" fill="var(--paper-2)" opacity=".55"></rect>
+                      <line x1="0" y1="37.3" x2="640" y2="37.3"
+                            stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                      <path d="M0.0,121.6 L14.7,113.3 L29.5,119.7 L44.2,119.5 L58.9,124.2 L73.7,115.9 L88.4,101.7 L103.2,106.8 L117.9,99.5 L132.6,105.3 L147.4,102.2 L162.1,102.3 L176.8,117.3 L191.6,92.6 L206.3,93.8 L221.1,91.9 L235.8,109.0 L250.5,107.2 L265.3,97.6 L280.0,91.7 L294.7,82.9 L309.5,83.6 L324.2,76.6 L338.9,83.8 L353.7,73.7 L368.4,70.6 L383.2,76.5 L397.9,55.3 L412.6,61.9 L427.4,54.5 L442.1,65.8 L456.8,64.1 L471.6,58.4 L486.3,54.0 L501.1,45.9 L515.8,45.9 L530.5,48.2 L545.3,48.9 L560.0,32.0 L574.7,28.1 L589.5,33.6 L604.2,29.1 L629.5,25.8" fill="none" stroke="var(--ink-2)" stroke-width="2"
+                            stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      <circle cx="629.5" cy="25.8" r="6" fill="var(--rise)"
+                              stroke="var(--paper-0)" stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                    </svg>
+                  </div>
+                  <div class="spark spark--miss">
+                    <div class="spark__l">
+                      <div class="spark__n">코스피 3,200 이상</div>
+                      <div class="spark__v">아직 · 지금 3,050 · <span>목표의 95%</span></div>
+                    </div>
+                    <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                      <rect x="0" y="30" width="640" height="86" fill="var(--paper-2)" opacity=".55"></rect>
+                      <line x1="0" y1="30" x2="640" y2="30"
+                            stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                      <path d="M0,116 L60,110 L120,118 L180,99 L240,104 L300,88 L360,92 L420,74 L480,66 L540,58 L600,46 L629,44"
+                            fill="none" stroke="var(--ink-2)" stroke-width="2"
+                            stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      <circle cx="629" cy="44" r="6" fill="var(--paper-0)" stroke="var(--ink-2)"
+                              stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                    </svg>
+                  </div>
+
                   <div class="branch__meta">
                     <span>판단 시점 2026.12.31</span>
                     <span class="num" style="color:var(--countdown)">D-5</span>
@@ -875,7 +964,87 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
         <div class="pad">
           <div class="branch__t" style="margin-bottom:var(--s4)">“HBM 수주 확대 성공”</div>
 
-          <div class="sec-label">결과 지표</div>
+          <div class="sec-label">결과 지표 · 추이</div>
+          <div class="ichart" id="ic1">
+            <div class="ichart__h">
+              <div class="ichart__t">삼성전자 · 95,000원 이상
+                <small>기록 2026.03.02 · 판단 시점 2026.12.31</small></div>
+              <div class="ichart__now">97,400<span>오늘 · 목표 넘김</span></div>
+            </div>
+
+            <div class="ichart__plot">
+            <svg viewBox="0 0 640 150" preserveAspectRatio="none"
+                 role="img" aria-label="삼성전자 주가 추이. 기록 시점 78,000원에서 오늘 97,400원. 목표 95,000원을 11월 18일에 넘어섬. 상세 값은 아래 표 참조.">
+              <!-- 기록선과 목표선 사이 = 가야 했던 거리 -->
+              <rect x="0" y="37.3" width="640" height="81.7"
+                    fill="var(--paper-2)" opacity=".55"></rect>
+              <!-- 오늘 이후 = 남은 기간 -->
+              <rect x="629.5" y="0" width="10.5" height="150"
+                    fill="url(#future)"></rect>
+              <defs>
+                <pattern id="future" width="6" height="6" patternUnits="userSpaceOnUse"
+                         patternTransform="rotate(45)">
+                  <line x1="0" y1="0" x2="0" y2="6" stroke="var(--line-0)" stroke-width="2"></line>
+                </pattern>
+              </defs>
+
+              <!-- 목표선 (실선) / 기록선 (점선 = 과거의 기준) -->
+              <line x1="0" y1="37.3" x2="640" y2="37.3"
+                    stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+              <line x1="0" y1="119.0" x2="640" y2="119.0"
+                    stroke="var(--line-1)" stroke-width="1" stroke-dasharray="3 4"
+                    vector-effect="non-scaling-stroke"></line>
+
+              <!-- 추이 -->
+              <path d="M0.0,121.6 L14.7,113.3 L29.5,119.7 L44.2,119.5 L58.9,124.2 L73.7,115.9 L88.4,101.7 L103.2,106.8 L117.9,99.5 L132.6,105.3 L147.4,102.2 L162.1,102.3 L176.8,117.3 L191.6,92.6 L206.3,93.8 L221.1,91.9 L235.8,109.0 L250.5,107.2 L265.3,97.6 L280.0,91.7 L294.7,82.9 L309.5,83.6 L324.2,76.6 L338.9,83.8 L353.7,73.7 L368.4,70.6 L383.2,76.5 L397.9,55.3 L412.6,61.9 L427.4,54.5 L442.1,65.8 L456.8,64.1 L471.6,58.4 L486.3,54.0 L501.1,45.9 L515.8,45.9 L530.5,48.2 L545.3,48.9 L560.0,32.0 L574.7,28.1 L589.5,33.6 L604.2,29.1 L629.5,25.8" fill="none" stroke="var(--ink-2)" stroke-width="2"
+                    stroke-linejoin="round" stroke-linecap="round"
+                    vector-effect="non-scaling-stroke"></path>
+
+              <!-- 목표를 넘어선 지점 -->
+              <circle cx="560.0" cy="32.0" r="4"
+                      fill="var(--paper-0)" stroke="var(--ink-2)" stroke-width="2"
+                      vector-effect="non-scaling-stroke"></circle>
+              <!-- 오늘 -->
+              <circle cx="629.5" cy="25.8" r="5"
+                      fill="var(--rise)" stroke="var(--paper-0)" stroke-width="2"
+                      vector-effect="non-scaling-stroke"></circle>
+
+              <line class="cross" x1="0" y1="0" x2="0" y2="150" stroke="var(--line-1)"
+                    stroke-width="1" vector-effect="non-scaling-stroke" opacity="0"></line>
+            </svg>
+              <span class="ilab" style="left:0;top:24.9%">목표 95,000</span>
+              <span class="ilab" style="left:0;top:79.3%">기록 78,000</span>
+              <span class="ilab ilab--cross" style="left:87.5%;top:11%">11.18 목표 넘김</span>
+            </div>
+
+            <div class="ichart__foot">
+              <span>2026.03.02 · 기록</span>
+              <span>2026.12.31 · 판단 시점</span>
+            </div>
+
+            <div class="ichart__legend">
+              <span><i style="background:var(--paper-2);height:10px;border-radius:2px"></i>기록 시점부터 목표까지, 가야 했던 거리</span>
+              <span><i style="background:repeating-linear-gradient(45deg,var(--line-0) 0 2px,transparent 2px 5px);height:10px;border-radius:2px"></i>남은 기간</span>
+            </div>
+
+            <details>
+              <summary>값으로 보기</summary>
+              <table>
+                <thead><tr><th>시점</th><th>종가</th></tr></thead>
+                <tbody>
+                  <tr><td>2026.03.02 · 기록</td><td>78,000</td></tr>
+                  <tr><td>2026.06.15</td><td>83,642</td></tr>
+                  <tr><td>2026.09.07</td><td>91,253</td></tr>
+                  <tr><td>2026.11.18 · 목표 넘김</td><td>96,099</td></tr>
+                  <tr><td>2026.12.26 · 오늘</td><td>97,400</td></tr>
+                </tbody>
+              </table>
+            </details>
+
+            <div class="tip" id="tip1"></div>
+          </div>
+
+          <div class="sec-label" style="margin-top:var(--s5)">지표 판정</div>
           <div class="card" style="padding:0">
             <div style="display:flex;justify-content:space-between;gap:var(--s4);padding:var(--s3) var(--s4);
                         border-bottom:1px solid var(--line-0);font-size:var(--text-sm)">
@@ -1269,6 +1438,32 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
     var st=e.target.closest('[data-step]');
     if(st){ setProb(prob + (+st.dataset.step)); return; }
   });
+
+  // 지표 추이 — 크로스헤어 + 툴팁
+  var SERIES=[[0.0, 121.6, "2026-03-02", 77463], [14.7, 113.3, "2026-03-09", 79187], [29.5, 119.7, "2026-03-16", 77844], [44.2, 119.5, "2026-03-23", 77892], [58.9, 124.2, "2026-03-30", 76904], [73.7, 115.9, "2026-04-06", 78642], [88.4, 101.7, "2026-04-13", 81591], [103.2, 106.8, "2026-04-20", 80528], [117.9, 99.5, "2026-04-27", 82056], [132.6, 105.3, "2026-05-04", 80854], [147.4, 102.2, "2026-05-11", 81493], [162.1, 102.3, "2026-05-18", 81462], [176.8, 117.3, "2026-05-25", 78340], [191.6, 92.6, "2026-06-01", 83498], [206.3, 93.8, "2026-06-08", 83245], [221.1, 91.9, "2026-06-15", 83642], [235.8, 109.0, "2026-06-22", 80067], [250.5, 107.2, "2026-06-29", 80441], [265.3, 97.6, "2026-07-06", 82449], [280.0, 91.7, "2026-07-13", 83669], [294.7, 82.9, "2026-07-20", 85501], [309.5, 83.6, "2026-07-27", 85359], [324.2, 76.6, "2026-08-03", 86818], [338.9, 83.8, "2026-08-10", 85317], [353.7, 73.7, "2026-08-17", 87429], [368.4, 70.6, "2026-08-24", 88072], [383.2, 76.5, "2026-08-31", 86833], [397.9, 55.3, "2026-09-07", 91253], [412.6, 61.9, "2026-09-14", 89870], [427.4, 54.5, "2026-09-21", 91418], [442.1, 65.8, "2026-09-28", 89058], [456.8, 64.1, "2026-10-05", 89427], [471.6, 58.4, "2026-10-12", 90603], [486.3, 54.0, "2026-10-19", 91531], [501.1, 45.9, "2026-10-26", 93214], [515.8, 45.9, "2026-11-02", 93198], [530.5, 48.2, "2026-11-09", 92738], [545.3, 48.9, "2026-11-16", 92581], [560.0, 32.0, "2026-11-23", 96099], [574.7, 28.1, "2026-11-30", 96903], [589.5, 33.6, "2026-12-07", 95767], [604.2, 29.1, "2026-12-14", 96698], [629.5, 25.8, "2026-12-26", 97400]];
+  (function(){
+    var box=document.getElementById('ic1'); if(!box) return;
+    var svg=box.querySelector('svg'), tip=document.getElementById('tip1'),
+        cross=svg.querySelector('.cross'), VW=640;
+    function move(e){
+      var r=svg.getBoundingClientRect();
+      var vx=(e.clientX-r.left)/r.width*VW;
+      var best=SERIES[0],bd=1e9;
+      for(var i=0;i<SERIES.length;i++){var d=Math.abs(SERIES[i][0]-vx);if(d<bd){bd=d;best=SERIES[i];}}
+      cross.setAttribute('x1',best[0]); cross.setAttribute('x2',best[0]);
+      cross.setAttribute('opacity','1');
+      var px=best[0]/VW*r.width;
+      tip.style.left=px+'px';
+      tip.style.top=(best[1]/150*r.height + (r.top-box.getBoundingClientRect().top) - 10)+'px';
+      var d=best[2].slice(5).replace('-','.');
+      tip.textContent=d+'  '+best[3].toLocaleString()+'원';
+      box.classList.add('is-hot');
+    }
+    svg.addEventListener('mousemove',move);
+    svg.addEventListener('mouseleave',function(){
+      box.classList.remove('is-hot'); cross.setAttribute('opacity','0');
+    });
+  })();
 
   // 확률 — 5% 눈금, 범위 표기
   var prob=65, band=document.getElementById('pband'), pv=document.getElementById('pv'),
