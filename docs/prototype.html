@@ -238,13 +238,33 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .fcard__t b{font-weight:600}
 
 /* ── 노트 상세 ────────────────────────────────────── */
-.split{display:grid;grid-template-columns:6fr 4fr}
-.split__l{padding:var(--s5);border-right:1px solid var(--line-0);min-width:0}
-.split__r{padding:var(--s5);background:var(--paper-1);min-width:0}
-.tabs{display:none;border-bottom:1px solid var(--line-0);padding:0 var(--s4)}
-.tabs button{min-height:44px;padding:0 2px;margin-right:var(--s5);background:none;border:none;
-  border-bottom:2px solid transparent;color:var(--ink-2);font-size:var(--text-sm)}
-.tabs button[aria-selected="true"]{color:var(--ink-0);font-weight:600;border-bottom-color:var(--ink-0)}
+/* 나의 관점은 전체 폭, 새 정보는 책갈피로 여닫는 서랍 */
+.split{position:relative;overflow:hidden}
+.split__l{padding:var(--s5);max-width:820px}
+
+.bookmark{position:absolute;top:var(--s5);right:0;z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  min-width:38px;padding:14px 10px 12px;
+  background:var(--paper-1);color:var(--ink-1);
+  border:1px solid var(--line-1);border-right:none;
+  border-radius:var(--r2) 0 0 var(--r2);
+  box-shadow:var(--shadow-1);cursor:pointer;
+  transition:background var(--dur-1) var(--ease-calm),transform var(--dur-2) var(--ease-calm)}
+.bookmark:hover{background:var(--paper-2)}
+.bookmark__n{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-subhead);font-weight:600;line-height:1}
+.bookmark__l{writing-mode:vertical-rl;font-size:var(--text-micro);letter-spacing:.16em;
+  color:var(--ink-2)}
+.bookmark__c{font-size:var(--text-caption);color:var(--ink-2);line-height:1}
+.bookmark[aria-expanded="true"]{transform:translateX(calc(var(--drawer-w) * -1))}
+
+.drawer{position:absolute;top:0;right:0;bottom:0;width:var(--drawer-w);
+  background:var(--paper-1);border-left:1px solid var(--line-1);
+  padding:var(--s5);overflow-y:auto;z-index:2;
+  transform:translateX(100%);visibility:hidden;
+  transition:transform var(--dur-2) var(--ease-calm),visibility var(--dur-2)}
+.drawer[data-open="true"]{transform:none;visibility:visible}
+.split{--drawer-w:340px}
 
 .thesis{background:var(--paper-2);border-left:3px solid var(--line-1);border-radius:var(--r-fixed);
   padding:var(--s4) var(--s5);line-height:var(--lh-long);font-size:var(--text-sm)}
@@ -261,6 +281,14 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .branch__h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .branch__no{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2);letter-spacing:.08em}
 .branch__t{font-size:var(--text-subhead);font-weight:600;line-height:var(--lh-heading);margin-top:3px}
+.prob{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s3) var(--s4)}
+.prob__v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-title);line-height:1.1;letter-spacing:-.01em}
+.prob__v small{font-family:var(--font-sans);font-size:var(--text-caption);
+  color:var(--ink-2);margin-left:6px;letter-spacing:0}
+.prob__d{font-size:var(--text-caption);color:var(--ink-2);
+  font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.prob__d b{font-weight:400;color:var(--ink-1)}
 .branch__meta{display:flex;justify-content:space-between;align-items:center;gap:10px;
   padding-top:var(--s3);border-top:1px solid var(--line-0);font-size:var(--text-caption);color:var(--ink-2)}
 
@@ -444,12 +472,13 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 /* ── 반응형: 세로 긴 화면 ─────────────────────────── */
 @container (max-width: 767px){
   .pad{padding:var(--s4)}
-  .split{grid-template-columns:1fr}
-  .split__l{border-right:none;padding:var(--s4)}
-  .split__r{display:none;padding:var(--s4)}
-  .viewport[data-tab="info"] .split__l{display:none}
-  .viewport[data-tab="info"] .split__r{display:block}
-  .tabs{display:flex}
+  .split{--drawer-w:100%}
+  .split__l{padding:var(--s4)}
+  .drawer{padding:var(--s4)}
+  .drawer[data-open="true"]{padding-right:58px}
+  .bookmark{top:var(--s4)}
+  /* 좁은 화면에서는 책갈피가 그 자리에서 닫기 역할을 한다 */
+  .bookmark[aria-expanded="true"]{transform:none}
   .tl{grid-template-columns:1fr;gap:0}
   .tl__seg{min-height:0;border-bottom:1px solid var(--line-0);padding:var(--s3) var(--s4)}
   .tl__seg:last-child{border-bottom:none}
@@ -669,12 +698,13 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <span class="badge badge--count"><span class="dot"></span>초읽기 D-5</span>
         </div>
 
-        <div class="tabs" role="tablist">
-          <button role="tab" aria-selected="true" data-tab="mine">나의 관점</button>
-          <button role="tab" aria-selected="false" data-tab="info">새 정보 (3)</button>
-        </div>
-
         <div class="split">
+          <button class="bookmark" id="bm" aria-expanded="false" aria-controls="drawer">
+            <span class="bookmark__n">3</span>
+            <span class="bookmark__l">새 정보</span>
+            <span class="bookmark__c" aria-hidden="true">›</span>
+          </button>
+
           <div class="split__l">
             <div class="sec-label">핵심 가설</div>
             <div class="thesis">
@@ -727,16 +757,9 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     </div>
                     <span class="badge badge--count"><span class="dot"></span>초읽기</span>
                   </div>
-                  <div>
-                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-                      <span style="font-size:var(--text-caption);color:var(--ink-2)">지난번 대비</span>
-                      <span class="num" style="font-size:var(--text-caption)">60~70% 안팎
-                        <span style="color:var(--rise)">＋10</span></span>
-                    </div>
-                    <div class="gauge">
-                      <div class="gauge__ghost" style="left:50%;width:10%"></div>
-                      <div class="gauge__band band--rise" style="left:60%;width:10%"></div>
-                    </div>
+                  <div class="prob">
+                    <span class="prob__v" style="color:var(--rise)">60~70%<small>안팎</small></span>
+                    <span class="prob__d">지난번 <b>55~65%</b> 에서 올림</span>
                   </div>
                   <div style="font-size:var(--text-caption);color:var(--ink-1)">
                     지표 <span class="num">2개 중 1개</span> 달성
@@ -744,7 +767,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <div class="spark">
                     <div class="spark__l">
                       <div class="spark__n">삼성전자 95,000원 이상</div>
-                      <div class="spark__v">달성 11.18 · 지금 97,400</div>
+                      <div class="spark__v">달성 11.02 · 지금 97,400</div>
                     </div>
                     <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
                       <rect x="0" y="37.3" width="640"
@@ -789,16 +812,9 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     </div>
                     <span class="badge badge--watch">지켜보는 중</span>
                   </div>
-                  <div>
-                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-                      <span style="font-size:var(--text-caption);color:var(--ink-2)">지난번 대비</span>
-                      <span class="num" style="font-size:var(--text-caption)">20~30% 안팎
-                        <span style="color:var(--fall)">－5</span></span>
-                    </div>
-                    <div class="gauge">
-                      <div class="gauge__ghost" style="left:25%;width:10%"></div>
-                      <div class="gauge__band band--fall" style="left:20%;width:10%"></div>
-                    </div>
+                  <div class="prob">
+                    <span class="prob__v" style="color:var(--fall)">20~30%<small>안팎</small></span>
+                    <span class="prob__d">지난번 <b>25~35%</b> 에서 내림</span>
                   </div>
                   <div class="hint" style="border-style:dashed">
                     지표를 정하면 자동으로 확인해 드립니다
@@ -811,13 +827,10 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 </div>
 
                 <div class="branch" style="padding:var(--s3) var(--s4)">
-                  <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
                     <span style="font-size:var(--text-sm);color:var(--ink-1)"><span class="wedge"
                       style="background:var(--w3);border:1px solid var(--line-1)" aria-hidden="true"></span>그 외 예상 못한 전개</span>
-                    <span class="num" style="font-size:var(--text-caption)">10%</span>
-                  </div>
-                  <div class="gauge" style="height:14px">
-                    <div class="gauge__band band--flat" style="left:0;width:10%"></div>
+                    <span class="prob__v" style="color:var(--ink-2);font-size:var(--text-subhead)">10%</span>
                   </div>
                 </div>
 
@@ -845,7 +858,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </div>
           </div>
 
-          <div class="split__r">
+          <div class="drawer" id="drawer" data-open="false" aria-label="새로 들어온 정보">
             <div class="sec-label">새로 들어온 정보</div>
             <div style="display:flex;flex-direction:column;gap:10px">
               <div class="info">
@@ -968,13 +981,13 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <div class="ichart" id="ic1">
             <div class="ichart__h">
               <div class="ichart__t">삼성전자 · 95,000원 이상
-                <small>종가 기준 · 한 번이라도 닿으면 · 장중 터치는 인정 안 함</small></div>
-              <div class="ichart__now">97,400<span>12.26 종가 · 목표 넘김</span></div>
+                <small>한 번이라도 닿으면 달성 · 장중 포함</small></div>
+              <div class="ichart__now">97,400<span>12.26 종가 · 11.02 달성</span></div>
             </div>
 
             <div class="ichart__plot">
             <svg viewBox="0 0 640 150" preserveAspectRatio="none"
-                 role="img" aria-label="삼성전자 종가 추이. 기록 시점 78,000원에서 마지막 종가 97,400원. 목표 95,000원을 종가 기준 11월 18일에 넘어섬. 11월 2일 장중 고가가 96,000원까지 닿았으나 종가 기준이라 인정하지 않음. 상세 값은 아래 표 참조.">
+                 role="img" aria-label="삼성전자 종가 추이. 기록 시점 78,000원에서 마지막 종가 97,400원. 11월 2일 장중 고가가 96,000원까지 닿아 목표 95,000원을 달성. 종가는 11월 18일부터 목표 위. 상세 값은 아래 표 참조.">
               <!-- 기록선과 목표선 사이 = 가야 했던 거리 -->
               <rect x="0" y="37.3" width="640" height="81.7"
                     fill="var(--paper-2)" opacity=".55"></rect>
@@ -1004,16 +1017,16 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     vector-effect="non-scaling-stroke"></path>
 
               <!-- 장중에만 닿은 날 -->
-              <line x1="515.8" y1="32.5" x2="515.8" y2="37.3" stroke="var(--ink-2)"
+              <line x1="515.8" y1="32.5" x2="515.8" y2="55.0" stroke="var(--ink-2)"
                     stroke-width="2" vector-effect="non-scaling-stroke" opacity=".7"></line>
 
               <!-- 종가가 목표를 넘어선 지점 -->
-              <circle cx="560.0" cy="32.0" r="4"
-                      fill="var(--paper-0)" stroke="var(--ink-2)" stroke-width="2"
+              <circle cx="515.8" cy="32.5" r="5"
+                      fill="var(--rise)" stroke="var(--paper-0)" stroke-width="2"
                       vector-effect="non-scaling-stroke"></circle>
               <!-- 오늘 -->
-              <circle cx="629.5" cy="25.8" r="5"
-                      fill="var(--rise)" stroke="var(--paper-0)" stroke-width="2"
+              <circle cx="629.5" cy="25.8" r="4.5"
+                      fill="var(--paper-0)" stroke="var(--ink-1)" stroke-width="2"
                       vector-effect="non-scaling-stroke"></circle>
 
               <line class="cross" x1="0" y1="0" x2="0" y2="150" stroke="var(--line-1)"
@@ -1021,8 +1034,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </svg>
               <span class="ilab" style="left:0;top:24.9%">목표 95,000</span>
               <span class="ilab" style="left:0;top:79.3%">기록 78,000</span>
-              <span class="ilab ilab--cross" style="left:80.6%;top:46%;color:var(--ink-2)">11.02 장중만 닿음</span>
-              <span class="ilab ilab--cross" style="left:87.5%;top:11%">11.18 종가로 넘김</span>
+              <span class="ilab ilab--cross" style="left:80.6%;top:11%">11.02 달성</span>
             </div>
 
             <div class="ichart__foot">
@@ -1032,6 +1044,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 
             <div class="ichart__legend">
               <span><i style="background:var(--ink-2);height:2px"></i>종가</span>
+              <span><i style="background:var(--rise);width:10px;height:10px;border-radius:50%"></i>목표에 처음 닿은 날</span>
               <span><i style="background:var(--ink-3);opacity:.4;height:10px;border-radius:2px"></i>그날의 고가~저가</span>
               <span><i style="background:var(--paper-2);height:10px;border-radius:2px"></i>가야 했던 거리</span>
               <span><i style="background:repeating-linear-gradient(45deg,var(--line-0) 0 2px,transparent 2px 5px);height:10px;border-radius:2px"></i>남은 기간</span>
@@ -1039,9 +1052,9 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 
             <p style="margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line-0);
                       font-size:var(--text-caption);color:var(--ink-1);max-width:70ch">
-              11.02에 장중 고가가 96,000까지 닿았지만 종가는 93,198이었습니다.
-              이 지표는 <b style="font-weight:600">종가 기준</b>이라 그날은 달성으로 보지 않았고,
-              종가가 목표를 넘은 <b style="font-weight:600">11.18</b>을 달성일로 기록했습니다.
+              <b style="font-weight:600">11.02</b>에 장중 고가가 96,000까지 닿아 그날을 달성일로
+              기록했습니다. 그날 종가는 93,198이었지만, <b style="font-weight:600">한 번이라도
+              닿으면 달성</b>이 기준입니다. 종가가 목표 위로 자리 잡은 것은 11.18부터입니다.
             </p>
 
             <details>
@@ -1052,8 +1065,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <tr><td>2026.03.02 · 기록</td><td>78,900</td><td>78,000</td></tr>
                   <tr><td>2026.06.15</td><td>84,700</td><td>83,642</td></tr>
                   <tr><td>2026.09.07</td><td>92,100</td><td>91,253</td></tr>
-                  <tr><td>2026.11.02 · 장중만 닿음</td><td>96,000</td><td>93,198</td></tr>
-                  <tr><td>2026.11.18 · 달성</td><td>96,800</td><td>96,099</td></tr>
+                  <tr><td>2026.11.02 · <b>달성</b></td><td>96,000</td><td>93,198</td></tr>
+                  <tr><td>2026.11.18 · 종가도 넘김</td><td>96,800</td><td>96,099</td></tr>
                   <tr><td>2026.12.26 · 마지막 종가</td><td>97,900</td><td>97,400</td></tr>
                 </tbody>
               </table>
@@ -1068,7 +1081,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                         border-bottom:1px solid var(--line-0);font-size:var(--text-sm)">
               <span style="display:flex;gap:10px;align-items:center">
                 <span class="swatch sw--rise" aria-hidden="true"></span>삼성전자 95,000원 이상</span>
-              <span class="num" style="color:var(--ink-1)">달성 · 11.18 · 97,400</span>
+              <span class="num" style="color:var(--ink-1)">달성 · 11.02 · 지금 97,400</span>
             </div>
             <div style="display:flex;justify-content:space-between;gap:var(--s4);padding:var(--s3) var(--s4);
                         font-size:var(--text-sm)">
@@ -1170,7 +1183,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <span style="color:var(--rise)">✓</span>
                     <b style="font-size:var(--text-sm)">주가 95,000원 이상</b>
                     <span class="mono" style="font-size:var(--text-micro);color:var(--ink-2);margin-left:auto">
-                      달성 11.18</span>
+                      달성 11.02</span>
                   </div>
                 </div>
               </div>
@@ -1328,17 +1341,15 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <input type="text" value="95,000" style="width:120px" aria-label="목표값">
               <span style="font-size:var(--text-sm);color:var(--ink-2)">원</span>
             </div>
-            <div style="margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line-0)">
-              <label>언제 달성으로 볼까요?</label>
-              <div class="field" style="gap:var(--s5)">
-                <label class="radio"><input type="radio" name="rule1" checked> 한 번이라도 닿으면</label>
-                <label class="radio"><input type="radio" name="rule1">
-                  종가로 <input type="text" value="5" style="width:52px;min-height:36px" aria-label="일수">일 연속</label>
-              </div>
-              <label class="radio" style="min-height:36px">
-                <input type="checkbox"> 장중 터치도 인정</label>
-              <div style="font-size:var(--text-micro);color:var(--ink-2);margin-top:2px">
-                끄면 종가만 봅니다. 금리·물가 같은 지표는 장중이라는 게 없어 이 선택지가 나오지 않습니다.
+            <div style="margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line-0);
+                        display:flex;gap:10px;align-items:flex-start">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)"
+                   stroke-width="1.5" stroke-linecap="square" style="flex:0 0 auto;margin-top:2px"
+                   aria-hidden="true"><circle cx="12" cy="12" r="9"></circle>
+                   <path d="M12 11v6"></path><path d="M12 7.5v1"></path></svg>
+              <div style="font-size:var(--text-caption);color:var(--ink-2);line-height:1.6">
+                <b style="color:var(--ink-1);font-weight:600">기간 중 한 번이라도 닿으면 달성입니다.</b>
+                장중에 스친 것도 인정합니다. 이 기준은 바꿀 수 없습니다.
               </div>
             </div>
           </div>
@@ -1372,7 +1383,6 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <span class="num" id="pv" style="font-size:var(--text-sm)">60~70% 안팎</span>
             </div>
             <div class="gauge" style="height:30px;margin-top:8px">
-              <div class="gauge__ghost" style="left:50%;width:10%"></div>
               <div class="gauge__band band--rise" id="pband" style="left:60%;width:10%"></div>
             </div>
             <input type="range" class="slider desk-only" id="prange" min="10" max="85" step="5" value="65"
@@ -1439,12 +1449,13 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
     var go=e.target.closest('[data-go]');
     if(go){ show(go.dataset.go); return; }
 
-    var tab=e.target.closest('.tabs button');
-    if(tab){
-      vp.dataset.tab=tab.dataset.tab;
-      tab.parentNode.querySelectorAll('button').forEach(function(b){
-        b.setAttribute('aria-selected', b===tab ? 'true':'false');
-      });
+    var bm=e.target.closest('#bm');
+    if(bm){
+      var dr=document.getElementById('drawer');
+      var open = dr.dataset.open!=='true';
+      dr.dataset.open = open ? 'true':'false';
+      bm.setAttribute('aria-expanded', open ? 'true':'false');
+      bm.querySelector('.bookmark__c').textContent = open ? '‹' : '›';
       return;
     }
 
