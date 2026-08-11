@@ -222,6 +222,13 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
   font-size:var(--text-caption);padding:6px 0;min-height:36px}
 .tmore button:hover{color:var(--ink-0)}
 
+/* 쓰다 만 대화 — 리마인드 카드가 아니다. 개수를 세지 않고, 며칠 됐는지도 적지 않는다 */
+.resume{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;
+  padding:9px var(--s4);margin-bottom:var(--s5);
+  border:1px dashed var(--line-0);border-radius:var(--r2);
+  font-size:var(--text-caption);color:var(--ink-2)}
+.resume b{font-weight:600;color:var(--ink-1)}
+.resume .btn{margin-left:auto}
 .feed{display:flex;flex-direction:column;gap:10px}
 .fcard{display:flex;align-items:center;gap:var(--s4);padding:var(--s3) var(--s4);
   background:var(--paper-1);border:1px solid var(--line-0);border-radius:var(--r3);
@@ -307,6 +314,14 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
     var(--w3) 342deg 360deg);
   -webkit-mask:radial-gradient(circle,transparent 55%,#000 56%);
           mask:radial-gradient(circle,transparent 55%,#000 56%)}
+/* 실제로는 확률에서 각도를 계산해 만든다 — 목업이라 조각별로 적어둔다 (40/50/10) */
+.pie--40::before{background:conic-gradient(from -90deg,
+  var(--w1)   0deg 126deg,
+  var(--w2) 162deg 306deg,
+  var(--w3) 342deg 360deg)}
+/* 아직 나누지 않은 갈래 — 지어내지 않고 빈 고리로 둔다 */
+.pie--empty::before{background:repeating-conic-gradient(from 0deg,
+  var(--line-1) 0 3deg,transparent 3deg 11deg)}
 .pie__c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:1px}
 .pie__c b{font-family:var(--font-mono);font-size:var(--text-caption);color:var(--ink-1)}
@@ -393,18 +408,39 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 .chat{display:flex;flex-direction:column;gap:var(--s4);padding:var(--s5);min-height:420px}
 .msg{max-width:80%;font-size:var(--text-sm);line-height:var(--lh-body)}
 .msg--ai{align-self:flex-start;display:flex;gap:10px}
-.msg--ai b{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ai);
+/* 말머리 라벨만 — 본문 안의 굵은 글씨까지 잡으면 마크다운이 깨진다 */
+.msg--ai>b{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ai);
   flex:0 0 auto;margin-top:4px;letter-spacing:.08em}
 .msg--me{align-self:flex-end;background:var(--paper-2);border-radius:var(--r3);
   padding:10px var(--s4);color:var(--ink-1)}
+/* 대화 안에서는 마크다운을 그대로 렌더한다 — 노트 본문과 다른 규칙이다.
+   raw HTML은 받지 않는다. 표는 좁은 화면에서 제 안에서 가로 스크롤한다. */
+.md>*+*{margin-top:9px}
+.md h4{font-size:var(--text-sm);font-weight:600}
+.md ul,.md ol{padding-left:18px}
+.md li{margin:3px 0}
+.md .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.md table{border-collapse:collapse;font-size:var(--text-caption);min-width:100%}
+.md th,.md td{text-align:left;white-space:nowrap;padding:6px 10px;
+  border-bottom:1px solid var(--line-0)}
+.md th{background:var(--paper-2);color:var(--ink-2);font-weight:400;
+  font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.06em}
+.md td+td,.md th+th{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.md pre{background:var(--paper-2);border-radius:var(--r2);padding:10px 12px;overflow-x:auto;
+  font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-1)}
 .composer{display:flex;gap:10px;padding:var(--s4) var(--s5);border-top:1px solid var(--line-0);
   background:var(--paper-1)}
 .composer input{flex:1}
+.wsplit{display:grid;grid-template-columns:1fr 300px}
 .build{padding:var(--s5);background:var(--paper-1);border-left:1px solid var(--line-0)}
 .build__row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;
   border-bottom:1px solid var(--line-0);font-size:var(--text-caption)}
 .build__row:last-child{border-bottom:none}
 .build__row i{font-style:normal;flex:0 0 auto;width:14px;text-align:center;margin-top:2px}
+.build__row--new{background:var(--paper-2);border-radius:var(--r2);
+  padding:10px var(--s2);margin:0 calc(var(--s2) * -1)}
+.build__new{display:block;font-family:var(--font-mono);font-size:var(--text-micro);
+  letter-spacing:.06em;color:var(--ink-2);margin-top:3px}
 .ok{color:var(--fall)}
 .miss{color:var(--countdown)}
 
@@ -515,7 +551,9 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .matrix .mh:first-child{display:none}
   .chat{padding:var(--s4)}
   .msg{max-width:92%}
-  .build{border-left:none;border-top:1px solid var(--line-0)}
+  /* 좁은 화면엔 옆 폭이 없다 — 패널을 대화 위로 올린다 */
+  .wsplit{grid-template-columns:1fr}
+  .build{order:-1;border-left:none;border-bottom:1px solid var(--line-0);padding:var(--s4)}
   .desk-only{display:none!important}
   .mob-only{display:block}
   .stepper.mob-only{display:flex}
@@ -579,6 +617,11 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <button class="btn btn--sm">+ 새 노트</button>
         </div>
         <div class="pad">
+          <div class="resume">
+            쓰다 만 대화가 있습니다 · <b>일본 엔화</b>
+            <button class="btn btn--quiet btn--sm" data-go="s-ask3">이어서 쓰기</button>
+          </div>
+
           <div class="sec-label">다시 볼 시점</div>
           <div class="feed">
             <div class="fcard fcard--alert">
@@ -647,10 +690,10 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <div class="titem">
                 <div class="titem__when"><b>01.28</b>D-33</div>
                 <span class="titem__dot" aria-hidden="true"></span>
-                <div class="titem__card" data-go="s-note2" style="cursor:pointer">
+                <div class="titem__card" data-go="s-note3" style="cursor:pointer">
                   <div class="titem__mobwhen">01.28 · D-33</div>
-                  <div class="titem__t">SK하이닉스 · 실적으로 피크아웃 우려가 풀린다</div>
-                  <div class="titem__s">반대 시나리오 없음 · 지표 없음</div>
+                  <div class="titem__t">SK하이닉스 · 다음 실적 발표</div>
+                  <div class="titem__s">두 갈래가 이날 갈립니다 · 확률 아직 나누지 않음</div>
                 </div>
               </div>
             </section>
@@ -673,6 +716,15 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <div class="titem__mobwhen">03.10 · D-74</div>
                   <div class="titem__t">엔비디아 · 4분기 실적 발표</div>
                   <div class="titem__s">확률 55% · 지표 1개</div>
+                </div>
+              </div>
+              <div class="titem">
+                <div class="titem__when"><b>03.24</b>D-88</div>
+                <span class="titem__dot" aria-hidden="true"></span>
+                <div class="titem__card" data-go="s-note4" style="cursor:pointer">
+                  <div class="titem__mobwhen">03.24 · D-88</div>
+                  <div class="titem__t">이란·미국 종전 · 3개월 안에 합의</div>
+                  <div class="titem__s">확률 40% · 지표 2개 중 0개 달성</div>
                 </div>
               </div>
             </section>
@@ -936,7 +988,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <b>반대 시나리오가 없습니다</b>
                 <p>대화에서 “이 판단이 틀린다면 어떤 모습일까” 하는 이야기가 나오지 않아 비워 두었습니다.
                   대안이 없는 가설은 나중에 맞았는지 틀렸는지 가리기 어렵습니다.
-                  <button class="btn btn--quiet btn--sm" style="padding:0 4px;min-height:auto;
+                  <button class="btn btn--quiet btn--sm" data-go="s-fill"
+                    style="padding:0 4px;min-height:auto;
                     text-decoration:underline;color:var(--fall)">지금 추가하기</button></p>
               </div>
             </div>
@@ -993,7 +1046,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </div>
 
             <div class="fold">
-              <button>▸ 원본 대화 기록</button>
+              <button data-go="s-source">▸ 원본 대화 기록</button>
               <button>▸ 생각이 바뀐 기록 (0회)</button>
             </div>
           </div>
@@ -1011,6 +1064,644 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 마이크론, 데이터센터향 D램 가격 인상 협상 착수</div>
               <div class="rel"><span class="swatch sw--rise"></span>시나리오 01을 뒷받침</div>
               <div class="info__m">AI가 붙임 · 1일 전 · 출처 2곳</div>
+            </div>
+            <button class="btn btn--sm" style="width:100%;margin-top:var(--s4)">지금 다시 조사하기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 빈 칸 채우기 대화 ═══════════════════════ -->
+      <section class="screen" id="s-fill" aria-label="빈 칸 채우기 대화">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="s-write">← 대화</button>
+          <div>
+            <h2>SK하이닉스 · 저장 전 확인</h2>
+            <div class="sub">비어 있는 칸 하나만 되묻습니다 · 건너뛰어도 저장됩니다</div>
+          </div>
+        </div>
+        <div class="wsplit">
+          <div>
+            <div class="chat">
+              <div class="msg msg--ai"><b>AI</b>
+                <div>저장하기 전에 하나만 더 여쭐게요. 지금까지 나눈 이야기에 “이 판단이
+                  틀린다면 어떤 모습일까”가 없어서 <b>반대 시나리오가 비어 있습니다.</b>
+                  대안이 없는 가설은 나중에 맞았는지 틀렸는지 가리기 어렵습니다.<br><br>
+                  기대와 반대로 흘러가 실적 발표 뒤에도 하락세가 굳어진다면,
+                  그건 어떤 이유 때문일까요?</div></div>
+              <div class="msg msg--me">현재 시장에서 하락의 원인으로 꼽는 우려점들을
+                조사해보면 되겠지. 그 시나리오대로 흘러가면 현재의 하락이 정당화되는 거잖아</div>
+              <div class="msg msg--ai"><b>AI</b>
+                <div>지금 매도 근거로 나오는 논리를 찾아 세 가지로 추렸습니다.
+                  이것이 사실로 드러나면 지금의 하락이 정당화되는 갈래입니다.
+                  <div class="card card--ai" style="margin-top:10px">
+                    <div class="sec-label" style="margin-bottom:8px">
+                      시장이 꼽는 하락 논리 · AI가 조사 · 출처 6곳</div>
+                    <ol class="premise">
+                      <li>빅테크가 AI 설비투자 속도 조절을 공식화하고, 투자 대비 수익
+                        회의론이 현실이 된다</li>
+                      <li>경쟁사(삼성전자·마이크론)의 HBM 양산이 본격화되며 공급이 풀리고
+                        단가 경쟁이 시작된다</li>
+                      <li>일반 메모리 수요 침체가 깊어져 전체 영업이익률이 꺾인다</li>
+                    </ol>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--s3);
+                                padding-top:var(--s3);border-top:1px dashed var(--line-1)">
+                      <button class="btn btn--sm" data-go="s-note3">이대로 담기</button>
+                      <button class="btn btn--sm btn--quiet">고쳐서 담기</button>
+                    </div>
+                    <p style="font-size:var(--text-micro);color:var(--ink-2);margin-top:10px;
+                              line-height:1.6">
+                      제가 조사해 온 것이라 아직 노트에 넣지 않았습니다.
+                      담으시면 <b style="font-weight:600">AI가 조사</b>했다는 표시가 함께 남습니다.</p>
+                  </div>
+                </div></div>
+            </div>
+            <div class="composer">
+              <input type="text" placeholder="메시지 입력…" aria-label="메시지 입력">
+              <button class="btn btn--sm">보내기</button>
+            </div>
+          </div>
+
+          <div class="build">
+            <div class="sec-label">채워지는 칸</div>
+            <div class="build__row"><i class="ok">✓</i><div><b>대상</b> SK하이닉스</div></div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>가설</b> 피크아웃 우려가 과도하다</div></div>
+            <div class="build__row build__row--new"><i class="ok">✓</i>
+              <div><b>시나리오</b> 2개 · 갈래로 묶임
+                <span class="build__new">이 칸 하나만 새로 만듭니다</span></div></div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>판단 시점</b><br>01 · 2027.01.28<br>02 · 2027.01.28</div></div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>이 판단이 성립하려면</b> 1개</div></div>
+            <div class="build__row"><i class="miss">·</i>
+              <div><b>확률</b> 아직 비어 있음
+                <span class="build__new">이제 나눌 수 있습니다</span></div></div>
+            <div style="margin-top:var(--s4);display:flex;flex-direction:column;gap:8px">
+              <button class="btn btn--primary" data-go="s-note3">이대로 저장</button>
+              <button class="btn btn--quiet btn--sm" data-go="s-note2">비운 채로 저장</button>
+              <p style="font-size:var(--text-micro);color:var(--ink-2);text-align:center;
+                        line-height:1.6">
+                판단 시점이 있으므로 비워 두어도
+                <b style="font-weight:600">다음 실적 발표 때 리마인드가 옵니다.</b><br>
+                노트에 무엇이 비었는지만 적힙니다.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ══ SK하이닉스 · 빈 칸을 채운 뒤 ════════════ -->
+      <section class="screen" id="s-note3" aria-label="SK하이닉스 노트 · 채운 뒤">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="s-home">← 노트</button>
+          <div>
+            <h2>SK하이닉스</h2>
+            <div class="sub">2026.12.20 기록 · 12.26 반대 시나리오 추가</div>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="split__l">
+            <div class="sec-label">핵심 가설</div>
+            <div class="thesis">
+              피크아웃 우려가 과도하다 — 실적으로 증명되면 되돌아온다
+              <p style="margin-top:10px;color:var(--ink-1);font-size:var(--text-sm)">
+                고점 대비 반토막 넘게 떨어졌지만 반도체 숏티지는 아직 이어지고 있다.
+                같은 메모리 기업 중에서도 낙폭이 가장 크다 — 마이크론보다 훨씬 많이 빠졌다.
+                명확한 하락 신호 없이 “내년부터 공급이 풀리면 마진이 꺾인다”는 선제적 공포가
+                멀티플에 반영된 것으로 본다. 다만 이 의구심은 뉴스 하나로 뒤집히지 않고
+                연속된 실적으로 확인되어야 풀린다.</p>
+              <div class="quote">
+                <span class="tag-user">[사용자]</span>“여전히 반도체 공급이 부족하고 수요는 높아서
+                숏티지가 지속되고 있는 걸로 알고 있거든? 그래서 지금 너무 과하게 하락한 게
+                아닐까 싶어서 말이야”
+              </div>
+            </div>
+
+            <div class="sec-label" style="margin-top:var(--s5)">이 판단이 성립하려면 <span class="tag-user">[사용자]</span></div>
+            <ol class="premise">
+              <li>주요 빅테크의 AI 투자 확대가 재확인되어야 한다</li>
+            </ol>
+            <div class="hint" style="margin-top:var(--s3)">
+              숫자로 추적하지 않습니다. 결과가 나오면 실제로 그랬는지 찾아 정리해 드립니다.
+            </div>
+
+            <div class="sec-label" style="margin-top:var(--s5)">갈래 · 하나만 일어납니다</div>
+            <div class="galae">
+              <div class="galae__h">
+                <span>반대 시나리오가 들어와 갈래가 되었습니다</span>
+                <span>두 갈래 모두 2027.01.28에 갈립니다</span>
+              </div>
+              <div class="galae__pie">
+                <div class="pie pie--empty" role="img"
+                     aria-label="갈래 구성 — 확률을 아직 나누지 않았습니다">
+                  <div class="pie__c"><b>—</b><span>미정</span></div>
+                </div>
+                <div class="legend">
+                  <div class="legend__row">
+                    <i style="background:var(--w1)"></i>
+                    <b><span class="mono" style="color:var(--ink-2)">01</span> 우려가 풀리며 되돌아온다</b><span class="num">—</span>
+                  </div>
+                  <div class="legend__row">
+                    <i style="background:var(--w2)"></i>
+                    <b><span class="mono" style="color:var(--ink-2)">02</span> 하락이 정당화된다</b><span class="num">—</span>
+                  </div>
+                  <div class="legend__row legend__row--rest">
+                    <i style="background:var(--w3);border:1px solid var(--line-1)"></i>
+                    <b>그 외 예상 못한 전개</b><span class="num">—</span>
+                  </div>
+                  <div class="hint" style="margin-top:2px">
+                    이제 확률을 나눌 수 있습니다
+                    <button class="btn btn--quiet btn--sm" data-go="s-setup"
+                            style="margin-left:auto">나누기</button>
+                  </div>
+                </div>
+              </div>
+              <div class="galae__body">
+
+                <div class="branch">
+                  <div class="branch__h">
+                    <div>
+                      <div class="branch__no">시나리오 01</div>
+                      <div class="branch__t"><span class="wedge"
+                        style="background:var(--w1)" aria-hidden="true"></span>실적으로 피크아웃 우려가 풀리며 되돌아온다</div>
+                    </div>
+                    <span class="badge badge--watch">지켜보는 중</span>
+                  </div>
+                  <div class="prob">
+                    <span class="prob__v" style="color:var(--ink-3)">—</span>
+                    <span class="prob__d">확률은 아직 나누지 않았습니다</span>
+                  </div>
+                  <div style="font-size:var(--text-sm);color:var(--ink-1);line-height:var(--lh-body)">
+                    HBM 매출 비중 확대와 영업이익률 유지가 숫자로 확인되며
+                    선제적 공포가 걷힌다.
+                  </div>
+                  <div class="hint" style="border-style:dashed">
+                    지표를 정하면 자동으로 확인해 드립니다
+                    <button class="btn btn--quiet btn--sm" data-go="s-setup" style="margin-left:auto">정하기</button>
+                  </div>
+                  <div class="branch__meta">
+                    <span>판단 시점 2027.01.28</span>
+                    <span class="num">D-33</span>
+                  </div>
+                </div>
+
+                <div class="branch">
+                  <div class="branch__h">
+                    <div>
+                      <div class="branch__no">시나리오 02</div>
+                      <div class="branch__t"><span class="wedge"
+                        style="background:var(--w2)" aria-hidden="true"></span>우려가 현실이 되어 지금의 하락이 정당화된다</div>
+                    </div>
+                    <span class="badge badge--watch">지켜보는 중</span>
+                  </div>
+                  <div class="prob">
+                    <span class="prob__v" style="color:var(--ink-3)">—</span>
+                    <span class="prob__d">확률은 아직 나누지 않았습니다</span>
+                  </div>
+                  <div>
+                    <div style="font-size:var(--text-caption);color:var(--ink-2);margin-bottom:2px">
+                      이 갈래로 흘러간다면 이런 모습입니다</div>
+                    <ol class="premise">
+                      <li>빅테크가 AI 설비투자 속도 조절을 공식화하고, 투자 대비 수익
+                        회의론이 현실이 된다</li>
+                      <li>경쟁사(삼성전자·마이크론)의 HBM 양산이 본격화되며 공급이 풀리고
+                        단가 경쟁이 시작된다</li>
+                      <li>일반 메모리 수요 침체가 깊어져 전체 영업이익률이 꺾인다</li>
+                    </ol>
+                  </div>
+                  <div class="info__m" style="color:var(--ai)">
+                    시장이 꼽는 하락 논리를 AI가 조사해 담음 · 2026.12.26 · 출처 6곳</div>
+                  <div class="hint" style="border-style:dashed">
+                    지표를 정하면 자동으로 확인해 드립니다
+                    <button class="btn btn--quiet btn--sm" data-go="s-setup" style="margin-left:auto">정하기</button>
+                  </div>
+                  <div class="branch__meta">
+                    <span>판단 시점 2027.01.28</span>
+                    <span class="num">D-33</span>
+                  </div>
+                </div>
+
+                <div class="branch" style="padding:var(--s3) var(--s4)">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                    <span style="font-size:var(--text-sm);color:var(--ink-1)"><span class="wedge"
+                      style="background:var(--w3);border:1px solid var(--line-1)" aria-hidden="true"></span>그 외 예상 못한 전개</span>
+                    <span class="prob__v" style="color:var(--ink-2);font-size:var(--text-subhead)">—</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="derived" style="margin-top:10px">
+              “다음 실적 발표 시점”을 <b>2027.01.28</b> 로 읽었습니다 · 4분기 실적 발표 예정일
+              <button type="button">고치기</button>
+            </div>
+
+            <div class="fold">
+              <button data-go="s-source">▸ 원본 대화 기록</button>
+              <button>▸ 생각이 바뀐 기록 (1회) — 반대 시나리오 추가 · 12.26</button>
+            </div>
+          </div>
+
+          <button class="bookmark" id="bm3" aria-expanded="false" aria-controls="drawer3">
+            <span class="bookmark__n">3</span>
+            <span class="bookmark__l">새 정보</span>
+            <span class="bookmark__c" aria-hidden="true">›</span>
+          </button>
+
+          <div class="drawer" id="drawer3" data-open="false" aria-label="새로 들어온 정보">
+            <div class="sec-label">새로 들어온 정보</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="info">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-body)">
+                  마이크론, 데이터센터향 D램 가격 인상 협상 착수</div>
+                <div class="rel"><span class="swatch sw--rise"></span>시나리오 01을 뒷받침</div>
+                <div class="info__m">AI가 붙임 · 1일 전 · 출처 2곳</div>
+              </div>
+              <div class="info">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-body)">
+                  삼성전자, HBM4 초기 물량 공급 승인 단계 진입</div>
+                <div class="rel"><span class="swatch sw--fall"></span>시나리오 02를 뒷받침</div>
+                <div class="info__m">AI가 붙임 · 3일 전 · 출처 3곳</div>
+              </div>
+              <div class="info">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-body)">
+                  같은 메모리 기업 중 낙폭이 가장 크다 · 고점 대비 SK하이닉스 −52%,
+                  웨스턴디지털 −38%, 마이크론 −31% · 14일 RSI도 37로 과매도 기준에 가장 가깝다</div>
+                <div class="rel"><span class="swatch sw--rise"></span>시나리오 01을 뒷받침</div>
+                <div class="info__m">노트를 쓸 때 조사 · 2026.12.20 · 출처 3곳</div>
+              </div>
+            </div>
+            <button class="btn btn--sm" style="width:100%;margin-top:var(--s4)">지금 다시 조사하기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 저장 전 되묻기 · 세 칸이 한꺼번에 빈 경우 ══ -->
+      <section class="screen" id="s-ask3" aria-label="저장 전 되묻기 · 여러 칸">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="s-home">← 나가기</button>
+          <div>
+            <h2>일본 엔화 · 저장 전 확인</h2>
+            <div class="sub">세 가지가 비어 있습니다 · 하나만 답하셔도 됩니다</div>
+          </div>
+        </div>
+        <div class="wsplit">
+          <div>
+            <div class="chat">
+              <div class="msg msg--me">엔화 이제 슬슬 반등하지 않을까? 너무 싸잖아</div>
+              <div class="msg msg--ai"><b>AI</b>
+                <div>어떤 점 때문에 그렇게 보시는지 조금 더 들려주시겠어요?</div></div>
+              <div class="msg msg--me">그냥 역사적으로 너무 낮은 수준이니까. 언젠간 돌아오겠지</div>
+              <div class="msg msg--ai"><b>AI</b>
+                <div>언제쯤 판가름이 날 것 같으세요?</div></div>
+              <div class="msg msg--me">몰라 그냥 지켜보려고</div>
+
+              <div class="msg msg--ai" style="max-width:100%"><b>AI</b>
+                <div>저장하기 전에 한 번만 짚겠습니다. 세 가지가 비어 있는데,
+                  <b>무게가 서로 다릅니다.</b>
+                  <div class="card card--ai" style="margin-top:10px">
+                    <ol class="premise">
+                      <li><div>
+                        <b style="font-size:var(--text-sm)">언제쯤 다시 보면 될까요?</b>
+                        <div style="font-size:var(--text-caption);color:var(--ink-2);
+                                    line-height:1.6;margin-top:3px">
+                          이것만 비어 있으면
+                          <b style="color:var(--countdown);font-weight:600">리마인드가 오지
+                          않습니다.</b> 정확할 필요는 없습니다 — “내년 상반기쯤”,
+                          “다음 금통위” 처럼 대략도 됩니다.
+                        </div>
+                      </div></li>
+                      <li><div>
+                        <b style="font-size:var(--text-sm)">반대로 흘러간다면 어떤 모습일까요?</b>
+                        <div style="font-size:var(--text-caption);color:var(--ink-2);
+                                    line-height:1.6;margin-top:3px">
+                          비워도 저장되고 리마인드도 옵니다. 다만 나중에 어느 쪽으로 갔는지
+                          가릴 기준이 없어집니다.
+                        </div>
+                      </div></li>
+                      <li><div>
+                        <b style="font-size:var(--text-sm)">그렇게 되려면 그 전에 무슨 일이
+                          먼저 일어나야 할까요?</b>
+                        <div style="font-size:var(--text-caption);color:var(--ink-2);
+                                    line-height:1.6;margin-top:3px">
+                          비워도 저장됩니다. 나중에 회고할 때 제가 조사할 대상이 없어집니다.
+                        </div>
+                      </div></li>
+                    </ol>
+                    <p style="margin-top:var(--s3);padding-top:var(--s3);
+                              border-top:1px dashed var(--line-1);
+                              font-size:var(--text-caption);color:var(--ink-1)">
+                      <b style="font-weight:600">하나만 답하셔도 됩니다.</b>
+                      셋 다 아니어도 괜찮고, 이 질문은 다시 드리지 않습니다.
+                    </p>
+                  </div>
+                </div></div>
+            </div>
+            <div class="composer">
+              <input type="text" placeholder="한 줄이면 충분합니다…" aria-label="메시지 입력">
+              <button class="btn btn--sm">보내기</button>
+            </div>
+          </div>
+
+          <div class="build">
+            <div class="sec-label">채워지는 칸</div>
+            <div class="build__row"><i class="ok">✓</i><div><b>대상</b> 일본 엔화</div></div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>가설</b> 역사적 저점이라 언젠가 되돌아온다</div></div>
+            <div class="build__row build__row--new"><i class="miss">!</i>
+              <div><b>판단 시점</b> 비어 있음
+                <span class="build__new" style="color:var(--countdown)">리마인드가 오지 않습니다</span></div></div>
+            <div class="build__row"><i class="miss">·</i>
+              <div><b>반대 시나리오</b> 비어 있음
+                <span class="build__new">저장·리마인드는 정상</span></div></div>
+            <div class="build__row"><i class="miss">·</i>
+              <div><b>이 판단이 성립하려면</b> 비어 있음
+                <span class="build__new">저장·리마인드는 정상</span></div></div>
+            <div class="build__row"><i class="miss">·</i>
+              <div><b>확률</b> 아직 비어 있음
+                <span class="build__new">반대 시나리오가 생긴 뒤에 나눕니다</span></div></div>
+            <div style="margin-top:var(--s4);display:flex;flex-direction:column;gap:8px">
+              <button class="btn" data-go="s-home">비운 채로 저장</button>
+              <p style="font-size:var(--text-micro);color:var(--ink-2);text-align:center;
+                        line-height:1.6">
+                저장은 되지만
+                <b style="font-weight:600;color:var(--countdown)">리마인드가 오지 않습니다.</b><br>
+                노트를 직접 찾아 열어야 다시 보게 됩니다.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 원본 대화 기록 ══════════════════════════ -->
+      <section class="screen" id="s-source" aria-label="원본 대화 기록">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="s-note3">← 노트</button>
+          <div>
+            <h2>원본 대화 기록</h2>
+            <div class="sub">SK하이닉스 · 2026.12.20 · 고치지 않습니다</div>
+          </div>
+        </div>
+        <div class="pad" style="max-width:860px">
+          <div class="hint" style="margin-bottom:var(--s5)">
+            노트를 고치거나 다시 만들어도 이 기록은 그대로 남습니다.
+            노트는 이 대화 위에 얹힌 읽기 좋은 정리일 뿐입니다.
+          </div>
+
+          <div class="chat" style="padding:0;min-height:0">
+            <div class="msg msg--me">최근에 고점 대비해서 주가가 반토막 이상으로 떨어졌단 말이지?
+              그렇게 떨어지게 된 배경이 뭔지 궁금하고, 내가 알기로는 여전히 반도체 공급이
+              부족하고 수요는 높아서 숏티지가 지속되고 있는 걸로 알고있거든? 그래서 지금
+              너무 과하게 하락한게 아닐까 싶어서 말이야</div>
+
+            <div class="msg msg--ai" style="max-width:100%"><b>AI</b>
+              <div class="md">
+                <p>충분히 의문을 가지실 만한 상황이에요. 실적이나 숏티지 지표가 여전히 견조한데도
+                  단지 피크아웃 우려만으로 주가가 크게 하락하면 억울하게 느껴질 수밖에 없죠.
+                  경쟁사들의 기술적 지표를 조사해 비교해 보았습니다.</p>
+                <h4>SK하이닉스 vs. 미국 메모리 기업</h4>
+                <div class="tw">
+                  <table>
+                    <thead><tr><th>종목명</th><th>14일 RSI</th><th>기술적 상태</th></tr></thead>
+                    <tbody>
+                      <tr><td>SK하이닉스</td><td>약 36~37</td><td>약세 · 과매도 근접</td></tr>
+                      <tr><td>마이크론</td><td>약 42~46</td><td>중립 ~ 약세</td></tr>
+                      <tr><td>웨스턴디지털</td><td>약 36</td><td>약세 · 과매도 근접</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>RSI는 보통 30 이하를 과매도로 봅니다. SK하이닉스는 30대 중후반으로 기준에
+                  매우 근접해 있고, 마이크론보다 낙폭이 거셉니다. AI 기대감으로 프리미엄을
+                  받았던 만큼 되돌림도 크게 나타나고 있습니다.</p>
+                <p>메모리 반도체는 역사적으로 <b>이익이 사상 최고일 때 주가가 고점을 찍는</b>
+                  역설적인 특성이 있습니다. 지금은 “내년부터 공급이 풀리면 마진이 꺾이는 것
+                  아니냐”는 선제적 공포가 반영되고 있는 것으로 보입니다.</p>
+                <p>이 가설이 맞아서 주가가 반등하려면, 시장의 피크아웃 의구심을 깰 가장 강력한
+                  트리거는 무엇이 되어야 한다고 보시나요?</p>
+              </div></div>
+
+            <div class="msg msg--me">그치. 사이클 피크아웃 의구심을 깰 수 있는 어떤 실적 지표가
+              나와야 할 것 같아. 딱 하나의 지표라고 단정짓긴 어렵고 앞으로 실적발표 등
+              다양한 것들을 지켜봐야할듯?</div>
+
+            <div class="msg msg--ai"><b>AI</b>
+              <div class="md">
+                <p>맞습니다. 시장의 깊은 의구심은 뉴스 하나로 뒤집히기 어렵고, 연속된 실적 발표로
+                  “우려했던 마진 훼손이 없다”를 계속 확인시켜 주어야 풀리는 경우가 많습니다.</p>
+                <p>그렇다면 이 가설이 맞는지 틀린지 판가름을 내볼 1차 판단 시점은 언제쯤으로
+                  잡아보면 좋을까요?</p>
+              </div></div>
+
+            <div class="msg msg--me">다음 실적 발표 시점.</div>
+
+            <div class="msg msg--ai"><b>AI</b>
+              <div class="md">
+                <p>가장 가까운 실적 발표일이 1차 분수령이 되겠네요. 마지막으로 하나만 여쭤볼게요.
+                  실적 발표에서 피크아웃 우려를 씻어내려면, 그 전까지 시장에서 어떤 신호가
+                  먼저 나와줘야 할까요?</p>
+              </div></div>
+
+            <div class="msg msg--me">주요 빅테크의 AI 투자 확대 재확인.</div>
+
+            <div class="msg msg--ai"><b>AI</b>
+              <div class="md">
+                <p>적어두겠습니다. 나중에 다음 실적 발표 시점이 오면, 말씀하신 빅테크의 AI 투자
+                  확대 발표와 실적 결과가 실제로 일어나 주가 반등으로 이어졌는지 제가 찾아서
+                  정리해 드릴게요.</p>
+              </div></div>
+          </div>
+
+          <div class="fold" style="margin-top:var(--s5)">
+            <button data-go="s-fill">▸ 이어진 대화 — 반대 시나리오 채우기 · 12.26</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 종목이 아닌 노트 ════════════════════════ -->
+      <section class="screen" id="s-note4" aria-label="종목이 아닌 노트">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="s-home">← 노트</button>
+          <div>
+            <h2>이란·미국 종전</h2>
+            <div class="sub">2026.12.24 기록 · 종목이 아닌 노트</div>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="split__l">
+            <div class="sec-label">핵심 가설</div>
+            <div class="thesis">
+              3개월 안에 종전 합의가 나오고, 위험 프리미엄이 걷히며 유가가 되돌아온다
+              <p style="margin-top:10px;color:var(--ink-1);font-size:var(--text-sm)">
+                양측이 협상 테이블에 앉은 이상 장기전으로 가기는 어렵다고 본다.
+                지금 유가에 실려 있는 웃돈은 전쟁 그 자체보다 호르무즈 해협이 막힐 수 있다는
+                공포에 가깝고, 합의 소식 하나면 대부분 빠진다.</p>
+              <div class="quote">
+                <span class="tag-user">[사용자]</span>“협상 테이블에 앉은 이상 3개월이면
+                결론이 날 것 같은데”
+              </div>
+            </div>
+
+            <div class="sec-label" style="margin-top:var(--s5)">이 판단이 성립하려면 <span class="tag-user">[사용자]</span></div>
+            <ol class="premise">
+              <li>양측 협상이 중단 없이 이어져야 한다</li>
+              <li>호르무즈 해협 봉쇄 같은 확전 사건이 없어야 한다</li>
+            </ol>
+            <div class="hint" style="margin-top:var(--s3)">
+              숫자로 추적하지 않습니다. 결과가 나오면 실제로 그랬는지 찾아 정리해 드립니다.
+            </div>
+
+            <div class="sec-label" style="margin-top:var(--s5)">갈래 · 하나만 일어납니다</div>
+            <div class="galae">
+              <div class="galae__pie">
+                <div class="pie pie--40" role="img"
+                     aria-label="갈래 구성 — 3개월 안에 종전 합의 40%, 3개월을 넘긴다 50%, 그 외 예상 못한 전개 10%">
+                  <div class="pie__c"><b>100%</b><span>합계</span></div>
+                </div>
+                <div class="legend">
+                  <div class="legend__row">
+                    <i style="background:var(--w1)"></i>
+                    <b><span class="mono" style="color:var(--ink-2)">01</span> 3개월 안에 종전 합의</b><span class="num">35~45%</span>
+                  </div>
+                  <div class="legend__row">
+                    <i style="background:var(--w2)"></i>
+                    <b><span class="mono" style="color:var(--ink-2)">02</span> 교착·확전으로 3개월을 넘긴다</b><span class="num">45~55%</span>
+                  </div>
+                  <div class="legend__row legend__row--rest">
+                    <i style="background:var(--w3);border:1px solid var(--line-1)"></i>
+                    <b>그 외 예상 못한 전개</b><span class="num">10%</span>
+                  </div>
+                  <div style="font-size:var(--text-micro);color:var(--ink-2);padding-top:2px">
+                    조각 경계가 흐린 폭이 곧 확률의 범위입니다
+                  </div>
+                </div>
+              </div>
+              <div class="galae__body">
+
+                <div class="branch branch--near">
+                  <div class="branch__h">
+                    <div>
+                      <div class="branch__no">시나리오 01</div>
+                      <div class="branch__t"><span class="wedge"
+                        style="background:var(--w1)" aria-hidden="true"></span>3개월 안에 종전 합의</div>
+                    </div>
+                    <span class="badge badge--watch">지켜보는 중</span>
+                  </div>
+                  <div class="prob">
+                    <span class="prob__v" style="color:var(--rise)">35~45%<small>안팎</small></span>
+                    <span class="prob__d">처음 기록한 값</span>
+                  </div>
+                  <div style="font-size:var(--text-caption);color:var(--ink-1)">
+                    지표 <span class="num">2개 중 0개</span> 달성 · 하나라도 달성 조건
+                  </div>
+
+                  <div class="spark">
+                    <div class="spark__l">
+                      <div class="spark__n">종전·휴전 합의가 공식 발표된다</div>
+                      <div class="spark__v">예 / 아니오 · 아직 표시하지 않음</div>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end">
+                      <button class="btn btn--sm">일어남</button>
+                      <button class="btn btn--sm btn--quiet">아직</button>
+                    </div>
+                  </div>
+                  <div class="hint" style="border-style:dashed;margin-top:-2px">
+                    이건 자동으로 확인할 수 없어 직접 표시하셔야 합니다.
+                    판단 시점이 오면 제가 자료를 찾아 여쭙겠습니다.
+                  </div>
+
+                  <div class="spark spark--miss">
+                    <div class="spark__l">
+                      <div class="spark__n">브렌트유 70달러 이하</div>
+                      <div class="spark__v">아직 · 지금 82.4 · <span>목표까지 12.4</span></div>
+                    </div>
+                    <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                      <rect x="0" y="45" width="640" height="70" fill="var(--paper-2)" opacity=".55"></rect>
+                      <line x1="0" y1="115" x2="640" y2="115"
+                            stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                      <path d="M0,45 L60,40 L120,52 L180,48 L240,60 L300,55 L360,68 L420,75 L480,70 L540,88 L600,92 L629,95"
+                            fill="none" stroke="var(--ink-2)" stroke-width="2"
+                            stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      <circle cx="629" cy="95" r="6" fill="var(--paper-0)" stroke="var(--ink-2)"
+                              stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                    </svg>
+                  </div>
+
+                  <div class="branch__meta">
+                    <span>판단 시점 2027.03.24</span>
+                    <span class="num">D-88</span>
+                  </div>
+                </div>
+
+                <div class="branch">
+                  <div class="branch__h">
+                    <div>
+                      <div class="branch__no">시나리오 02</div>
+                      <div class="branch__t"><span class="wedge"
+                        style="background:var(--w2)" aria-hidden="true"></span>교착·확전으로 3개월을 넘긴다</div>
+                    </div>
+                    <span class="badge badge--watch">지켜보는 중</span>
+                  </div>
+                  <div class="prob">
+                    <span class="prob__v" style="color:var(--fall)">45~55%<small>안팎</small></span>
+                    <span class="prob__d">처음 기록한 값</span>
+                  </div>
+                  <div class="hint" style="border-style:dashed">
+                    지표를 정하면 자동으로 확인해 드립니다
+                    <button class="btn btn--quiet btn--sm" data-go="s-setup" style="margin-left:auto">정하기</button>
+                  </div>
+                  <div class="branch__meta">
+                    <span>판단 시점 2027.03.24</span>
+                    <span class="num">D-88</span>
+                  </div>
+                </div>
+
+                <div class="branch" style="padding:var(--s3) var(--s4)">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                    <span style="font-size:var(--text-sm);color:var(--ink-1)"><span class="wedge"
+                      style="background:var(--w3);border:1px solid var(--line-1)" aria-hidden="true"></span>그 외 예상 못한 전개</span>
+                    <span class="prob__v" style="color:var(--ink-2);font-size:var(--text-subhead)">10%</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="derived" style="margin-top:10px">
+              “3개월 이내”를 <b>2027.03.24</b> 로 읽었습니다 · 기록일로부터 3개월
+              <button type="button">고치기</button>
+            </div>
+
+            <div class="fold">
+              <button>▸ 원본 대화 기록</button>
+              <button>▸ 생각이 바뀐 기록 (0회)</button>
+            </div>
+          </div>
+
+          <button class="bookmark" id="bm4" aria-expanded="false" aria-controls="drawer4">
+            <span class="bookmark__n">2</span>
+            <span class="bookmark__l">새 정보</span>
+            <span class="bookmark__c" aria-hidden="true">›</span>
+          </button>
+
+          <div class="drawer" id="drawer4" data-open="false" aria-label="새로 들어온 정보">
+            <div class="sec-label">새로 들어온 정보</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="info">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-body)">
+                  4차 협상 일정이 무기한 연기됐다는 보도</div>
+                <div class="rel"><span class="swatch sw--fall"></span>시나리오 01과 어긋남</div>
+                <div class="info__m">AI가 붙임 · 1일 전 · 출처 3곳</div>
+              </div>
+              <div class="info">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-body)">
+                  3차 협상까지 의제 합의 없이 종료 · 주요 투자은행은 “연내 합의는 어렵다”고 보는
+                  쪽이 다수 · 유가에 실린 웃돈은 배럴당 8~12달러로 추정 · 호르무즈 통항량은
+                  개전 이후에도 크게 줄지 않음</div>
+                <div class="rel"><span class="swatch sw--fall"></span>시나리오 01과 어긋남</div>
+                <div class="info__m">노트를 쓸 때 조사 · 2026.12.24 · 출처 4곳</div>
+              </div>
             </div>
             <button class="btn btn--sm" style="width:100%;margin-top:var(--s4)">지금 다시 조사하기</button>
           </div>
@@ -1396,7 +2087,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             <div class="sub">1단계 · 생각을 들려주세요</div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 300px" class="wsplit">
+        <div class="wsplit">
           <div>
             <div class="chat">
               <div class="msg msg--ai"><b>AI</b>
@@ -1635,13 +2326,18 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 <script>
 (function(){
   var screens=[
-    ['s-home','홈','위쪽은 지금 볼 것(우선순위 순), 아래쪽은 앞으로 올 것(시간 순). 시간축을 세로로 두어 카드가 늘어나도 스크롤로 감당합니다. 축 위의 점이 판단 시점이고, 기간형은 점 대신 구간 막대로 놓입니다.'],
-    ['s-note','노트 상세','본문은 나의 사고. 새 정보는 오른쪽 책갈피를 당겨 여는 서랍에 있습니다. 눌러 보세요.'],
-    ['s-note2','노트 · 덜 채워진 경우','실제 대화 하나를 그대로 넣어본 것입니다. 그 대화에는 반대 시나리오를 묻는 대목이 없어서, AI가 지어내지 않고 빈 채로 두고 무엇이 없는지 알렸습니다.'],
+    ['s-home','홈','위쪽은 지금 볼 것(우선순위 순), 아래쪽은 앞으로 올 것(시간 순). 시간축을 세로로 두어 카드가 늘어나도 스크롤로 감당합니다. 축 위의 점이 판단 시점이고, 기간형은 점 대신 구간 막대로 놓입니다. 한 노트의 두 갈래가 같은 날 갈리면 같은 날짜에 카드를 두 장 쌓지 않고 한 줄로 묶습니다(01.28 SK하이닉스). — 맨 위 "쓰다 만 대화"는 일부러 리마인드 카드가 아닙니다. 점선 한 줄이고, 며칠 됐는지도 몇 개인지도 적지 않으며, 열지 않아도 아무 일이 없습니다. 리마인드는 과거의 나를 데려오는 장치이지 밀린 일을 독촉하는 장치가 아니기 때문입니다. 쓰다 만 대화에 "N일째 방치 중" 같은 걸 붙이는 순간 부채감이 쌓이고, 부채감은 앱을 안 열게 만듭니다.'],
+    ['s-note','노트 상세','본문은 나의 사고. 새 정보는 오른쪽 책갈피를 당겨 여는 서랍에 있습니다. 눌러 보세요. — 노트 본문에는 AI가 만든 표나 그림이 들어갈 자리가 아예 없습니다. 여기 있는 그림은 사용자가 정한 결과 지표의 추이뿐이고, 그건 목표값과 판정이 딸린 것입니다. 조사 결과는 서랍으로, 대화는 원본 기록으로 갑니다.'],
+    ['s-fill','저장 전 되묻기','필수 칸이 빈 채로 저장되려 할 때 딱 한 번 붙잡는 자리입니다. 대화 중에 AI가 이미 물었어야 하지만(1단계 화면 참조) 못 물었거나 사용자가 흘려보낸 경우에 여기서 잡힙니다. 여기서 답하면 완성된 노트로 바로 갑니다 — 미완성 노트를 만들었다가 나중에 고치는 왕복이 없습니다. "비운 채로 저장"도 같은 크기의 선택지로 둡니다. 막지 않는 이유는 대화가 날아가서가 아닙니다 — 임시저장이 있으니 대화는 안 날아갑니다. 임시저장은 리마인드가 오지 않기 때문입니다. 판단 시점만 있으면 리마인드는 이미 완전히 작동하는데, 반대 시나리오가 없다고 초안에 묶어두면 다음 실적 발표일에 알림이 오지 않습니다. 회고 품질을 위해 제품의 핵심 기능을 인질로 잡는 셈이 됩니다. 여기서 답하면 노트는 전체 대화로부터 한 번만 생성되고, 나중에 채우는 경우에도 저장된 칸은 다시 만들지 않고 시나리오 하나만 덧붙입니다. 조사해 온 것은 담기 전에 따로 물어봅니다 — AI가 가져온 문장이 조용히 "과거의 나의 생각"이 되면 안 되기 때문입니다.'],
+    ['s-ask3','되묻기 · 세 칸이 빈 경우','되묻기 대상 셋이 한꺼번에 빈 경우입니다. 세 번 따로 묻지 않고 한 화면에서 함께 묻습니다 — 세 번 물으면 세 번 다 무시당하기 때문입니다. 대신 같은 무게로 두지 않습니다. 판단 시점만 "리마인드가 오지 않습니다"라고 경고색으로 말하고, 나머지 둘은 "비워도 저장되고 리마인드도 옵니다"라고 사실대로 적습니다. 셋을 똑같이 다급하게 만들면 사용자는 셋 다 무시하고, 정작 하나뿐인 진짜 문제가 묻힙니다. "하나만 답하셔도 됩니다"와 "이 질문은 다시 드리지 않습니다"를 함께 적어 되묻기가 독촉이 아님을 분명히 합니다.'],
+    ['s-note2','노트 · 비운 채로 저장한 경우','되묻기에서 "비운 채로 저장"을 고른 결과입니다. AI는 나머지를 지어내지 않고, 무엇이 왜 비었는지만 적습니다. 저장도 리마인드도 정상이고, 확률 배분만 막힙니다 — 혼자인 시나리오에 100%를 채우면 사용자가 표현한 적 없는 확신을 앱이 만들어내는 셈이라서요. 이 안내는 노트 안에만 있습니다. 홈이나 목록에서 덜 채워진 노트의 개수를 세지 않습니다.'],
+    ['s-note3','노트 · 채우고 저장한 경우','되묻기에서 답하고 저장한 결과입니다. 반대 시나리오가 들어와 갈래가 성립했습니다. 그런데 대화에서 확률 이야기는 나오지 않았으므로 도넛을 지어내 채우지 않고, 빈 고리로 두고 "이제 나눌 수 있다"만 알립니다. 두 갈래의 판단 시점이 같은 날이라는 것도 함께 적습니다. AI가 조사해 담은 시나리오에는 출처와 담긴 날짜가 남습니다. — 노트를 쓸 때 AI가 조사한 낙폭·RSI 비교는 본문이 아니라 서랍 맨 아래에 "노트를 쓸 때 조사"로 놓입니다. 서랍은 외부 정보의 자리이고, 본문은 나의 관점의 자리입니다. 사용자의 판단에 실제로 쓰인 대목("마이크론보다 많이 빠졌다")만 가설 문장으로 올라옵니다.'],
+    ['s-source','원본 대화 기록','대화와 노트는 형식 규칙이 다릅니다. 대화는 흘러가고 사용자가 지금 읽으므로 마크다운을 그대로 렌더합니다 — 표도, 목록도, 굵은 글씨도 됩니다(raw HTML은 받지 않습니다). 노트는 3년 뒤에 맥락 없이 다시 읽히므로 정해진 칸과 블록 타입만 허용합니다. 그래서 이 RSI 비교표는 대화에 남아 있을 뿐 노트 본문으로 넘어가지 않았고, 노트에는 우리가 매일 수집하는 값으로 만든 낙폭 비교만 들어갔습니다. 형식의 다양성은 전부 이 화면에서 감당되고 노트로 새지 않습니다. AI가 코드를 적어 그래프를 그리려 해도 실행하지 않습니다 — 애초에 그럴 도구를 주지 않고, 그래도 나오면 코드 블록 텍스트로 그려집니다.'],
+    ['s-note4','노트 · 종목이 아닌 경우','같은 설계가 종목 밖에서도 서는지 시험해본 화면입니다. 갈래·확률 도넛·판단 시점·근거 항목·새 정보 서랍은 주제와 상관없이 그대로 작동합니다. 주제가 종목이 아니어도 본문 구조는 그대로입니다 — 애초에 본문에 그림이 들어갈 자리가 없기 때문입니다. 조사 결과는 여기서도 서랍으로 갑니다. 지표는 주제가 아니라 사용자가 말한 결말에 붙습니다. "종전"은 자동으로 확인할 수 없어 사용자가 직접 표시하는 사건형이고, "유가가 되돌아온다"는 브렌트유로 자동 추적됩니다. 둘을 "하나라도 달성"으로 묶었습니다.'],
     ['s-remind','낌새 알림','과거의 나를 먼저 읽고 그다음에 새 정보를 봅니다. 넓은 화면에서는 둘을 나란히 두어 대비를 물리적으로 만들고, 좁은 화면에서는 스크롤 순서로 강제합니다.'],
     ['s-judge','결과 확인','여기서 묻는 것은 “예상한 일이 일어났는가” 하나뿐입니다. 목표값을 낮춘 적이 있으면 숨기지 않고 드러냅니다.'],
     ['s-review','회고록','결과와 논리는 별개의 축입니다. AI는 사실과 벤치마크 대비만 놓고, “운이었다”는 판단은 사용자가 내립니다.'],
-    ['s-write','새 노트 · 1단계','논리는 대화로 받습니다. 남는 가로 폭에는 지금 만들어지고 있는 노트를 실시간으로 보여줍니다.'],
+    ['s-write','새 노트 · 1단계','논리는 대화로 받습니다. 남는 가로 폭에는 지금 만들어지고 있는 노트를 실시간으로 보여줍니다. 반대 시나리오는 여기서 묻는 것이 정상 경로입니다 — "반대로 흘러간다면 어떤 모습일까요?"가 그 질문이고, 이 대화에서는 답을 얻었으므로 되묻기 없이 초안 확인으로 넘어갑니다.'],
     ['s-preview','노트 초안 확인','AI는 자유 형식으로 쓰지 않습니다. 정해진 칸을 채울 뿐이고, 대화에 없는 내용은 비워 둡니다. "올해 안" 같은 말을 날짜로 해석한 부분은 드러내서 확인받습니다.'],
     ['s-setup','지표 설정 · 2단계','수치 설정은 폼으로 받습니다. 빈 폼이 아니라 대화에서 뽑아 채워둔 폼이고, 건너뛰기가 1급 선택지입니다.']
   ];
