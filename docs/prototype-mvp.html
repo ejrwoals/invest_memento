@@ -227,19 +227,33 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 
 .galae{border:1px solid var(--line-1);border-radius:var(--r3);padding:var(--s3);
   background:color-mix(in oklab,var(--paper-1) 60%,transparent)}
+/* 갈래 머리 — 질문과 답이 나오는 날. 둘 다 갈래에 하나씩만 있다 */
+.galae__q{padding:var(--s2) 4px var(--s3);border-bottom:1px solid var(--line-0);
+  margin-bottom:var(--s3)}
+.galae__q h3{font-size:var(--text-subhead);font-weight:600;line-height:var(--lh-heading);
+  letter-spacing:-.01em}
+.galae__when{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s2) var(--s4);
+  margin-top:5px;font-size:var(--text-caption);color:var(--ink-2)}
+.galae__when .num{color:var(--ink-1)}
 .galae__h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
   padding:0 4px var(--s3);font-size:var(--text-caption);color:var(--ink-2)}
 .galae__body{display:flex;flex-direction:column;gap:10px}
 .galae__pie{display:flex;align-items:center;gap:var(--s5);padding:var(--s3) var(--s2) var(--s5)}
 .pie{position:relative;flex:0 0 auto;width:132px;height:132px}
 .pie::before{content:"";position:absolute;inset:0;border-radius:50%;
-  /* 경계를 부드럽게 — 흐린 폭이 곧 확률의 범위다 */
+  /* 경계를 부드럽게 — 흐린 폭이 곧 확률의 범위다. 60 / 35 / 5 */
   background:conic-gradient(from -90deg,
-    var(--w1)   0deg 198deg,
-    var(--w2) 234deg 306deg,
-    var(--w3) 342deg 360deg);
+    var(--w1)   0deg 206deg,
+    var(--w2) 226deg 332deg,
+    var(--w3) 352deg 360deg);
   -webkit-mask:radial-gradient(circle,transparent 55%,#000 56%);
           mask:radial-gradient(circle,transparent 55%,#000 56%)}
+/* 30 / 65 / 5 */
+.pie--g2::before{background:conic-gradient(from -90deg,
+  var(--w1)   0deg  98deg,
+  var(--w2) 118deg 332deg,
+  var(--w3) 352deg 360deg)}
+.pie--sm{width:88px;height:88px}
 .pie__c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:1px}
 .pie__c b{font-family:var(--font-mono);font-size:var(--text-caption);color:var(--ink-1)}
@@ -440,7 +454,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <div class="fcard__ico">D-5</div>
               <div class="fcard__body">
                 <div class="fcard__why">판단 시점이 다가옵니다</div>
-                <div class="fcard__t"><b>삼성전자</b> · “HBM 수주 확대 성공” — 10개월 전 확률을 60%로 보셨습니다</div>
+                <div class="fcard__t"><b>삼성전자</b> · “엔비디아 HBM4 공급사로 진입하는가” — 10개월 전 <span class="num">60%</span>로 보셨습니다</div>
               </div>
               <div class="fcard__act"><button class="btn btn--sm" data-go="m-remind">열어보기</button></div>
             </div>
@@ -469,8 +483,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <span class="titem__dot" aria-hidden="true"></span>
                 <div class="titem__card" data-go="m-note" style="cursor:pointer">
                   <div class="titem__mobwhen">12.31 · D-5</div>
-                  <div class="titem__t">삼성전자 · HBM 수주 확대 성공</div>
-                  <div class="titem__s">확률 60% · 지표 2개 중 1개 달성</div>
+                  <div class="titem__t">삼성전자 · 엔비디아 HBM4 공급사로 진입하는가</div>
+                  <div class="titem__s">진입한다 60% · 지표 2개 중 1개 달성</div>
                 </div>
               </div>
             </section>
@@ -482,8 +496,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <span class="titem__dot" aria-hidden="true"></span>
                 <div class="titem__card">
                   <div class="titem__mobwhen">01.20 · D-25</div>
-                  <div class="titem__t">테슬라 · FSD 규제 승인</div>
-                  <div class="titem__s">확률 40% · 지표 없음</div>
+                  <div class="titem__t">테슬라 · 1분기 안에 FSD 규제 승인이 나는가</div>
+                  <div class="titem__s">난다 40% · 지표 없음</div>
                 </div>
               </div>
             </section>
@@ -495,8 +509,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <span class="titem__dot" aria-hidden="true"></span>
                 <div class="titem__card">
                   <div class="titem__mobwhen">03.10 · D-74</div>
-                  <div class="titem__t">엔비디아 · 4분기 실적 발표</div>
-                  <div class="titem__s">확률 55% · 지표 1개</div>
+                  <div class="titem__t">엔비디아 · 4분기 실적이 컨센서스를 넘는가</div>
+                  <div class="titem__s">넘는다 55% · 지표 1개</div>
                 </div>
               </div>
             </section>
@@ -508,8 +522,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <span class="titem__dot" aria-hidden="true"></span>
                 <div class="titem__card">
                   <div class="titem__mobwhen">06.30 · D-186</div>
-                  <div class="titem__t">삼성전자 · 기술 격차가 지속된다</div>
-                  <div class="titem__s">확률 30% · 지표 없음</div>
+                  <div class="titem__t">삼성전자 · 선두와의 기술 격차가 좁혀지는가</div>
+                  <div class="titem__s">좁혀진다 30% · 같은 노트의 두 번째 갈래</div>
                 </div>
               </div>
               <div class="tmore"><span></span><button>+ 3개 더 보기</button></div>
@@ -540,12 +554,18 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <div>“공급 부족이 이어지면 후발주자도 물량을 받는다”가 핵심 논리군요.
                   그러면 반대로 흘러간다면 어떤 모습일까요?</div>
               </div>
-              <div class="msg msg--me">SK하이닉스가 증설을 앞당겨서 공급이 풀리면 삼성 몫은 안 오지.
-                그러면 기술 격차만 확인되는 거고.</div>
+              <div class="msg msg--me">SK하이닉스가 증설을 앞당겨서 공급이 풀리면 삼성 몫은 안 오지.</div>
               <div class="msg msg--ai"><b>AI</b>
-                <div>두 갈래가 잡혔습니다. 언제쯤 결판이 난다고 보세요?</div>
+                <div>두 갈래가 잡혔습니다. 그러면 이 둘은 <b>“올해 안에 엔비디아 HBM4
+                  공급사로 진입하는가”</b>에 대한 답이 되겠네요. 언제 답이 나올까요?</div>
               </div>
-              <div class="msg msg--me">올해 안에는 수주 여부가 나올 거야.</div>
+              <div class="msg msg--me">올해 안에는 수주 여부가 나올 거야.
+                그리고 기술 격차는 내년 상반기는 돼야 알 수 있고.</div>
+              <div class="msg msg--ai"><b>AI</b>
+                <div>답이 나오는 날이 다르니 두 질문으로 나누겠습니다. 기술 격차 쪽은
+                  “2027년 상반기까지 선두와의 격차가 좁혀지는가”로 따로 두면 될까요?</div>
+              </div>
+              <div class="msg msg--me">그래 그게 맞지.</div>
               <div class="msg msg--ai"><b>AI</b>
                 <div>정리할 재료가 모였습니다. 노트로 만들어 볼까요?</div>
               </div>
@@ -563,12 +583,13 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             <div class="build__row"><i class="ok">✓</i>
               <div><b>가설</b> · HBM 공급 부족이 이어지고, 후발주자에게도 물량이 돌아간다</div></div>
             <div class="build__row"><i class="ok">✓</i>
-              <div><b>시나리오</b> · 수주 확대 성공</div></div>
-            <div class="build__row build__row--new"><i class="ok">✓</i>
-              <div><b>반대 시나리오</b> · 증설로 공급이 풀려 기술 격차만 확인
-                <span class="build__new">방금 추가됨</span></div></div>
+              <div><b>갈래 1</b> · 올해 안에 엔비디아 HBM4 공급사로 진입하는가
+                <span class="build__new">답이 나오는 날 “올해 안”</span></div></div>
             <div class="build__row"><i class="ok">✓</i>
-              <div><b>판단 시점</b> · “올해 안”</div></div>
+              <div><b>시나리오</b> · 진입한다 / 진입하지 못한다</div></div>
+            <div class="build__row build__row--new"><i class="ok">✓</i>
+              <div><b>갈래 2</b> · 2027년 상반기까지 기술 격차가 좁혀지는가
+                <span class="build__new">날짜가 달라 갈래를 나눔</span></div></div>
             <div class="build__row"><i class="miss">·</i>
               <div><b>확률</b> · 아직 이야기 나오지 않음</div></div>
             <div class="hint" style="margin-top:var(--s4)">
@@ -603,22 +624,32 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               </div>
             </div>
             <div class="slot">
-              <div class="slot__k">시나리오</div>
+              <div class="slot__k">갈래 1</div>
               <div class="slot__v">
-                <div><em>01</em> HBM 수주 확대 성공</div>
-                <div style="margin-top:6px"><em>02</em> 증설로 공급이 풀려 기술 격차만 확인</div>
-                <div style="margin-top:6px;color:var(--ink-2)"><em>03</em> 그 외 예상 못한 전개
+                <div><em>올해 안에 엔비디아 HBM4 공급사로 진입하는가?</em></div>
+                <div class="derived">
+                  “올해 안”을 <b>2026.12.31</b>로 잡았습니다
+                  <button>바꾸기</button>
+                </div>
+                <div style="margin-top:9px"><em>01</em> 진입한다</div>
+                <div style="margin-top:4px"><em>02</em> 진입하지 못한다</div>
+                <div style="margin-top:4px;color:var(--ink-2)"><em>03</em> 그 외 예상 못한 전개
                   <span class="empty">— 항상 붙습니다</span></div>
               </div>
             </div>
             <div class="slot">
-              <div class="slot__k">판단 시점</div>
+              <div class="slot__k">갈래 2</div>
               <div class="slot__v">
-                “올해 안”
+                <div><em>2027년 상반기까지 선두와의 기술 격차가 좁혀지는가?</em></div>
                 <div class="derived">
-                  날짜로 <b>2026.12.31</b>로 잡았습니다
+                  “내년 상반기”를 <b>2027.06.30</b>으로 잡았습니다
                   <button>바꾸기</button>
                 </div>
+                <div style="margin-top:9px"><em>01</em> 좁혀진다</div>
+                <div style="margin-top:4px"><em>02</em> 좁혀지지 않는다</div>
+                <div style="margin-top:4px;color:var(--ink-2)"><em>03</em> 그 외 예상 못한 전개</div>
+                <p style="margin-top:9px;font-size:var(--text-caption);color:var(--ink-2)">
+                  답이 나오는 날이 달라 갈래 1과 나눠 두었습니다.</p>
               </div>
             </div>
             <div class="slot">
@@ -666,29 +697,32 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             <div class="quote"><span class="tag-user">[사용자]</span>“누가 만들든 팔린다는 거지.”</div>
           </div>
 
-          <div class="sec-label" style="margin-top:var(--s6)">시나리오</div>
+          <div class="sec-label" style="margin-top:var(--s6)">갈래 1 · 하나만 일어납니다</div>
           <div class="galae">
-            <div class="galae__h">
-              <span>세 갈래로 나뉩니다</span>
-              <span class="num">합 100%</span>
+            <div class="galae__q">
+              <h3>올해 안에 엔비디아 HBM4 공급사로 진입하는가?</h3>
+              <div class="galae__when">
+                <span>2026.12.31에 답이 나옵니다</span>
+                <span class="num" style="color:var(--countdown)">D-5</span>
+              </div>
             </div>
             <div class="galae__pie">
               <div class="pie" role="img"
-                   aria-label="확률 배분: 수주 확대 성공 60%, 기술 격차 확인 30%, 그 외 10%">
+                   aria-label="확률 배분: 진입한다 60%, 진입하지 못한다 35%, 그 외 5%">
                 <div class="pie__c"><b>100%</b><span>합</span></div>
               </div>
               <div class="legend">
                 <div class="legend__row">
-                  <i style="background:var(--w1)"></i><b>01 · HBM 수주 확대 성공</b>
+                  <i style="background:var(--w1)"></i><b>01 · 진입한다</b>
                   <span class="num">60%</span>
                 </div>
                 <div class="legend__row">
-                  <i style="background:var(--w2)"></i><b>02 · 기술 격차만 확인</b>
-                  <span class="num">30%</span>
+                  <i style="background:var(--w2)"></i><b>02 · 진입하지 못한다</b>
+                  <span class="num">35%</span>
                 </div>
                 <div class="legend__row legend__row--rest">
                   <i style="background:var(--w3)"></i><b>03 · 그 외 예상 못한 전개</b>
-                  <span class="num">10%</span>
+                  <span class="num">5%</span>
                 </div>
               </div>
             </div>
@@ -698,17 +732,19 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <div class="branch__h">
                   <div>
                     <div class="branch__no">01</div>
-                    <h3 class="branch__t">HBM 수주 확대 성공</h3>
+                    <h3 class="branch__t">진입한다</h3>
                   </div>
                 </div>
+                <p style="font-size:var(--text-sm);color:var(--ink-1)">
+                  공급 부족이 이어져 고객사가 공급처를 하나로 두지 못한다.</p>
                 <div class="prob">
                   <div class="prob__v" style="color:var(--rise)">
                     <span class="wedge" style="background:var(--w1)"></span>60%<small>안팎</small>
                   </div>
                 </div>
                 <div class="branch__meta">
-                  <span>판단 시점 · 2026.12.31</span>
-                  <span class="num">D-5</span>
+                  <span>지표 2개 중 1개 달성</span>
+                  <span>아래에 자세히</span>
                 </div>
               </article>
 
@@ -716,17 +752,18 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <div class="branch__h">
                   <div>
                     <div class="branch__no">02</div>
-                    <h3 class="branch__t">증설로 공급이 풀려 기술 격차만 확인</h3>
+                    <h3 class="branch__t">진입하지 못한다</h3>
                   </div>
                 </div>
+                <p style="font-size:var(--text-sm);color:var(--ink-1)">
+                  선두 업체 증설이 앞당겨져 남는 물량이 없다.</p>
                 <div class="prob">
                   <div class="prob__v" style="color:var(--fall)">
-                    <span class="wedge" style="background:var(--w2)"></span>30%<small>안팎</small>
+                    <span class="wedge" style="background:var(--w2)"></span>35%<small>안팎</small>
                   </div>
                 </div>
                 <div class="branch__meta">
-                  <span>판단 시점 · 2027.06.30</span>
-                  <span class="num">D-186</span>
+                  <span>지표 없음</span>
                 </div>
               </article>
 
@@ -737,20 +774,56 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <h3 class="branch__t">그 외 예상 못한 전개</h3>
                   </div>
                 </div>
+                <p style="font-size:var(--text-sm);color:var(--ink-1)">
+                  질문 자체가 성립하지 않게 되는 경우 — 사업 철수, 인수합병 등.</p>
                 <div class="prob">
                   <div class="prob__v" style="color:var(--ink-2)">
-                    <span class="wedge" style="background:var(--w3)"></span>10%<small>안팎</small>
+                    <span class="wedge" style="background:var(--w3)"></span>5%<small>안팎</small>
                   </div>
                 </div>
                 <div class="branch__meta">
-                  <span>모든 갈래에 항상 붙습니다</span>
+                  <span>지울 수 없습니다</span>
                 </div>
               </article>
 
             </div>
           </div>
 
-          <div class="sec-label" style="margin-top:var(--s6)">결과 지표</div>
+          <div class="sec-label" style="margin-top:var(--s6)">갈래 2 · 하나만 일어납니다</div>
+          <div class="galae">
+            <div class="galae__q">
+              <h3>2027년 상반기까지 선두와의 기술 격차가 좁혀지는가?</h3>
+              <div class="galae__when">
+                <span>2027.06.30에 답이 나옵니다</span>
+                <span class="num">D-186</span>
+              </div>
+            </div>
+            <div class="galae__pie">
+              <div class="pie pie--g2 pie--sm" role="img"
+                   aria-label="확률 배분: 좁혀진다 30%, 좁혀지지 않는다 65%, 그 외 5%">
+                <div class="pie__c"><b>100%</b><span>합</span></div>
+              </div>
+              <div class="legend">
+                <div class="legend__row">
+                  <i style="background:var(--w1)"></i><b>01 · 좁혀진다</b>
+                  <span class="num">30%</span>
+                </div>
+                <div class="legend__row">
+                  <i style="background:var(--w2)"></i><b>02 · 좁혀지지 않는다</b>
+                  <span class="num">65%</span>
+                </div>
+                <div class="legend__row legend__row--rest">
+                  <i style="background:var(--w3)"></i><b>03 · 그 외 예상 못한 전개</b>
+                  <span class="num">5%</span>
+                </div>
+              </div>
+            </div>
+            <div class="hint">
+              같은 가설이지만 답이 나오는 날이 다릅니다. 그래서 한 갈래에 섞지 않고 따로 둡니다.
+            </div>
+          </div>
+
+          <div class="sec-label" style="margin-top:var(--s6)">결과 지표 · 갈래 1 → 01 진입한다</div>
           <div class="card">
             <div class="ind">
               <div class="ind__row is-hit">
@@ -771,7 +844,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </div>
           </div>
 
-          <div class="sec-label" style="margin-top:var(--s6)">근거 항목</div>
+          <div class="sec-label" style="margin-top:var(--s6)">근거 항목 · 갈래 1 → 01 진입한다</div>
           <div class="card">
             <ol class="premise">
               <li>HBM 수요가 AI 서버 증설과 함께 계속 늘어난다</li>
@@ -812,12 +885,22 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <div class="quote" style="font-size:var(--text-sm)">
                   <span class="tag-user">[사용자]</span>“누가 만들든 팔린다는 거지.”
                 </div>
-                <div style="margin-top:var(--s4);display:flex;flex-direction:column;gap:6px;
-                            font-size:var(--text-caption);color:var(--ink-1)">
-                  <div style="display:flex;justify-content:space-between">
-                    <span>HBM 수주 확대 성공</span><span class="num">60% · 2026.12.31</span></div>
-                  <div style="display:flex;justify-content:space-between">
-                    <span>기술 격차만 확인</span><span class="num">30% · 2027.06.30</span></div>
+                <div style="margin-top:var(--s4);padding-top:var(--s3);
+                            border-top:1px solid var(--line-1)">
+                  <div style="font-size:var(--text-caption);color:var(--ink-2)">
+                    올해 안에 엔비디아 HBM4 공급사로 진입하는가?</div>
+                  <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;
+                              font-size:var(--text-caption);color:var(--ink-1)">
+                    <div style="display:flex;justify-content:space-between">
+                      <span><span class="wedge" style="background:var(--w1)"></span>진입한다</span>
+                      <span class="num">60%</span></div>
+                    <div style="display:flex;justify-content:space-between">
+                      <span><span class="wedge" style="background:var(--w2)"></span>진입하지 못한다</span>
+                      <span class="num">35%</span></div>
+                    <div style="display:flex;justify-content:space-between;color:var(--ink-2)">
+                      <span><span class="wedge" style="background:var(--w3)"></span>그 외 예상 못한 전개</span>
+                      <span class="num">5%</span></div>
+                  </div>
                 </div>
                 <button class="btn btn--quiet btn--sm" style="margin-top:var(--s3);padding-left:0">
                   ▸ 당시 대화 전문 보기</button>
@@ -852,7 +935,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <div class="card">
             <div class="row" style="justify-content:space-between;gap:var(--s4)">
               <div style="min-width:0">
-                <div style="font-size:var(--text-sm);font-weight:600">01 · HBM 수주 확대 성공</div>
+                <div style="font-size:var(--text-sm);font-weight:600">01 · 진입한다</div>
                 <div style="font-size:var(--text-caption);color:var(--ink-2);margin-top:2px">
                   10개월 전에 매긴 확률입니다. 그때와 같게 보시나요?</div>
               </div>
@@ -885,7 +968,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <div class="step"><i>1</i>예상한 일이 일어났나요</div>
           <div class="card" style="margin-bottom:var(--s4)">
             <div style="font-size:var(--text-sm);margin-bottom:var(--s3)">
-              <b>01 · HBM 수주 확대 성공</b> — 당시 60%로 보셨습니다
+              올해 안에 엔비디아 HBM4 공급사로 진입하는가? — <b>01 · 진입한다</b>를 60%로 보셨습니다
             </div>
             <div class="ind" style="margin-bottom:var(--s4)">
               <div class="ind__row is-hit">
