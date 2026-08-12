@@ -528,6 +528,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 .warnbox svg{flex:0 0 auto;margin-top:2px;color:var(--countdown)}
 
 /* ── 반응형: 세로 긴 화면 ─────────────────────────── */
+/* 컨테이너 쿼리 앞에 둔다 — 뒤에 두면 같은 명시도라 나중 것이 이겨서 영영 안 보인다 */
+.mob-only{display:none}
 @container (max-width: 767px){
   .pad{padding:var(--s4)}
   .split{--drawer-w:100%}
@@ -580,7 +582,6 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .ichart__legend{flex-direction:column;gap:8px}
   .spark{grid-template-columns:1fr 96px}
 }
-.mob-only{display:none}
 </style>
 </head>
 <body>
