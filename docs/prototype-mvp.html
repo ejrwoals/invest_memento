@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>낌새 MVP 프로토타입</title>
+<style>
+:root{
+  --paper-0:#FAF8F4; --paper-1:#F3F0E9; --paper-2:#E9E5DB; --paper-3:#DFDACE;
+  --ink-0:#1F1D1A; --ink-1:#4A4640; --ink-2:#777167; --ink-3:#A8A296;
+  --line-0:#DDD8CC; --line-1:#C6C0B1;
+  --rise:#A03A2C; --rise-soft:#EFDDD7;
+  --fall:#2E5A87; --fall-soft:#D9E3ED;
+  --pruned:#8C8981; --pruned-soft:#E7E5E0;
+  --countdown:#8A5A14; --countdown-soft:#F6E8CC;
+  --ai:#5A4A7A; --ai-soft:#E5DFEE;
+  --focus:#2E5A87;
+  --shadow-1:0 1px 1px rgba(31,29,26,.04);
+  --shadow-2:0 2px 6px rgba(31,29,26,.06);
+  --font-sans:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+  --font-mono:"SFMono-Regular",Menlo,Consolas,"D2Coding",monospace;
+  --text-display:32px; --text-title:24px; --text-heading:20px; --text-subhead:17px;
+  --text-body:16px; --text-sm:14px; --text-caption:13px; --text-micro:11px;
+  --lh-tight:1.35; --lh-heading:1.45; --lh-body:1.75; --lh-long:1.9;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --r-fixed:0px; --r1:3px; --r2:6px; --r3:10px; --r-pill:999px;
+  --dur-1:160ms; --dur-2:280ms; --dur-3:520ms; --dur-4:900ms;
+  --ease-calm:cubic-bezier(.22,.61,.36,1);
+  --w1:color-mix(in oklab,var(--rise) 55%,var(--paper-2));
+  --w2:color-mix(in oklab,var(--fall) 55%,var(--paper-2));
+  --w3:var(--paper-3);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper-0:#171614; --paper-1:#1F1E1B; --paper-2:#282621; --paper-3:#33302A;
+    --ink-0:#E9E5DB; --ink-1:#C5C0B5; --ink-2:#9E998D; --ink-3:#6E6A62;
+    --line-0:#302E29; --line-1:#443F38;
+    --rise:#DE8271; --rise-soft:#3A2621;
+    --fall:#7FA8CE; --fall-soft:#1C2A36;
+    --pruned:#807C74; --pruned-soft:#232220;
+    --countdown:#DCA047; --countdown-soft:#382C16;
+    --ai:#B7A6DA; --ai-soft:#262137;
+    --focus:#7FA8CE;
+    --shadow-1:0 1px 1px rgba(0,0,0,.3);
+    --shadow-2:0 2px 6px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper-0:#171614; --paper-1:#1F1E1B; --paper-2:#282621; --paper-3:#33302A;
+  --ink-0:#E9E5DB; --ink-1:#C5C0B5; --ink-2:#9E998D; --ink-3:#6E6A62;
+  --line-0:#302E29; --line-1:#443F38;
+  --rise:#DE8271; --rise-soft:#3A2621;
+  --fall:#7FA8CE; --fall-soft:#1C2A36;
+  --pruned:#807C74; --pruned-soft:#232220;
+  --countdown:#DCA047; --countdown-soft:#382C16;
+  --ai:#B7A6DA; --ai-soft:#262137;
+  --focus:#7FA8CE;
+  --shadow-1:0 1px 1px rgba(0,0,0,.3);
+  --shadow-2:0 2px 6px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper-0);color:var(--ink-0);font-family:var(--font-sans);
+  font-size:var(--text-body);line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
+p{text-wrap:pretty}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:2px}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.mono{font-family:var(--font-mono)}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+
+@keyframes breath{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.9;transform:scale(1.35)}}
+@keyframes surface{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+}
+
+/* ── 프로토타입 셸 (제품 UI 아님) ───────────────────── */
+.shell{min-height:100vh;display:flex;flex-direction:column;background:var(--paper-2)}
+.bar{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;gap:var(--s4);
+  align-items:center;padding:10px var(--s5);background:var(--paper-1);
+  border-bottom:1px solid var(--line-1)}
+.bar__brand{display:flex;align-items:center;gap:8px;font-size:var(--text-caption);
+  color:var(--ink-2);font-family:var(--font-mono);letter-spacing:.1em}
+.bar__hint{margin-left:auto;font-size:var(--text-micro);color:var(--ink-3);
+  font-family:var(--font-mono);letter-spacing:.08em;white-space:nowrap}
+.bar__nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.bar__nav::-webkit-scrollbar{display:none}
+.bar__nav button{flex:0 0 auto;white-space:nowrap;min-height:32px;padding:0 10px;background:none;
+  border:1px solid transparent;border-radius:var(--r-pill);color:var(--ink-2);
+  font-size:var(--text-caption);transition:background var(--dur-1) var(--ease-calm)}
+.bar__nav button:hover{background:var(--paper-2);color:var(--ink-0)}
+.bar__nav button[aria-current="true"]{background:var(--ink-0);color:var(--paper-0);border-color:var(--ink-0)}
+.bar__tools{display:flex;gap:6px;flex:0 0 auto}
+@media (max-width:1180px){ .bar__hint{display:none} }
+@media (max-width:1040px){ .bar__nav{order:3;width:100%} }
+.bar__tools button{white-space:nowrap;min-height:32px;padding:0 12px;background:var(--paper-0);
+  border:1px solid var(--line-1);border-radius:var(--r-pill);color:var(--ink-1);
+  font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.08em}
+.bar__tools button[aria-pressed="true"]{background:var(--ink-0);color:var(--paper-0);border-color:var(--ink-0)}
+
+.stage{flex:1;display:flex;justify-content:center;padding:var(--s5) var(--s4) var(--s8)}
+.viewport{width:100%;max-width:1180px;container-type:inline-size;scroll-margin-top:76px;
+  background:var(--paper-0);border:1px solid var(--line-1);border-radius:var(--r3);
+  overflow:hidden;box-shadow:var(--shadow-2);transition:max-width var(--dur-3) var(--ease-calm)}
+.viewport[data-w="mobile"]{max-width:390px}
+.screen{display:none;animation:surface var(--dur-2) var(--ease-calm)}
+.screen.is-on{display:block}
+.note{max-width:1180px;margin:0 auto;padding:var(--s4) var(--s4) 0;
+  font-size:var(--text-caption);color:var(--ink-2)}
+
+/* ── 공통 제품 요소 ───────────────────────────────── */
+.appbar{display:flex;align-items:center;gap:var(--s3);padding:var(--s4) var(--s5);
+  border-bottom:1px solid var(--line-0);background:var(--paper-1)}
+.appbar h2{font-size:var(--text-subhead);font-weight:600;letter-spacing:-.02em}
+.appbar .sub{font-size:var(--text-caption);color:var(--ink-2)}
+.appbar .spacer{margin-left:auto}
+.pad{padding:var(--s5)}
+.sec-label{font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.12em;
+  color:var(--ink-2);margin-bottom:var(--s3)}
+.disclaimer{margin-top:var(--s5);padding-top:var(--s3);border-top:1px solid var(--line-0);
+  font-size:var(--text-caption);color:var(--ink-2)}
+
+.btn{white-space:nowrap;min-height:44px;padding:0 18px;border-radius:var(--r-pill);
+  border:1px solid var(--line-1);background:transparent;color:var(--ink-1);font-size:var(--text-sm);
+  transition:background var(--dur-1) var(--ease-calm)}
+.btn:hover{background:var(--paper-1)}
+.btn--primary{background:var(--ink-0);color:var(--paper-0);border-color:var(--ink-0)}
+.btn--primary:hover{opacity:.85;background:var(--ink-0)}
+.btn--quiet{border-color:transparent;color:var(--ink-2)}
+.btn--quiet:hover{color:var(--ink-0)}
+.btn--sm{min-height:34px;padding:0 12px;font-size:var(--text-caption)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.card{background:var(--paper-0);border:1px solid var(--line-0);border-radius:var(--r3);padding:var(--s4)}
+.card--fixed{border-radius:var(--r-fixed);background:var(--paper-2);border:none;
+  border-left:3px solid var(--line-1)}
+.hint{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px var(--s3);
+  border:1px dashed var(--line-1);border-radius:var(--r2);font-size:var(--text-caption);
+  color:var(--ink-2);background:var(--paper-1)}
+.kdot{position:relative;display:inline-flex;width:10px;height:10px;flex:0 0 auto}
+.kdot i{position:absolute;inset:0;border-radius:50%;background:var(--ai);
+  animation:breath var(--dur-4) var(--ease-calm) infinite}
+
+/* ── 홈: 세로 타임라인 ───────────────────────────── */
+.tline{position:relative;--gutter:104px;--axis:var(--gutter)}
+.tline::before{content:"";position:absolute;left:var(--axis);top:6px;bottom:10px;width:1px;
+  background:var(--line-1)}
+.tnow{position:relative;display:grid;grid-template-columns:var(--gutter) 1fr;
+  align-items:center;gap:var(--s4);margin-bottom:var(--s4)}
+.tnow__mark{justify-self:end;transform:translateX(50%);width:11px;height:11px;
+  background:var(--ink-0);transform-origin:center;rotate:45deg}
+.tnow__label{font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.1em;
+  color:var(--ink-1);padding-left:var(--s3)}
+.tperiod{position:relative}
+.tperiod__h{position:relative;z-index:1;display:flex;align-items:center;gap:var(--s4);
+  margin:var(--s5) 0 var(--s4);font-weight:400}
+.tperiod__h i{flex:1;height:1px;background:var(--line-0)}
+.tperiod__h span{flex:0 0 auto;font-family:var(--font-mono);font-size:var(--text-micro);
+  letter-spacing:.14em;color:var(--ink-2);background:var(--paper-0);padding:0 2px}
+.tperiod:first-of-type .tperiod__h{margin-top:var(--s4)}
+.titem{position:relative;display:grid;grid-template-columns:var(--gutter) 1fr;gap:var(--s4);
+  align-items:start;margin-bottom:10px}
+.titem__when{justify-self:end;text-align:right;padding-right:var(--s4);padding-top:11px;
+  font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:var(--text-micro);
+  color:var(--ink-2);line-height:1.5}
+.titem__when b{display:block;font-weight:600;color:var(--ink-1)}
+.titem__dot{position:absolute;left:var(--axis);top:15px;width:9px;height:9px;border-radius:50%;
+  background:var(--paper-0);border:2px solid var(--ink-3);transform:translateX(-50%);z-index:1}
+.titem__card{position:relative;background:var(--paper-1);border:1px solid var(--line-0);
+  border-radius:var(--r3);padding:var(--s3) var(--s4);
+  transition:border-color var(--dur-1) var(--ease-calm)}
+.titem__card::before{content:"";position:absolute;left:calc(var(--s4) * -1);top:18px;
+  width:var(--s4);height:1px;background:var(--line-1)}
+.titem__card:hover{border-color:var(--line-1)}
+.titem__t{font-size:var(--text-sm);font-weight:600}
+.titem__s{font-size:var(--text-caption);color:var(--ink-2);margin-top:2px}
+.titem__mobwhen{display:none;font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-micro);color:var(--ink-2);margin-bottom:3px}
+.titem--near .titem__mobwhen{color:var(--countdown)}
+.titem--near .titem__dot{border-color:var(--countdown);background:var(--countdown)}
+.titem--near .titem__card{border-color:var(--countdown);background:var(--countdown-soft)}
+.titem--far{filter:saturate(.5);opacity:.78}
+.tmore{display:grid;grid-template-columns:var(--gutter) 1fr;gap:var(--s4)}
+.tmore button{justify-self:start;background:none;border:none;color:var(--ink-2);
+  font-size:var(--text-caption);padding:6px 0;min-height:36px}
+.tmore button:hover{color:var(--ink-0)}
+
+.feed{display:flex;flex-direction:column;gap:10px}
+.fcard{display:flex;align-items:center;gap:var(--s4);padding:var(--s3) var(--s4);
+  background:var(--paper-1);border:1px solid var(--line-0);border-radius:var(--r3);
+  transition:border-color var(--dur-1) var(--ease-calm)}
+.fcard:hover{border-color:var(--line-1)}
+.fcard--alert{border-color:var(--countdown);background:var(--countdown-soft)}
+.fcard__ico{width:38px;height:38px;flex:0 0 auto;display:grid;place-items:center;
+  border-radius:50%;border:1px solid var(--line-1);color:var(--ink-2);background:var(--paper-0)}
+.fcard--alert .fcard__ico{border-color:var(--countdown);color:var(--countdown);
+  font-family:var(--font-mono);font-size:var(--text-micro);font-weight:600}
+.fcard__body{flex:1;min-width:0}
+.fcard__why{font-size:var(--text-caption);color:var(--ink-2);margin-bottom:2px}
+.fcard__t{font-size:var(--text-sm);color:var(--ink-0)}
+.fcard__t b{font-weight:600}
+
+/* ── 노트 상세 ────────────────────────────────────── */
+.thesis{background:var(--paper-2);border-left:3px solid var(--line-1);border-radius:var(--r-fixed);
+  padding:var(--s4) var(--s5);line-height:var(--lh-long);font-size:var(--text-sm)}
+.quote{margin-top:10px;padding-left:10px;border-left:2px solid var(--line-1);color:var(--ink-1)}
+.tag-user{display:inline-block;font-family:var(--font-mono);font-size:var(--text-micro);
+  letter-spacing:.06em;color:var(--ink-2);margin-right:6px}
+
+.branch{background:var(--paper-0);border:1px solid var(--line-0);border-radius:var(--r3);
+  padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)}
+.branch--near{border-color:var(--line-1)}
+.branch--far{filter:saturate(.5);opacity:.78}
+.branch__h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.branch__no{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2);
+  letter-spacing:.08em}
+.branch__t{font-size:var(--text-subhead);font-weight:600;line-height:var(--lh-heading);margin-top:3px}
+.prob{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s3) var(--s4)}
+.prob__v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-title);line-height:1.1;letter-spacing:-.01em}
+.prob__v small{font-family:var(--font-sans);font-size:var(--text-caption);
+  color:var(--ink-2);margin-left:6px;letter-spacing:0}
+.branch__meta{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding-top:var(--s3);border-top:1px solid var(--line-0);font-size:var(--text-caption);
+  color:var(--ink-2)}
+
+.galae{border:1px solid var(--line-1);border-radius:var(--r3);padding:var(--s3);
+  background:color-mix(in oklab,var(--paper-1) 60%,transparent)}
+/* 갈래 머리 — 질문과 답이 나오는 날. 둘 다 갈래에 하나씩만 있다 */
+.galae__q{padding:var(--s2) 4px var(--s3);border-bottom:1px solid var(--line-0);
+  margin-bottom:var(--s3)}
+.galae__q h3{font-size:var(--text-subhead);font-weight:600;line-height:var(--lh-heading);
+  letter-spacing:-.01em}
+.galae__when{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s2) var(--s4);
+  margin-top:5px;font-size:var(--text-caption);color:var(--ink-2)}
+.galae__when .num{color:var(--ink-1)}
+.galae__h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:0 4px var(--s3);font-size:var(--text-caption);color:var(--ink-2)}
+.galae__body{display:flex;flex-direction:column;gap:10px}
+.galae__pie{display:flex;align-items:center;gap:var(--s5);padding:var(--s3) var(--s2) var(--s5)}
+.pie{position:relative;flex:0 0 auto;width:132px;height:132px}
+.pie::before{content:"";position:absolute;inset:0;border-radius:50%;
+  /* 경계를 부드럽게 — 흐린 폭이 곧 확률의 범위다. 60 / 35 / 5 */
+  background:conic-gradient(from -90deg,
+    var(--w1)   0deg 206deg,
+    var(--w2) 226deg 332deg,
+    var(--w3) 352deg 360deg);
+  -webkit-mask:radial-gradient(circle,transparent 55%,#000 56%);
+          mask:radial-gradient(circle,transparent 55%,#000 56%)}
+/* 30 / 65 / 5 */
+.pie--g2::before{background:conic-gradient(from -90deg,
+  var(--w1)   0deg  98deg,
+  var(--w2) 118deg 332deg,
+  var(--w3) 352deg 360deg)}
+.pie--sm{width:88px;height:88px}
+.pie__c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:1px}
+.pie__c b{font-family:var(--font-mono);font-size:var(--text-caption);color:var(--ink-1)}
+.pie__c span{font-size:var(--text-micro);color:var(--ink-2)}
+.legend{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px}
+.legend__row{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:baseline;
+  font-size:var(--text-caption)}
+.legend__row i{width:12px;height:12px;border-radius:3px;align-self:center}
+.legend__row b{font-weight:400;color:var(--ink-0)}
+.legend__row .num{color:var(--ink-1)}
+.legend__row--rest b,.legend__row--rest .num{color:var(--ink-2)}
+.wedge{width:10px;height:10px;border-radius:3px;flex:0 0 auto;display:inline-block;
+  vertical-align:-1px;margin-right:7px;box-sizing:border-box}
+
+.premise{counter-reset:p}
+.premise li{list-style:none;display:flex;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--line-0);font-size:var(--text-sm);line-height:var(--lh-body)}
+.premise li:last-child{border-bottom:none}
+.premise li::before{counter-increment:p;content:counter(p);font-family:var(--font-mono);
+  font-size:var(--text-micro);color:var(--ink-2);flex:0 0 auto;margin-top:5px}
+
+/* 결과 지표 — MVP는 차트 없이 목표 대비 현재값 한 줄 */
+.ind{display:flex;flex-direction:column}
+.ind__row{display:grid;grid-template-columns:1fr auto auto;gap:var(--s3) var(--s4);
+  align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line-0)}
+.ind__row:last-child{border-bottom:none}
+.ind__n{font-size:var(--text-sm)}
+.ind__n small{display:block;font-size:var(--text-micro);color:var(--ink-2);margin-top:2px}
+.ind__v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-sm);color:var(--ink-1)}
+.ind__v s{color:var(--ink-3)}
+.ind__s{font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.06em;
+  white-space:nowrap;color:var(--ink-2)}
+.ind__row.is-hit .ind__s{color:var(--fall)}
+.ind__row.is-hit .ind__v{color:var(--ink-0)}
+.ind__row.is-miss .ind__s{color:var(--countdown)}
+
+/* ── 다시 보기 / 회고 ─────────────────────────────── */
+.two{display:grid;grid-template-columns:7fr 5fr;gap:var(--s4)}
+.step{font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.1em;
+  color:var(--ink-2);margin-bottom:var(--s3);display:flex;align-items:center;gap:8px}
+.step i{width:18px;height:18px;border-radius:50%;border:1px solid var(--line-1);display:grid;
+  place-items:center;font-size:10px;color:var(--ink-1);font-style:normal}
+.matrix{border:1px solid var(--line-0);border-radius:var(--r2);overflow:hidden;
+  display:grid;grid-template-columns:auto 1fr 1fr}
+.matrix>div{padding:var(--s3);border-right:1px solid var(--line-0);
+  border-bottom:1px solid var(--line-0);font-size:var(--text-caption)}
+.matrix>div:nth-child(3n){border-right:none}
+.matrix .mh{background:var(--paper-2);color:var(--ink-2);font-family:var(--font-mono);
+  font-size:var(--text-micro);letter-spacing:.06em;display:flex;align-items:center}
+.matrix .risky{background:var(--rise-soft)}
+.matrix .risky b{color:var(--rise)}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick button{min-height:56px;padding:10px 14px;text-align:left;background:var(--paper-0);
+  border:1px solid var(--line-1);border-radius:var(--r3);color:var(--ink-0);
+  font-size:var(--text-sm);line-height:1.4;transition:background var(--dur-1) var(--ease-calm)}
+.pick button:hover{background:var(--paper-1)}
+.pick button[aria-pressed="true"]{background:var(--ink-0);color:var(--paper-0);border-color:var(--ink-0)}
+.pick small{display:block;color:var(--ink-2);font-size:var(--text-micro);margin-top:3px}
+.pick button[aria-pressed="true"] small{color:var(--paper-3)}
+
+textarea{width:100%;min-height:88px;padding:12px 14px;background:var(--paper-0);color:var(--ink-0);
+  border:1px solid var(--line-1);border-radius:var(--r2);font-family:inherit;
+  font-size:var(--text-sm);line-height:var(--lh-body);resize:vertical}
+input[type=text]{min-height:44px;padding:0 12px;background:var(--paper-0);color:var(--ink-0);
+  border:1px solid var(--line-1);border-radius:var(--r2);font-family:inherit;font-size:var(--text-sm)}
+label{font-size:var(--text-caption);color:var(--ink-2)}
+
+/* ── 대화 ────────────────────────────────────────── */
+.chat{display:flex;flex-direction:column;gap:var(--s4);padding:var(--s5);min-height:420px}
+.msg{max-width:80%;font-size:var(--text-sm);line-height:var(--lh-body)}
+.msg--ai{align-self:flex-start;display:flex;gap:10px}
+.msg--ai>b{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ai);
+  flex:0 0 auto;margin-top:4px;letter-spacing:.08em}
+.msg--me{align-self:flex-end;background:var(--paper-2);border-radius:var(--r3);
+  padding:10px var(--s4);color:var(--ink-1)}
+.composer{display:flex;gap:10px;padding:var(--s4) var(--s5);border-top:1px solid var(--line-0);
+  background:var(--paper-1)}
+.composer input{flex:1}
+.wsplit{display:grid;grid-template-columns:1fr 300px}
+.build{padding:var(--s5);background:var(--paper-1);border-left:1px solid var(--line-0)}
+.build__row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;
+  border-bottom:1px solid var(--line-0);font-size:var(--text-caption)}
+.build__row:last-child{border-bottom:none}
+.build__row i{font-style:normal;flex:0 0 auto;width:14px;text-align:center;margin-top:2px}
+.build__row--new{background:var(--paper-2);border-radius:var(--r2);padding:10px var(--s2);
+  margin:0 calc(var(--s2) * -1)}
+.build__new{display:block;font-family:var(--font-mono);font-size:var(--text-micro);
+  letter-spacing:.06em;color:var(--ink-2);margin-top:3px}
+.ok{color:var(--fall)}
+.miss{color:var(--countdown)}
+
+/* ── 노트 초안 확인 ─────────────────────────────── */
+.slot{display:grid;grid-template-columns:104px 1fr;gap:var(--s4);padding:var(--s4) 0;
+  border-bottom:1px solid var(--line-0);align-items:start}
+.slot:last-child{border-bottom:none}
+.slot__k{font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.1em;
+  color:var(--ink-2);padding-top:3px}
+.slot__v{font-size:var(--text-sm);line-height:var(--lh-body);min-width:0}
+.slot__v em{font-style:normal;font-weight:600}
+.derived{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-top:5px;
+  padding:6px 10px;background:var(--paper-2);border-radius:var(--r2);
+  font-size:var(--text-caption);color:var(--ink-2)}
+.derived b{font-family:var(--font-mono);color:var(--ink-0);font-weight:600}
+.derived button{background:none;border:none;color:var(--fall);font-size:var(--text-caption);
+  text-decoration:underline;padding:0;min-height:auto}
+.empty{color:var(--ink-2);font-size:var(--text-caption)}
+
+/* ── 범위 표 ─────────────────────────────────────── */
+.scope{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5)}
+.scope ul{list-style:none;display:flex;flex-direction:column}
+.scope li{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-0);
+  font-size:var(--text-sm);line-height:1.55}
+.scope li:last-child{border-bottom:none}
+.scope li i{font-style:normal;flex:0 0 auto;width:15px;text-align:center;margin-top:1px}
+.scope li small{display:block;color:var(--ink-2);font-size:var(--text-caption);margin-top:2px}
+.scope .out li{color:var(--ink-2)}
+
+/* ── 반응형: 세로 긴 화면 ─────────────────────────── */
+/* 컨테이너 쿼리 앞에 둔다 — 뒤에 두면 같은 명시도라 나중 것이 이겨서 영영 안 보인다 */
+.mob-only{display:none}
+@container (max-width: 767px){
+  .pad{padding:var(--s4)}
+  .two{grid-template-columns:1fr}
+  .scope{grid-template-columns:1fr;gap:var(--s5)}
+  .pick{grid-template-columns:1fr}
+  .fcard{flex-wrap:wrap;align-items:flex-start}
+  .fcard__act{width:100%}
+  .fcard__act .btn{width:100%}
+  .matrix{grid-template-columns:1fr;border:none}
+  .matrix>div{border-right:none}
+  .matrix .mh:first-child{display:none}
+  .chat{padding:var(--s4)}
+  .msg{max-width:92%}
+  .wsplit{grid-template-columns:1fr}
+  .build{order:-1;border-left:none;border-bottom:1px solid var(--line-0);padding:var(--s4)}
+  .desk-only{display:none!important}
+  .mob-only{display:block}
+  .ind__row{grid-template-columns:1fr auto}
+  .ind__s{grid-column:2}
+  /* 좁은 화면: 축을 왼쪽 끝으로 붙이고 날짜는 카드 안으로 */
+  .tline{--axis:5px}
+  .titem{grid-template-columns:1fr;padding-left:24px}
+  .titem__when{display:none}
+  .titem__mobwhen{display:block}
+  .titem__card::before{left:-19px;width:19px}
+  .tnow{grid-template-columns:1fr;padding-left:24px;position:relative}
+  .tnow__mark{position:absolute;left:5px;top:50%;justify-self:auto;
+    transform:translate(-50%,-50%);margin:0}
+  .tnow__label{padding-left:0}
+  .tperiod__h{gap:10px}
+  .tmore{grid-template-columns:1fr;padding-left:24px}
+  .tmore button{justify-self:start}
+  .galae__pie{flex-direction:column;align-items:flex-start;gap:var(--s4)}
+  .pie{align-self:center}
+  .slot{grid-template-columns:1fr;gap:5px;padding:var(--s3) 0}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <header class="bar">
+    <div class="bar__brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" stroke-linecap="square" style="color:var(--countdown)" aria-hidden="true">
+        <circle cx="12" cy="17" r="2.2"></circle>
+        <path d="M6.5 12.5a7 7 0 0 1 11 0"></path>
+        <path d="M3.5 8.5a11.5 11.5 0 0 1 17 0"></path>
+      </svg>
+      낌새 · MVP 프로토타입
+    </div>
+    <span class="bar__hint">핵심 루프 6화면</span>
+    <nav class="bar__nav" id="nav" aria-label="화면 바로가기"></nav>
+    <div class="bar__tools">
+      <button id="wtog" aria-pressed="false">가로 넓은 화면</button>
+      <button id="ttog" aria-pressed="false">LIGHT</button>
+    </div>
+  </header>
+
+  <p class="note" id="caption"></p>
+
+  <main class="stage">
+    <div class="viewport" id="vp" data-w="desktop">
+
+      <!-- ══ 1. 홈 ══════════════════════════════════ -->
+      <section class="screen is-on" id="m-home" aria-label="홈">
+        <div class="appbar">
+          <h2>낌새</h2>
+          <span class="spacer"></span>
+          <button class="btn btn--sm" data-go="m-write">+ 새 노트</button>
+        </div>
+        <div class="pad">
+
+          <div class="sec-label">다시 볼 시점</div>
+          <div class="feed">
+            <div class="fcard fcard--alert">
+              <div class="fcard__ico">D-5</div>
+              <div class="fcard__body">
+                <div class="fcard__why">판단 시점이 다가옵니다</div>
+                <div class="fcard__t"><b>삼성전자</b> · “엔비디아 HBM4 공급사로 진입하는가” — 10개월 전 <span class="num">60%</span>로 보셨습니다</div>
+              </div>
+              <div class="fcard__act"><button class="btn btn--sm" data-go="m-remind">열어보기</button></div>
+            </div>
+            <div class="fcard">
+              <div class="fcard__ico">↺</div>
+              <div class="fcard__body">
+                <div class="fcard__why">한동안 보지 않으셨습니다</div>
+                <div class="fcard__t"><b>엔비디아</b> · 마지막 검토 8주 전 — 당시의 생각을 다시 보시겠어요</div>
+              </div>
+              <div class="fcard__act"><button class="btn btn--sm" data-go="m-note">열어보기</button></div>
+            </div>
+          </div>
+
+          <div class="sec-label" style="margin-top:var(--s7)">다가오는 판단 시점</div>
+          <div class="tline">
+
+            <div class="tnow">
+              <span class="tnow__mark" aria-hidden="true"></span>
+              <span class="tnow__label">오늘 · 2026.12.26</span>
+            </div>
+
+            <section class="tperiod">
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>이번 주</span><i aria-hidden="true"></i></h4>
+              <div class="titem titem--near">
+                <div class="titem__when"><b>12.31</b>D-5</div>
+                <span class="titem__dot" aria-hidden="true"></span>
+                <div class="titem__card" data-go="m-note" style="cursor:pointer">
+                  <div class="titem__mobwhen">12.31 · D-5</div>
+                  <div class="titem__t">삼성전자 · 엔비디아 HBM4 공급사로 진입하는가</div>
+                  <div class="titem__s">진입한다 60% · 지표 2개 중 1개 달성</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="tperiod">
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>~1개월</span><i aria-hidden="true"></i></h4>
+              <div class="titem">
+                <div class="titem__when"><b>01.20</b>D-25</div>
+                <span class="titem__dot" aria-hidden="true"></span>
+                <div class="titem__card">
+                  <div class="titem__mobwhen">01.20 · D-25</div>
+                  <div class="titem__t">테슬라 · 1분기 안에 FSD 규제 승인이 나는가</div>
+                  <div class="titem__s">난다 40% · 지표 없음</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="tperiod">
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>~3개월</span><i aria-hidden="true"></i></h4>
+              <div class="titem">
+                <div class="titem__when"><b>03.10</b>D-74</div>
+                <span class="titem__dot" aria-hidden="true"></span>
+                <div class="titem__card">
+                  <div class="titem__mobwhen">03.10 · D-74</div>
+                  <div class="titem__t">엔비디아 · 4분기 실적이 컨센서스를 넘는가</div>
+                  <div class="titem__s">넘는다 55% · 지표 1개</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="tperiod">
+              <h4 class="tperiod__h"><i aria-hidden="true"></i><span>그 이후</span><i aria-hidden="true"></i></h4>
+              <div class="titem titem--far">
+                <div class="titem__when"><b>06.30</b>D-186</div>
+                <span class="titem__dot" aria-hidden="true"></span>
+                <div class="titem__card">
+                  <div class="titem__mobwhen">06.30 · D-186</div>
+                  <div class="titem__t">삼성전자 · 선두와의 기술 격차가 좁혀지는가</div>
+                  <div class="titem__s">좁혀진다 30% · 같은 노트의 두 번째 갈래</div>
+                </div>
+              </div>
+              <div class="tmore"><span></span><button>+ 3개 더 보기</button></div>
+            </section>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 2. 새 노트 · 대화 ══════════════════════ -->
+      <section class="screen" id="m-write" aria-label="새 노트 작성">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="m-home">← 홈</button>
+          <div>
+            <h2>새 노트</h2>
+            <div class="sub">생각을 말하면 AI가 노트로 정리합니다</div>
+          </div>
+        </div>
+        <div class="wsplit">
+          <div>
+            <div class="chat">
+              <div class="msg msg--ai"><b>AI</b>
+                <div>요즘 어떤 생각을 하고 계신가요? 종목이든 시장 전체든 편하게 말씀해 주세요.</div>
+              </div>
+              <div class="msg msg--me">삼성전자 사려고. HBM 공급이 계속 부족할 것 같은데,
+                결국 후발주자한테도 물량이 돌아갈 수밖에 없다고 봐.</div>
+              <div class="msg msg--ai"><b>AI</b>
+                <div>“공급 부족이 이어지면 후발주자도 물량을 받는다”가 핵심 논리군요.
+                  그러면 반대로 흘러간다면 어떤 모습일까요?</div>
+              </div>
+              <div class="msg msg--me">SK하이닉스가 증설을 앞당겨서 공급이 풀리면 삼성 몫은 안 오지.</div>
+              <div class="msg msg--ai"><b>AI</b>
+                <div>두 갈래가 잡혔습니다. 그러면 이 둘은 <b>“올해 안에 엔비디아 HBM4
+                  공급사로 진입하는가”</b>에 대한 답이 되겠네요. 언제 답이 나올까요?</div>
+              </div>
+              <div class="msg msg--me">올해 안에는 수주 여부가 나올 거야.
+                그리고 기술 격차는 내년 상반기는 돼야 알 수 있고.</div>
+              <div class="msg msg--ai"><b>AI</b>
+                <div>답이 나오는 날이 다르니 두 질문으로 나누겠습니다. 기술 격차 쪽은
+                  “2027년 상반기까지 선두와의 격차가 좁혀지는가”로 따로 두면 될까요?</div>
+              </div>
+              <div class="msg msg--me">그래 그게 맞지.</div>
+              <div class="msg msg--ai"><b>AI</b>
+                <div>정리할 재료가 모였습니다. 노트로 만들어 볼까요?</div>
+              </div>
+            </div>
+            <div class="composer">
+              <input type="text" placeholder="계속 이야기하기" aria-label="메시지 입력">
+              <button class="btn btn--primary" data-go="m-preview">노트로 정리하기</button>
+            </div>
+          </div>
+
+          <aside class="build" aria-label="지금까지 만들어진 노트">
+            <div class="sec-label">지금까지 잡힌 것</div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>대상</b> · 삼성전자</div></div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>가설</b> · HBM 공급 부족이 이어지고, 후발주자에게도 물량이 돌아간다</div></div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>갈래 1</b> · 올해 안에 엔비디아 HBM4 공급사로 진입하는가
+                <span class="build__new">답이 나오는 날 “올해 안”</span></div></div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>시나리오</b> · 진입한다 / 진입하지 못한다</div></div>
+            <div class="build__row build__row--new"><i class="ok">✓</i>
+              <div><b>갈래 2</b> · 2027년 상반기까지 기술 격차가 좁혀지는가
+                <span class="build__new">날짜가 달라 갈래를 나눔</span></div></div>
+            <div class="build__row"><i class="miss">·</i>
+              <div><b>확률</b> · 아직 이야기 나오지 않음</div></div>
+            <div class="hint" style="margin-top:var(--s4)">
+              비어 있어도 저장됩니다. 판단 시점만 있으면 리마인드는 옵니다.
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ══ 3. 노트 초안 확인 ══════════════════════ -->
+      <section class="screen" id="m-preview" aria-label="노트 초안 확인">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="m-write">← 대화</button>
+          <div>
+            <h2>이렇게 정리했습니다</h2>
+            <div class="sub">고칠 곳이 있으면 지금 바꾸세요</div>
+          </div>
+        </div>
+        <div class="pad">
+          <div style="max-width:760px">
+            <div class="slot">
+              <div class="slot__k">대상</div>
+              <div class="slot__v"><em>삼성전자</em></div>
+            </div>
+            <div class="slot">
+              <div class="slot__k">가설</div>
+              <div class="slot__v">HBM 공급 부족이 2026년까지 이어지며, 삼성전자가 후발주자로서
+                점유율을 확보한다.
+                <div class="quote" style="margin-top:9px">
+                  <span class="tag-user">[사용자]</span>“누가 만들든 팔린다는 거지.”
+                </div>
+              </div>
+            </div>
+            <div class="slot">
+              <div class="slot__k">근거 항목</div>
+              <div class="slot__v">
+                <ol class="premise" style="margin-top:-9px">
+                  <li>HBM 수요가 AI 서버 증설과 함께 계속 늘어난다</li>
+                  <li>선두 업체 증설 속도가 수요를 못 따라간다</li>
+                  <li>고객사가 공급처를 하나로 두고 싶어 하지 않는다</li>
+                </ol>
+              </div>
+            </div>
+            <div class="slot">
+              <div class="slot__k">갈래 1</div>
+              <div class="slot__v">
+                <div><em>올해 안에 엔비디아 HBM4 공급사로 진입하는가?</em></div>
+                <div class="derived">
+                  “올해 안”을 <b>2026.12.31</b>로 잡았습니다
+                  <button>바꾸기</button>
+                </div>
+                <div style="margin-top:9px"><em>01</em> 진입한다</div>
+                <div style="margin-top:4px"><em>02</em> 진입하지 못한다</div>
+                <div style="margin-top:4px;color:var(--ink-2)"><em>03</em> 그 외 예상 못한 전개
+                  <span class="empty">— 항상 붙습니다</span></div>
+              </div>
+            </div>
+            <div class="slot">
+              <div class="slot__k">갈래 2</div>
+              <div class="slot__v">
+                <div><em>2027년 상반기까지 선두와의 기술 격차가 좁혀지는가?</em></div>
+                <div class="derived">
+                  “내년 상반기”를 <b>2027.06.30</b>으로 잡았습니다
+                  <button>바꾸기</button>
+                </div>
+                <div style="margin-top:9px"><em>01</em> 좁혀진다</div>
+                <div style="margin-top:4px"><em>02</em> 좁혀지지 않는다</div>
+                <div style="margin-top:4px;color:var(--ink-2)"><em>03</em> 그 외 예상 못한 전개</div>
+                <p style="margin-top:9px;font-size:var(--text-caption);color:var(--ink-2)">
+                  답이 나오는 날이 달라 갈래 1과 나눠 두었습니다.</p>
+              </div>
+            </div>
+            <div class="slot">
+              <div class="slot__k">확률</div>
+              <div class="slot__v"><span class="empty">대화에 나오지 않아 비워 뒀습니다.
+                저장한 뒤 노트에서 나눌 수 있습니다.</span></div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:var(--s5)">
+            <button class="btn btn--primary" data-go="m-note">이대로 저장</button>
+            <button class="btn">고쳐 쓰기</button>
+            <button class="btn btn--quiet" data-go="m-write">대화로 돌아가기</button>
+          </div>
+          <p class="disclaimer">최종 투자 판단과 그 책임은 사용자 본인에게 있습니다.</p>
+        </div>
+      </section>
+
+      <!-- ══ 4. 노트 상세 ═══════════════════════════ -->
+      <section class="screen" id="m-note" aria-label="노트 상세">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="m-home">← 홈</button>
+          <div>
+            <h2>삼성전자</h2>
+            <div class="sub">2026.03.02 기록 · 마지막 검토 6주 전</div>
+          </div>
+          <span class="spacer"></span>
+          <button class="btn btn--sm desk-only">원본 대화 보기</button>
+        </div>
+        <div class="pad" style="max-width:860px">
+
+          <div class="sec-label">나의 가설</div>
+          <div class="thesis">
+            HBM 공급 부족이 2026년까지 이어지며, 삼성전자가 후발주자로서 점유율을 확보한다.
+            <div class="quote"><span class="tag-user">[사용자]</span>“누가 만들든 팔린다는 거지.”</div>
+          </div>
+
+          <div class="sec-label" style="margin-top:var(--s6)">이 판단이 성립하려면
+            <span class="tag-user">[사용자]</span></div>
+          <div class="card">
+            <ol class="premise">
+              <li>HBM 수요가 AI 서버 증설과 함께 계속 늘어난다</li>
+              <li>선두 업체 증설 속도가 수요를 못 따라간다</li>
+              <li>고객사가 공급처를 하나로 두고 싶어 하지 않는다</li>
+            </ol>
+            <p style="margin-top:var(--s3);font-size:var(--text-caption);color:var(--ink-2)">
+              수치로 바꾸지 않고 말한 그대로 둡니다. 두 갈래가 함께 깔고 있는 논리라
+              갈래마다 되풀이하지 않습니다. 맞았는지는 판정이 끝난 뒤 회고에서 따져봅니다.
+            </p>
+          </div>
+
+          <div class="sec-label" style="margin-top:var(--s6)">갈래 1 · 하나만 일어납니다</div>
+          <div class="galae">
+            <div class="galae__q">
+              <h3>올해 안에 엔비디아 HBM4 공급사로 진입하는가?</h3>
+              <div class="galae__when">
+                <span>2026.12.31에 답이 나옵니다</span>
+                <span class="num" style="color:var(--countdown)">D-5</span>
+              </div>
+            </div>
+            <div class="galae__pie">
+              <div class="pie" role="img"
+                   aria-label="확률 배분: 진입한다 60%, 진입하지 못한다 35%, 그 외 5%">
+                <div class="pie__c"><b>100%</b><span>합</span></div>
+              </div>
+              <div class="legend">
+                <div class="legend__row">
+                  <i style="background:var(--w1)"></i><b>01 · 진입한다</b>
+                  <span class="num">60%</span>
+                </div>
+                <div class="legend__row">
+                  <i style="background:var(--w2)"></i><b>02 · 진입하지 못한다</b>
+                  <span class="num">35%</span>
+                </div>
+                <div class="legend__row legend__row--rest">
+                  <i style="background:var(--w3)"></i><b>03 · 그 외 예상 못한 전개</b>
+                  <span class="num">5%</span>
+                </div>
+              </div>
+            </div>
+            <div class="galae__body">
+
+              <article class="branch branch--near">
+                <div class="branch__h">
+                  <div>
+                    <div class="branch__no">01</div>
+                    <h3 class="branch__t">진입한다</h3>
+                  </div>
+                </div>
+                <p style="font-size:var(--text-sm);color:var(--ink-1)">
+                  공급 부족이 이어져 고객사가 공급처를 하나로 두지 못한다.</p>
+                <div class="prob">
+                  <div class="prob__v" style="color:var(--rise)">
+                    <span class="wedge" style="background:var(--w1)"></span>60%<small>안팎</small>
+                  </div>
+                </div>
+                <div class="branch__meta">
+                  <span>지표 2개 중 1개 달성</span>
+                  <span>아래에 자세히</span>
+                </div>
+              </article>
+
+              <article class="branch">
+                <div class="branch__h">
+                  <div>
+                    <div class="branch__no">02</div>
+                    <h3 class="branch__t">진입하지 못한다</h3>
+                  </div>
+                </div>
+                <p style="font-size:var(--text-sm);color:var(--ink-1)">
+                  선두 업체 증설이 앞당겨져 남는 물량이 없다.</p>
+                <div class="prob">
+                  <div class="prob__v" style="color:var(--fall)">
+                    <span class="wedge" style="background:var(--w2)"></span>35%<small>안팎</small>
+                  </div>
+                </div>
+                <div class="branch__meta">
+                  <span>여집합이라 지표를 따로 두지 않습니다</span>
+                </div>
+              </article>
+
+              <article class="branch branch--far">
+                <div class="branch__h">
+                  <div>
+                    <div class="branch__no">03</div>
+                    <h3 class="branch__t">그 외 예상 못한 전개</h3>
+                  </div>
+                </div>
+                <p style="font-size:var(--text-sm);color:var(--ink-1)">
+                  질문 자체가 성립하지 않게 되는 경우 — 사업 철수, 인수합병 등.</p>
+                <div class="prob">
+                  <div class="prob__v" style="color:var(--ink-2)">
+                    <span class="wedge" style="background:var(--w3)"></span>5%<small>안팎</small>
+                  </div>
+                </div>
+                <div class="branch__meta">
+                  <span>지울 수 없습니다</span>
+                </div>
+              </article>
+
+            </div>
+          </div>
+
+          <div class="sec-label" style="margin-top:var(--s6)">갈래 2 · 하나만 일어납니다</div>
+          <div class="galae">
+            <div class="galae__q">
+              <h3>2027년 상반기까지 선두와의 기술 격차가 좁혀지는가?</h3>
+              <div class="galae__when">
+                <span>2027.06.30에 답이 나옵니다</span>
+                <span class="num">D-186</span>
+              </div>
+            </div>
+            <div class="galae__pie">
+              <div class="pie pie--g2 pie--sm" role="img"
+                   aria-label="확률 배분: 좁혀진다 30%, 좁혀지지 않는다 65%, 그 외 5%">
+                <div class="pie__c"><b>100%</b><span>합</span></div>
+              </div>
+              <div class="legend">
+                <div class="legend__row">
+                  <i style="background:var(--w1)"></i><b>01 · 좁혀진다</b>
+                  <span class="num">30%</span>
+                </div>
+                <div class="legend__row">
+                  <i style="background:var(--w2)"></i><b>02 · 좁혀지지 않는다</b>
+                  <span class="num">65%</span>
+                </div>
+                <div class="legend__row legend__row--rest">
+                  <i style="background:var(--w3)"></i><b>03 · 그 외 예상 못한 전개</b>
+                  <span class="num">5%</span>
+                </div>
+              </div>
+            </div>
+            <div class="hint">
+              같은 가설이지만 답이 나오는 날이 다릅니다. 그래서 한 갈래에 섞지 않고 따로 둡니다.
+            </div>
+          </div>
+
+          <div class="sec-label" style="margin-top:var(--s6)">결과 지표 · 갈래 1 → 01 진입한다</div>
+          <div class="card">
+            <div class="ind">
+              <div class="ind__row is-hit">
+                <div class="ind__n">삼성전자 주가
+                  <small>장중 한 번이라도 닿으면 달성</small></div>
+                <div class="ind__v">97,400 / 95,000원</div>
+                <div class="ind__s">달성 · 11.23</div>
+              </div>
+              <div class="ind__row is-miss">
+                <div class="ind__n">HBM 매출 비중
+                  <small>분기 공시 기준</small></div>
+                <div class="ind__v">14.2 / 20.0%</div>
+                <div class="ind__s">미달</div>
+              </div>
+            </div>
+            <div class="hint" style="margin-top:var(--s3)">
+              매일 한 번 값을 받아 목표와 견줍니다. 기한은 갈래 1의 판단 시점인 2026.12.31이고,
+              둘 다 달성해야 “진입한다”로 봅니다. 그래도 확정은 결과 확인 화면에서 하십니다.
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:var(--s5)">
+            <button class="btn btn--primary" data-go="m-remind">다시 보기</button>
+            <button class="btn">확률 조정</button>
+            <button class="btn mob-only" style="width:100%">원본 대화 보기</button>
+          </div>
+          <p class="disclaimer">최종 투자 판단과 그 책임은 사용자 본인에게 있습니다.</p>
+        </div>
+      </section>
+
+      <!-- ══ 5. 다시 보기 ═══════════════════════════ -->
+      <section class="screen" id="m-remind" aria-label="다시 보기">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="m-home">← 홈</button>
+          <div>
+            <h2>삼성전자 · 다시 보기</h2>
+            <div class="sub">판단 시점 D-5 · 2026.03.02 기록</div>
+          </div>
+        </div>
+        <div class="pad">
+          <div class="two">
+            <div>
+              <div class="step"><i>1</i>10개월 전, 당신은 이렇게 생각했습니다</div>
+              <div class="card card--fixed">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-long)">
+                  HBM 공급 부족이 2026년까지 이어지며, 삼성전자가 후발주자로서 점유율을 확보한다.
+                </div>
+                <div class="quote" style="font-size:var(--text-sm)">
+                  <span class="tag-user">[사용자]</span>“누가 만들든 팔린다는 거지.”
+                </div>
+                <div style="margin-top:var(--s4);padding-top:var(--s3);
+                            border-top:1px solid var(--line-1)">
+                  <div style="font-size:var(--text-caption);color:var(--ink-2)">
+                    올해 안에 엔비디아 HBM4 공급사로 진입하는가?</div>
+                  <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;
+                              font-size:var(--text-caption);color:var(--ink-1)">
+                    <div style="display:flex;justify-content:space-between">
+                      <span><span class="wedge" style="background:var(--w1)"></span>진입한다</span>
+                      <span class="num">60%</span></div>
+                    <div style="display:flex;justify-content:space-between">
+                      <span><span class="wedge" style="background:var(--w2)"></span>진입하지 못한다</span>
+                      <span class="num">35%</span></div>
+                    <div style="display:flex;justify-content:space-between;color:var(--ink-2)">
+                      <span><span class="wedge" style="background:var(--w3)"></span>그 외 예상 못한 전개</span>
+                      <span class="num">5%</span></div>
+                  </div>
+                </div>
+                <button class="btn btn--quiet btn--sm" style="margin-top:var(--s3);padding-left:0">
+                  ▸ 당시 대화 전문 보기</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="step"><i>2</i>그동안 지표는 이렇게 움직였습니다</div>
+              <div class="card">
+                <div class="ind">
+                  <div class="ind__row is-hit">
+                    <div class="ind__n">삼성전자 주가
+                      <small>기록 당시 77,463원</small></div>
+                    <div class="ind__v">97,400 / 95,000원</div>
+                    <div class="ind__s">달성 · 11.23</div>
+                  </div>
+                  <div class="ind__row is-miss">
+                    <div class="ind__n">HBM 매출 비중
+                      <small>기록 당시 9.8%</small></div>
+                    <div class="ind__v">14.2 / 20.0%</div>
+                    <div class="ind__s">미달</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hint" style="margin-top:var(--s3)">
+                주가는 목표를 넘었지만 비중은 아직입니다. 판단 시점까지 5일 남았습니다.
+              </div>
+            </div>
+          </div>
+
+          <div class="step" style="margin-top:var(--s6)"><i>3</i>지금은 어떻게 보시나요</div>
+          <div class="card">
+            <div class="row" style="justify-content:space-between;gap:var(--s4)">
+              <div style="min-width:0">
+                <div style="font-size:var(--text-sm);font-weight:600">01 · 진입한다</div>
+                <div style="font-size:var(--text-caption);color:var(--ink-2);margin-top:2px">
+                  10개월 전에 매긴 확률입니다. 그때와 같게 보시나요?</div>
+              </div>
+              <div class="prob__v" style="color:var(--rise)">
+                <span class="wedge" style="background:var(--w1)"></span>60%<small>안팎</small>
+              </div>
+            </div>
+            <div class="row" style="margin-top:var(--s4);padding-top:var(--s4);
+                        border-top:1px solid var(--line-0)">
+              <button class="btn btn--primary" data-go="m-judge">결과 확인하기</button>
+              <button class="btn">확률만 조정</button>
+              <button class="btn btn--quiet" data-go="m-home">나중에</button>
+            </div>
+          </div>
+          <p class="disclaimer">최종 투자 판단과 그 책임은 사용자 본인에게 있습니다.</p>
+        </div>
+      </section>
+
+      <!-- ══ 6. 결과 확인 · 회고 ════════════════════ -->
+      <section class="screen" id="m-judge" aria-label="결과 확인과 회고">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="m-remind">← 다시 보기</button>
+          <div>
+            <h2>결과 확인</h2>
+            <div class="sub">판단 시점이 지났습니다 · 2026.12.31</div>
+          </div>
+        </div>
+        <div class="pad" style="max-width:860px">
+
+          <div class="step"><i>1</i>예상한 일이 일어났나요</div>
+          <div class="card" style="margin-bottom:var(--s4)">
+            <div style="font-size:var(--text-sm);margin-bottom:var(--s3)">
+              올해 안에 엔비디아 HBM4 공급사로 진입하는가? — <b>01 · 진입한다</b>를 60%로 보셨습니다
+            </div>
+            <div class="ind" style="margin-bottom:var(--s4)">
+              <div class="ind__row is-hit">
+                <div class="ind__n">삼성전자 주가</div>
+                <div class="ind__v">97,400 / 95,000원</div>
+                <div class="ind__s">달성</div>
+              </div>
+              <div class="ind__row is-miss">
+                <div class="ind__n">HBM 매출 비중</div>
+                <div class="ind__v">17.1 / 20.0%</div>
+                <div class="ind__s">미달</div>
+              </div>
+            </div>
+            <div class="pick">
+              <button aria-pressed="true">일어났다
+                <small>가설대로 흘러갔습니다</small></button>
+              <button aria-pressed="false">일어나지 않았다
+                <small>다른 갈래로 갔습니다</small></button>
+            </div>
+          </div>
+
+          <div class="step" style="margin-top:var(--s6)"><i>2</i>맞았다면, 논리가 맞아서였나요</div>
+          <div class="matrix" style="margin-bottom:var(--s4)">
+            <div class="mh"></div>
+            <div class="mh">논리가 맞았다</div>
+            <div class="mh">논리는 틀렸다</div>
+            <div class="mh">결과가 맞았다</div>
+            <div><b>제대로 맞춤</b><br>세운 대로 굴러갔습니다</div>
+            <div class="risky"><b>소 뒷걸음질</b><br>운이었을 수 있습니다</div>
+            <div class="mh">결과가 틀렸다</div>
+            <div><b>시기 문제</b><br>방향은 맞고 때가 일렀습니다</div>
+            <div><b>완전히 빗나감</b><br>전제부터 다시 봐야 합니다</div>
+          </div>
+
+          <div class="sec-label">근거 항목은 실제로 어땠나</div>
+          <div class="card" style="margin-bottom:var(--s4)">
+            <ol class="premise">
+              <li><span style="color:var(--fall)">그랬다</span> — HBM 수요는 실제로 계속 늘었습니다</li>
+              <li><span style="color:var(--rise)">아니었다</span> — 선두 업체 증설은 오히려 앞당겨졌습니다</li>
+              <li><span style="color:var(--ink-2)">확인 불가</span> — 고객사 조달 방침은 공개된 자료가 없습니다</li>
+            </ol>
+          </div>
+
+          <div class="pick" style="margin-bottom:var(--s4)">
+            <button aria-pressed="false">제대로 맞췄다</button>
+            <button aria-pressed="true">소 뒷걸음질이었다</button>
+            <button aria-pressed="false">시기 문제였다</button>
+            <button aria-pressed="false">완전히 빗나갔다</button>
+          </div>
+
+          <div class="step" style="margin-top:var(--s6)"><i>3</i>남기고 싶은 말</div>
+          <label for="rv">다음의 나에게</label>
+          <textarea id="rv" style="margin-top:6px">공급 부족이 이어진다는 전제는 틀렸는데 주가는 올랐다. 이번엔 전제가 아니라 업황 전체가 밀어올린 것 같다. 다음엔 "누가 만들든 팔린다"를 근거로 쓸 때 그게 회사 고유의 강점인지부터 따져보자.</textarea>
+
+          <div class="row" style="margin-top:var(--s5)">
+            <button class="btn btn--primary" data-go="m-home">회고 남기고 닫기</button>
+            <button class="btn btn--quiet">나중에 쓰기</button>
+          </div>
+          <p class="disclaimer">최종 투자 판단과 그 책임은 사용자 본인에게 있습니다.</p>
+        </div>
+      </section>
+
+      <!-- ══ 7. 이번 MVP의 범위 ═════════════════════ -->
+      <section class="screen" id="m-scope" aria-label="MVP 범위">
+        <div class="appbar">
+          <h2>이번 MVP의 범위</h2>
+          <div class="sub">제품 화면이 아닙니다 · 무엇을 넣고 뺐는지 적어둔 쪽지</div>
+        </div>
+        <div class="pad">
+          <div class="scope">
+            <div>
+              <div class="sec-label">들어간 것 — 핵심 루프</div>
+              <ul>
+                <li><i class="ok">✓</i><div>대화로 노트 쓰기
+                  <small>가설 · 시나리오 · 반대 시나리오 · 판단 시점 · 근거 항목</small></div></li>
+                <li><i class="ok">✓</i><div>초안 확인 후 저장
+                  <small>정해진 칸만 채우고, 없는 건 비워 둡니다</small></div></li>
+                <li><i class="ok">✓</i><div>확률 배분과 도넛
+                  <small>합 100% · “그 외 예상 못한 전개”가 항상 붙습니다</small></div></li>
+                <li><i class="ok">✓</i><div>결과 지표 자동 수집
+                  <small>일 1회 · 장중 터치 인정 · 기한은 갈래의 판단 시점 하나</small></div></li>
+                <li><i class="ok">✓</i><div>판단 시점 리마인드
+                  <small>과거의 나를 먼저 읽고 그다음에 지금을 봅니다</small></div></li>
+                <li><i class="ok">✓</i><div>결과 확인과 회고
+                  <small>결과 축과 논리 축을 따로 묻습니다</small></div></li>
+              </ul>
+            </div>
+            <div class="out">
+              <div class="sec-label">뺀 것 — 다음 단계로</div>
+              <ul>
+                <li><i>·</i><div>AI 리서치와 새 정보 서랍
+                  <small>수집·관련성 판단 파이프라인이 통째로 필요합니다</small></div></li>
+                <li><i>·</i><div>AI 어드바이저 (매수·홀드·매도 의견)
+                  <small>루프가 도는 것을 먼저 확인한 뒤에 붙입니다</small></div></li>
+                <li><i>·</i><div>지표 추이 차트
+                  <small>MVP는 현재값과 목표값 한 줄로 갈음합니다</small></div></li>
+                <li><i>·</i><div>벤치마크 대비 비교
+                  <small>회고는 사용자 서술만으로 시작합니다</small></div></li>
+                <li><i>·</i><div>확률 변경 이력, 노트 목록·검색
+                  <small>노트 10개 안쪽에서는 홈만으로 됩니다</small></div></li>
+                <li><i>·</i><div>원본 대화 열람 화면
+                  <small>버튼 자리만 두었습니다</small></div></li>
+                <li><i>·</i><div>저장 전 되묻기 화면
+                  <small>규칙은 정해져 있고, 화면은 다음에 붙입니다</small></div></li>
+              </ul>
+            </div>
+          </div>
+          <div class="hint" style="margin-top:var(--s5)">
+            전체 화면이 필요하면 <b style="margin:0 4px">docs/prototype.html</b>을 보세요. 그쪽은 그대로 둡니다.
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  var screens=[
+    ['m-home','홈','다시 볼 시점 하나와 세로 타임라인. MVP에서는 날짜로 도착하는 리마인드만 띄웁니다 — “가설을 흔드는 낌새”는 백그라운드 리서치가 있어야 하는 카드라 뺐습니다.'],
+    ['m-write','새 노트 · 대화','논리는 대화로 받습니다. 남는 가로 폭에 지금 만들어지는 노트를 실시간으로 보여주고, 반대 시나리오와 판단 시점은 대화 중에 묻습니다. 확률은 대화에 안 나오면 비워 둡니다.'],
+    ['m-preview','초안 확인','AI는 자유 형식으로 쓰지 않고 정해진 칸만 채웁니다. “올해 안”을 날짜로 옮긴 부분은 감추지 않고 드러내 확인받습니다.'],
+    ['m-note','노트 상세','나의 관점만 있는 화면입니다. 오른쪽 새 정보 서랍은 MVP에 없습니다. 확률은 도넛 조각과 같은 색의 큰 숫자로 읽고, 지표는 차트 없이 현재값과 목표값 한 줄로 봅니다.'],
+    ['m-remind','다시 보기','메멘토의 핵심 화면. 과거의 나를 먼저 읽고 그다음에 지금을 봅니다. 2단은 AI 조사 결과가 아니라 지표가 어떻게 움직였는지입니다 — 자동 수집만으로 채울 수 있는 정보라서요.'],
+    ['m-judge','결과 확인 · 회고','MVP에서는 판정과 회고를 한 화면에 둡니다. 묻는 것은 두 가지: 예상한 일이 일어났는가, 그리고 그게 논리가 맞아서였는가. 근거 항목은 여기서 사후에 따져봅니다.'],
+    ['m-scope','MVP 범위','제품 화면이 아니라 범위를 적어둔 쪽지입니다. 무엇을 넣고 무엇을 왜 뺐는지.']
+  ];
+  var nav=document.getElementById('nav'), vp=document.getElementById('vp'),
+      cap=document.getElementById('caption');
+
+  screens.forEach(function(s,i){
+    var b=document.createElement('button');
+    b.textContent=s[1]; b.dataset.go=s[0];
+    b.setAttribute('aria-current', i===0?'true':'false');
+    nav.appendChild(b);
+  });
+
+  function show(id){
+    document.querySelectorAll('.screen').forEach(function(el){
+      el.classList.toggle('is-on', el.id===id);
+    });
+    nav.querySelectorAll('button').forEach(function(b){
+      b.setAttribute('aria-current', b.dataset.go===id ? 'true':'false');
+    });
+    var s=screens.find(function(x){return x[0]===id;});
+    cap.textContent = s ? s[2] : '';
+    vp.scrollIntoView({block:'start',behavior:'smooth'});
+  }
+  show('m-home');
+
+  document.addEventListener('click',function(e){
+    var go=e.target.closest('[data-go]');
+    if(go){ show(go.dataset.go); return; }
+
+    var pick=e.target.closest('.pick button');
+    if(pick){
+      pick.parentNode.querySelectorAll('button').forEach(function(b){
+        b.setAttribute('aria-pressed', b===pick ? 'true':'false');
+      });
+    }
+  });
+
+  // 폭 토글
+  var wtog=document.getElementById('wtog');
+  wtog.addEventListener('click',function(){
+    var mobile = vp.dataset.w==='desktop';
+    vp.dataset.w = mobile ? 'mobile':'desktop';
+    this.setAttribute('aria-pressed', mobile?'true':'false');
+    this.textContent = mobile ? '세로 긴 화면':'가로 넓은 화면';
+  });
+
+  // 테마 토글
+  var ttog=document.getElementById('ttog');
+  ttog.addEventListener('click',function(){
+    var dark = document.documentElement.getAttribute('data-theme')==='dark';
+    document.documentElement.setAttribute('data-theme', dark?'light':'dark');
+    this.setAttribute('aria-pressed', dark?'false':'true');
+    this.textContent = dark ? 'LIGHT':'DARK';
+  });
+})();
+</script>
+</body>
+</html>
