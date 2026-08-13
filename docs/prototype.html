@@ -474,6 +474,28 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 .stepper output{min-width:64px;text-align:center;font-family:var(--font-mono);
   font-variant-numeric:tabular-nums;font-size:var(--text-subhead)}
 .slider{width:100%;height:24px;accent-color:var(--ink-2);margin-top:var(--s3)}
+/* 확률 배분 — 갈래 하나 안에서 답들이 서로 밀고 당긴다 */
+.split-row{display:grid;grid-template-columns:1fr 150px 54px;gap:var(--s3);align-items:center;
+  padding:10px 0;border-bottom:1px solid var(--line-0)}
+.split-row:last-of-type{border-bottom:none}
+.split-row__n{font-size:var(--text-sm);display:flex;align-items:center;gap:8px;min-width:0}
+.split-row__v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-subhead);text-align:right}
+.split-row--lock .split-row__v{color:var(--ink-2)}
+.split-row--lock{color:var(--ink-2)}
+.scale{display:flex;justify-content:space-between;padding-top:6px;
+  font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-3)}
+/* 답한 뒤에 나오는 남의 답 */
+.others{display:flex;flex-direction:column;gap:0}
+.others__row{display:grid;grid-template-columns:76px 60px 1fr;gap:var(--s3);align-items:baseline;
+  padding:9px 0;border-bottom:1px solid var(--line-0);font-size:var(--text-caption)}
+.others__row:last-child{border-bottom:none}
+.others__row b{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-subhead);font-weight:600;text-align:right;color:var(--ink-1)}
+.others__row.is-me b{color:var(--ink-0)}
+.others__row.is-me{font-weight:600}
+.others__why{color:var(--ink-2);line-height:1.6}
+@media (max-width:0px){}
 
 /* ── 수치 추이 차트 ─────────────────────────────── */
 .ichart{position:relative;background:var(--paper-0);border:1px solid var(--line-0);
@@ -580,6 +602,10 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .mob-only{display:block}
   .stepper.mob-only{display:flex}
   .bench__row{grid-template-columns:76px 1fr 46px}
+  .split-row{grid-template-columns:1fr 54px;row-gap:6px}
+  .split-row .slider{grid-column:1/-1;margin-top:0}
+  .others__row{grid-template-columns:64px 54px;row-gap:2px}
+  .others__why{grid-column:1/-1}
   /* 좁은 화면: 축을 왼쪽 끝으로 붙이고 날짜는 카드 안으로 */
   .tline{--axis:5px}
   .titem{grid-template-columns:1fr;padding-left:24px}
@@ -2412,6 +2438,67 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 
           <div class="sec-label" style="margin-top:var(--s5)">
             갈래 1 · 엔비디아 HBM4 공급사로 진입하는가 &nbsp;·&nbsp; 2026.12.31까지</div>
+
+          <div class="card" style="background:var(--paper-1);margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:8px">비슷한 일이 과거에 얼마나 자주 있었나</div>
+            <p style="font-size:var(--text-sm);line-height:var(--lh-body)">
+              최근 5년간 신규 HBM 공급사 진입이 발표 후 2분기 안에 확정된 사례는
+              <b class="num">7건 중 3건</b>입니다.</p>
+            <div class="info__m" style="color:var(--ink-2)">출처 2곳 · 2026.03.02 조사</div>
+          </div>
+
+          <div class="card" style="margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:var(--s2)">어떻게 나눠 보시나요 · 눈금 하나가 5%</div>
+            <div class="split-row">
+              <span class="split-row__n"><span class="wedge" style="background:var(--w1)"></span>01 진입한다</span>
+              <input type="range" class="slider" id="sp1" min="5" max="95" step="5" value="65"
+                     style="margin-top:0" aria-label="진입한다 확률">
+              <span class="split-row__v" id="sv1">65%</span>
+            </div>
+            <div class="split-row">
+              <span class="split-row__n"><span class="wedge" style="background:var(--w2)"></span>02 진입하지 못한다</span>
+              <span style="font-size:var(--text-caption);color:var(--ink-2)">자동으로 조정됩니다</span>
+              <span class="split-row__v" id="sv2">30%</span>
+            </div>
+            <div class="split-row split-row--lock">
+              <span class="split-row__n"><span class="wedge" style="background:var(--w3)"></span>03 그 외 예상 못한 전개</span>
+              <span style="font-size:var(--text-caption)">지울 수 없습니다 · 최소 5%</span>
+              <span class="split-row__v">5%</span>
+            </div>
+            <div class="scale" aria-hidden="true"><span>희박</span><span>반반</span><span>유력</span></div>
+            <div class="row" style="margin-top:var(--s4);padding-top:var(--s3);
+                        border-top:1px solid var(--line-0)">
+              <button class="btn btn--sm" id="pdone">이렇게 보겠습니다</button>
+              <span style="font-size:var(--text-caption);color:var(--ink-2)">
+                확정하시면 남들은 어떻게 보는지 보여드립니다</span>
+            </div>
+          </div>
+
+          <div class="card" id="others1" hidden style="margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:var(--s2)">남들은 이렇게 봅니다</div>
+            <div class="others">
+              <div class="others__row is-me">
+                <span>당신</span><b id="ome">65%</b><span class="others__why"></span>
+              </div>
+              <div class="others__row">
+                <span>컨센서스</span><b>58%</b>
+                <span class="others__why">증권사 12곳 중 7곳이 “연내 진입 가능” · 출처 4곳</span>
+              </div>
+              <div class="others__row">
+                <span>AI</span><b>45%</b>
+                <span class="others__why">SK하이닉스 증설 일정이 앞당겨진 것이 아직 반영되지
+                  않은 것 같습니다. 다만 엔비디아의 공급사 다변화 기조는 우호적입니다. · 출처 3곳</span>
+              </div>
+            </div>
+            <div class="row" style="margin-top:var(--s4);padding-top:var(--s3);
+                        border-top:1px solid var(--line-0)">
+              <button class="btn btn--primary btn--sm">그대로 두기</button>
+              <button class="btn btn--sm">다시 매기기</button>
+              <span style="font-size:var(--text-caption);color:var(--ink-2)">
+                바꾸시면 처음 매긴 값도 함께 남습니다</span>
+            </div>
+          </div>
+
           <div class="card">
             <div style="font-size:var(--text-sm)">
               <b>이 질문은 수치로 확인할 수 없습니다</b>
@@ -2434,8 +2521,35 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 
           <div class="sec-label" style="margin-top:var(--s6)">
             갈래 2 · 12월 말까지 삼성전자가 95,000원을 넘는가 &nbsp;·&nbsp; 2026.12.31까지</div>
+          <div class="card" style="background:var(--paper-1);margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:8px">비슷한 일이 과거에 얼마나 자주 있었나</div>
+            <p style="font-size:var(--text-sm);color:var(--ink-2)">
+              쓸 만한 사례를 찾지 못했습니다. 지어내지 않고 비워 둡니다.</p>
+          </div>
+
+          <div class="card" style="margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:var(--s2)">어떻게 나눠 보시나요 · 눈금 하나가 5%</div>
+            <div class="split-row">
+              <span class="split-row__n"><span class="wedge" style="background:var(--w1)"></span>01 넘는다</span>
+              <input type="range" class="slider" id="sp2" min="5" max="95" step="5" value="70"
+                     style="margin-top:0" aria-label="넘는다 확률">
+              <span class="split-row__v" id="tv1">70%</span>
+            </div>
+            <div class="split-row">
+              <span class="split-row__n"><span class="wedge" style="background:var(--w2)"></span>02 넘지 못한다</span>
+              <span style="font-size:var(--text-caption);color:var(--ink-2)">자동으로 조정됩니다</span>
+              <span class="split-row__v" id="tv2">25%</span>
+            </div>
+            <div class="split-row split-row--lock">
+              <span class="split-row__n"><span class="wedge" style="background:var(--w3)"></span>03 그 외</span>
+              <span style="font-size:var(--text-caption)">지울 수 없습니다 · 최소 5%</span>
+              <span class="split-row__v">5%</span>
+            </div>
+            <div class="scale" aria-hidden="true"><span>희박</span><span>반반</span><span>유력</span></div>
+          </div>
+
           <p style="font-size:var(--text-caption);color:var(--ink-2);margin-bottom:10px">
-            <b style="color:var(--ink-1)">01 넘는다</b>에 붙입니다.
+            확인 방법은 <b style="color:var(--ink-1)">01 넘는다</b>에 붙입니다.
             <span class="how how--auto" style="margin-left:6px">자동 확인</span>
             반대 답인 02는 여집합이라 조건을 두지 않습니다.</p>
           <div class="card">
@@ -2484,31 +2598,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </p>
           </div>
 
-          <div class="sec-label" style="margin-top:var(--s6)">확률은 어떻게 보시나요 · 눈금 하나가 5%</div>
-          <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:baseline">
-              <span style="font-size:var(--text-caption);color:var(--ink-2)">갈래 1 · 01 진입한다</span>
-              <span class="num" id="pv" style="font-size:var(--text-sm)">60~70% 안팎</span>
-            </div>
-            <div class="gauge" style="height:30px;margin-top:8px">
-              <div class="gauge__band band--rise" id="pband" style="left:60%;width:10%"></div>
-            </div>
-            <input type="range" class="slider desk-only" id="prange" min="10" max="85" step="5" value="65"
-                   aria-label="확률 조정">
-            <div class="stepper mob-only" style="margin-top:var(--s4);justify-content:center">
-              <button type="button" data-step="-5" aria-label="5% 낮추기">−</button>
-              <output id="pout">65%</output>
-              <button type="button" data-step="5" aria-label="5% 올리기">＋</button>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-top:8px"
-                 class="mono" aria-hidden="true">
-              <span style="font-size:var(--text-micro);color:var(--ink-3)">희박</span>
-              <span style="font-size:var(--text-micro);color:var(--ink-3)">반반</span>
-              <span style="font-size:var(--text-micro);color:var(--ink-3)">유력</span>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:10px;margin-top:var(--s5);flex-wrap:wrap">
+          <div style="display:flex;gap:10px;margin-top:var(--s6);flex-wrap:wrap">
             <button class="btn btn--primary" data-go="s-note">저장</button>
             <button class="btn" data-go="s-note">나중에 하기</button>
           </div>
@@ -2582,8 +2672,6 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
       return;
     }
 
-    var st=e.target.closest('[data-step]');
-    if(st){ setProb(prob + (+st.dataset.step)); return; }
   });
 
   // 수치 추이 — 크로스헤어 + 툴팁
@@ -2612,18 +2700,27 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
     });
   })();
 
-  // 확률 — 5% 눈금, 범위 표기
-  var prob=65, band=document.getElementById('pband'), pv=document.getElementById('pv'),
-      pout=document.getElementById('pout'), prange=document.getElementById('prange');
-  function setProb(v){
-    prob=Math.max(10,Math.min(85,Math.round(v/5)*5));
-    band.style.left=(prob-5)+'%';
-    pv.textContent=(prob-5)+'~'+(prob+5)+'% 안팎';
-    pout.textContent=prob+'%';
-    prange.value=prob;
+  // 확률 배분 — 하나를 올리면 나머지가 줄어든다. 그 외는 5%로 잠긴다
+  function wire(slider, a, b, mirror){
+    var el=document.getElementById(slider); if(!el) return;
+    function paint(){
+      var v=Math.max(5,Math.min(90,Math.round(+el.value/5)*5));
+      document.getElementById(a).textContent=v+'%';
+      document.getElementById(b).textContent=(95-v)+'%';
+      if(mirror){ var m=document.getElementById(mirror); if(m) m.textContent=v+'%'; }
+    }
+    el.addEventListener('input',paint); paint();
   }
-  prange.addEventListener('input',function(){ setProb(+this.value); });
-  setProb(65);
+  wire('sp1','sv1','sv2','ome');
+  wire('sp2','tv1','tv2');
+
+  // 남의 답은 내가 확정한 뒤에만 열린다
+  var pdone=document.getElementById('pdone');
+  if(pdone) pdone.addEventListener('click',function(){
+    var box=document.getElementById('others1');
+    box.hidden=false; this.disabled=true; this.textContent='확정했습니다';
+    box.scrollIntoView({block:'nearest',behavior:'smooth'});
+  });
 
   // 폭 토글
   var wtog=document.getElementById('wtog');
