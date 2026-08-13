@@ -275,7 +275,16 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .premise li::before{counter-increment:p;content:counter(p);font-family:var(--font-mono);
   font-size:var(--text-micro);color:var(--ink-2);flex:0 0 auto;margin-top:5px}
 
-/* 결과 지표 — MVP는 차트 없이 목표 대비 현재값 한 줄 */
+/* 판정 방법 — 시나리오가 자기 확인 방법을 갖는다 */
+.how{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px;
+  border-radius:var(--r-pill);font-family:var(--font-mono);font-size:var(--text-micro);
+  letter-spacing:.06em;white-space:nowrap;flex:0 0 auto}
+.how--auto{background:var(--fall-soft);color:var(--fall);border:1px solid var(--fall)}
+.how--manual{background:var(--paper-2);color:var(--ink-1);border:1px solid var(--line-1)}
+.how--comp{background:transparent;color:var(--ink-2);border:1px dashed var(--line-1)}
+.branch__h{align-items:center}
+
+/* 수치 한 줄 — MVP는 차트 없이 목표 대비 현재값 */
 .ind{display:flex;flex-direction:column}
 .ind__row{display:grid;grid-template-columns:1fr auto auto;gap:var(--s3) var(--s4);
   align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line-0)}
@@ -484,7 +493,16 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <div class="titem__card" data-go="m-note" style="cursor:pointer">
                   <div class="titem__mobwhen">12.31 · D-5</div>
                   <div class="titem__t">삼성전자 · 엔비디아 HBM4 공급사로 진입하는가</div>
-                  <div class="titem__s">진입한다 60% · 지표 2개 중 1개 달성</div>
+                  <div class="titem__s">진입한다 60% · 판단 시점이 오면 여쭙니다</div>
+                </div>
+              </div>
+              <div class="titem titem--near">
+                <div class="titem__when"><b>12.31</b>D-5</div>
+                <span class="titem__dot" aria-hidden="true"></span>
+                <div class="titem__card" data-go="m-note" style="cursor:pointer">
+                  <div class="titem__mobwhen">12.31 · D-5</div>
+                  <div class="titem__t">삼성전자 · 12월 말까지 95,000원을 넘는가</div>
+                  <div class="titem__s">넘는다 70% · 자동 확인 · 이미 달성</div>
                 </div>
               </div>
             </section>
@@ -497,7 +515,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <div class="titem__card">
                   <div class="titem__mobwhen">01.20 · D-25</div>
                   <div class="titem__t">테슬라 · 1분기 안에 FSD 규제 승인이 나는가</div>
-                  <div class="titem__s">난다 40% · 지표 없음</div>
+                  <div class="titem__s">난다 40% · 사람이 확인</div>
                 </div>
               </div>
             </section>
@@ -510,7 +528,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <div class="titem__card">
                   <div class="titem__mobwhen">03.10 · D-74</div>
                   <div class="titem__t">엔비디아 · 4분기 실적이 컨센서스를 넘는가</div>
-                  <div class="titem__s">넘는다 55% · 지표 1개</div>
+                  <div class="titem__s">넘는다 55% · 자동 확인</div>
                 </div>
               </div>
             </section>
@@ -522,8 +540,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <span class="titem__dot" aria-hidden="true"></span>
                 <div class="titem__card">
                   <div class="titem__mobwhen">06.30 · D-186</div>
-                  <div class="titem__t">삼성전자 · 선두와의 기술 격차가 좁혀지는가</div>
-                  <div class="titem__s">좁혀진다 30% · 같은 노트의 두 번째 갈래</div>
+                  <div class="titem__t">부동산 · 1년 안에 금리 인하가 가격에 반영되는가</div>
+                  <div class="titem__s">반영된다 45% · 사람이 확인</div>
                 </div>
               </div>
               <div class="tmore"><span></span><button>+ 3개 더 보기</button></div>
@@ -561,9 +579,12 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               </div>
               <div class="msg msg--me">올해 안에는 수주 여부가 나올 거야.
                 그리고 기술 격차는 내년 상반기는 돼야 알 수 있고.</div>
+              <div class="msg msg--me">그리고 연말까지 95,000원은 넘을 거라고 봐.</div>
               <div class="msg msg--ai"><b>AI</b>
-                <div>답이 나오는 날이 다르니 두 질문으로 나누겠습니다. 기술 격차 쪽은
-                  “2027년 상반기까지 선두와의 격차가 좁혀지는가”로 따로 두면 될까요?</div>
+                <div>그건 주가에 대한 별개의 질문이라 따로 세우겠습니다 —
+                  “12월 말까지 95,000원을 넘는가”. 이건 <b>제가 자동으로 확인할 수 있습니다.</b>
+                  <br>공급사 진입 여부에는 붙이지 않습니다. 주가가 올랐다고 수주를 받은 것은
+                  아니니까요. 나눠 두면 나중에 “진입은 못 했는데 주가는 넘었다”가 그대로 남습니다.</div>
               </div>
               <div class="msg msg--me">그래 그게 맞지.</div>
               <div class="msg msg--ai"><b>AI</b>
@@ -587,9 +608,11 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 <span class="build__new">답이 나오는 날 “올해 안”</span></div></div>
             <div class="build__row"><i class="ok">✓</i>
               <div><b>시나리오</b> · 진입한다 / 진입하지 못한다</div></div>
+            <div class="build__row"><i class="ok">✓</i>
+              <div><b>확인 방법</b> · 사람이 확인 — 수주 발표를 계열로 살 수 없음</div></div>
             <div class="build__row build__row--new"><i class="ok">✓</i>
-              <div><b>갈래 2</b> · 2027년 상반기까지 기술 격차가 좁혀지는가
-                <span class="build__new">날짜가 달라 갈래를 나눔</span></div></div>
+              <div><b>갈래 2</b> · 12월 말까지 95,000원을 넘는가
+                <span class="build__new">다른 질문이라 따로 세움 · 자동 확인</span></div></div>
             <div class="build__row"><i class="miss">·</i>
               <div><b>확률</b> · 아직 이야기 나오지 않음</div></div>
             <div class="hint" style="margin-top:var(--s4)">
@@ -641,7 +664,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   “올해 안”을 <b>2026.12.31</b>로 잡았습니다
                   <button>바꾸기</button>
                 </div>
-                <div style="margin-top:9px"><em>01</em> 진입한다</div>
+                <div style="margin-top:9px"><em>01</em> 진입한다
+                  <span class="how how--manual" style="margin-left:6px">사람이 확인</span></div>
                 <div style="margin-top:4px"><em>02</em> 진입하지 못한다</div>
                 <div style="margin-top:4px;color:var(--ink-2)"><em>03</em> 그 외 예상 못한 전개
                   <span class="empty">— 항상 붙습니다</span></div>
@@ -650,22 +674,29 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             <div class="slot">
               <div class="slot__k">갈래 2</div>
               <div class="slot__v">
-                <div><em>2027년 상반기까지 선두와의 기술 격차가 좁혀지는가?</em></div>
+                <div><em>12월 말까지 삼성전자가 95,000원을 넘는가?</em></div>
                 <div class="derived">
-                  “내년 상반기”를 <b>2027.06.30</b>으로 잡았습니다
+                  “연말까지”를 <b>2026.12.31</b>로 잡았습니다
                   <button>바꾸기</button>
                 </div>
-                <div style="margin-top:9px"><em>01</em> 좁혀진다</div>
-                <div style="margin-top:4px"><em>02</em> 좁혀지지 않는다</div>
-                <div style="margin-top:4px;color:var(--ink-2)"><em>03</em> 그 외 예상 못한 전개</div>
+                <div style="margin-top:9px"><em>01</em> 넘는다
+                  <span class="how how--auto" style="margin-left:6px">자동 확인</span></div>
+                <div style="margin-top:4px"><em>02</em> 넘지 못한다</div>
+                <div style="margin-top:4px;color:var(--ink-2)"><em>03</em> 그 외</div>
                 <p style="margin-top:9px;font-size:var(--text-caption);color:var(--ink-2)">
-                  답이 나오는 날이 달라 갈래 1과 나눠 두었습니다.</p>
+                  갈래 1과 같은 날이지만 다른 질문이라 따로 두었습니다.
+                  주가는 진입 여부의 판정 근거가 아닙니다.</p>
               </div>
             </div>
             <div class="slot">
               <div class="slot__k">확률</div>
               <div class="slot__v"><span class="empty">대화에 나오지 않아 비워 뒀습니다.
                 저장한 뒤 노트에서 나눌 수 있습니다.</span></div>
+            </div>
+            <div class="slot">
+              <div class="slot__k">지켜보는 수치</div>
+              <div class="slot__v">HBM 매출 비중
+                <span class="empty">— 근거 항목 2에서 담았습니다. 판정에는 쓰지 않습니다.</span></div>
             </div>
           </div>
 
@@ -748,6 +779,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <div class="branch__no">01</div>
                     <h3 class="branch__t">진입한다</h3>
                   </div>
+                  <span class="how how--manual">사람이 확인</span>
                 </div>
                 <p style="font-size:var(--text-sm);color:var(--ink-1)">
                   공급 부족이 이어져 고객사가 공급처를 하나로 두지 못한다.</p>
@@ -757,8 +789,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   </div>
                 </div>
                 <div class="branch__meta">
-                  <span>지표 2개 중 1개 달성</span>
-                  <span>아래에 자세히</span>
+                  <span>수치로 확인할 수 없습니다 · 판단 시점이 오면 여쭙겠습니다</span>
                 </div>
               </article>
 
@@ -768,6 +799,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <div class="branch__no">02</div>
                     <h3 class="branch__t">진입하지 못한다</h3>
                   </div>
+                  <span class="how how--comp">나머지</span>
                 </div>
                 <p style="font-size:var(--text-sm);color:var(--ink-1)">
                   선두 업체 증설이 앞당겨져 남는 물량이 없다.</p>
@@ -777,7 +809,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   </div>
                 </div>
                 <div class="branch__meta">
-                  <span>여집합이라 지표를 따로 두지 않습니다</span>
+                  <span>01이 아니면 이 답입니다</span>
                 </div>
               </article>
 
@@ -787,6 +819,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <div class="branch__no">03</div>
                     <h3 class="branch__t">그 외 예상 못한 전개</h3>
                   </div>
+                  <span class="how how--comp">나머지</span>
                 </div>
                 <p style="font-size:var(--text-sm);color:var(--ink-1)">
                   질문 자체가 성립하지 않게 되는 경우 — 사업 철수, 인수합병 등.</p>
@@ -806,25 +839,25 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <div class="sec-label" style="margin-top:var(--s6)">갈래 2 · 하나만 일어납니다</div>
           <div class="galae">
             <div class="galae__q">
-              <h3>2027년 상반기까지 선두와의 기술 격차가 좁혀지는가?</h3>
+              <h3>12월 말까지 삼성전자가 95,000원을 넘는가?</h3>
               <div class="galae__when">
-                <span>2027.06.30에 답이 나옵니다</span>
-                <span class="num">D-186</span>
+                <span>2026.12.31에 답이 나옵니다 · 갈래 1과 같은 날, 다른 질문입니다</span>
+                <span class="num" style="color:var(--countdown)">D-5</span>
               </div>
             </div>
             <div class="galae__pie">
               <div class="pie pie--g2 pie--sm" role="img"
-                   aria-label="확률 배분: 좁혀진다 30%, 좁혀지지 않는다 65%, 그 외 5%">
+                   aria-label="확률 배분: 넘는다 70%, 넘지 못한다 25%, 그 외 5%">
                 <div class="pie__c"><b>100%</b><span>합</span></div>
               </div>
               <div class="legend">
                 <div class="legend__row">
-                  <i style="background:var(--w1)"></i><b>01 · 좁혀진다</b>
-                  <span class="num">30%</span>
+                  <i style="background:var(--w1)"></i><b>01 · 넘는다</b>
+                  <span class="num">70%</span>
                 </div>
                 <div class="legend__row">
-                  <i style="background:var(--w2)"></i><b>02 · 좁혀지지 않는다</b>
-                  <span class="num">65%</span>
+                  <i style="background:var(--w2)"></i><b>02 · 넘지 못한다</b>
+                  <span class="num">25%</span>
                 </div>
                 <div class="legend__row legend__row--rest">
                   <i style="background:var(--w3)"></i><b>03 · 그 외 예상 못한 전개</b>
@@ -832,30 +865,88 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                 </div>
               </div>
             </div>
-            <div class="hint">
-              같은 가설이지만 답이 나오는 날이 다릅니다. 그래서 한 갈래에 섞지 않고 따로 둡니다.
+            <div class="galae__body">
+
+              <article class="branch branch--near">
+                <div class="branch__h">
+                  <div>
+                    <div class="branch__no">01</div>
+                    <h3 class="branch__t">넘는다</h3>
+                  </div>
+                  <span class="how how--auto">자동 확인</span>
+                </div>
+                <div class="prob">
+                  <div class="prob__v" style="color:var(--rise)">
+                    <span class="wedge" style="background:var(--w1)"></span>70%<small>안팎</small>
+                  </div>
+                </div>
+                <div class="ind">
+                  <div class="ind__row is-hit">
+                    <div class="ind__n">삼성전자 · 한국투자증권
+                      <small>이상 · 장중 한 번이라도 닿으면 달성</small></div>
+                    <div class="ind__v">97,400 / 95,000원</div>
+                    <div class="ind__s">달성 · 11.23</div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="branch">
+                <div class="branch__h">
+                  <div>
+                    <div class="branch__no">02</div>
+                    <h3 class="branch__t">넘지 못한다</h3>
+                  </div>
+                  <span class="how how--comp">나머지</span>
+                </div>
+                <div class="prob">
+                  <div class="prob__v" style="color:var(--fall)">
+                    <span class="wedge" style="background:var(--w2)"></span>25%<small>안팎</small>
+                  </div>
+                </div>
+                <div class="branch__meta">
+                  <span>01이 아니면 이 답입니다</span>
+                </div>
+              </article>
+
+              <article class="branch branch--far">
+                <div class="branch__h">
+                  <div>
+                    <div class="branch__no">03</div>
+                    <h3 class="branch__t">그 외</h3>
+                  </div>
+                  <span class="how how--comp">나머지</span>
+                </div>
+                <div class="prob">
+                  <div class="prob__v" style="color:var(--ink-2)">
+                    <span class="wedge" style="background:var(--w3)"></span>5%<small>안팎</small>
+                  </div>
+                </div>
+                <div class="branch__meta">
+                  <span>거래 정지 등 질문이 깨지는 경우</span>
+                </div>
+              </article>
+
+            </div>
+            <div class="hint" style="margin-top:10px">
+              주가는 갈래 1의 판정 근거가 아닙니다. 주가가 올랐다고 수주를 받은 것이 아니니까요.
+              궁금하면 이렇게 <b>따로 질문으로 세웁니다</b> — 그래야 “진입은 못 했는데
+              주가는 넘었다”가 회고에 그대로 남습니다.
             </div>
           </div>
 
-          <div class="sec-label" style="margin-top:var(--s6)">결과 지표 · 갈래 1 → 01 진입한다</div>
+          <div class="sec-label" style="margin-top:var(--s6)">지켜보는 수치 · 판정하지 않습니다</div>
           <div class="card">
             <div class="ind">
-              <div class="ind__row is-hit">
-                <div class="ind__n">삼성전자 주가
-                  <small>장중 한 번이라도 닿으면 달성</small></div>
-                <div class="ind__v">97,400 / 95,000원</div>
-                <div class="ind__s">달성 · 11.23</div>
-              </div>
-              <div class="ind__row is-miss">
+              <div class="ind__row">
                 <div class="ind__n">HBM 매출 비중
-                  <small>분기 공시 기준</small></div>
-                <div class="ind__v">14.2 / 20.0%</div>
-                <div class="ind__s">미달</div>
+                  <small>분기 공시 기준 · 근거 항목 2에서 담음</small></div>
+                <div class="ind__v">9.8 → 14.2%</div>
+                <div class="ind__s">추이만</div>
               </div>
             </div>
             <div class="hint" style="margin-top:var(--s3)">
-              매일 한 번 값을 받아 목표와 견줍니다. 기한은 갈래 1의 판단 시점인 2026.12.31이고,
-              둘 다 달성해야 “진입한다”로 봅니다. 그래도 확정은 결과 확인 화면에서 하십니다.
+              목표값도 달성 판정도 없습니다. 관련은 있지만 어느 질문의 답도 아니어서,
+              판정에 섞지 않고 추이만 보여드립니다. 맞았는지는 회고에서 따집니다.
             </div>
           </div>
 
@@ -911,25 +1002,26 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </div>
 
             <div>
-              <div class="step"><i>2</i>그동안 지표는 이렇게 움직였습니다</div>
+              <div class="step"><i>2</i>그동안 수치는 이렇게 움직였습니다</div>
               <div class="card">
                 <div class="ind">
                   <div class="ind__row is-hit">
-                    <div class="ind__n">삼성전자 주가
-                      <small>기록 당시 77,463원</small></div>
+                    <div class="ind__n">갈래 2 · 95,000원을 넘는가
+                      <small>자동 확인 · 기록 당시 77,463원</small></div>
                     <div class="ind__v">97,400 / 95,000원</div>
-                    <div class="ind__s">달성 · 11.23</div>
+                    <div class="ind__s">넘음 · 11.23</div>
                   </div>
-                  <div class="ind__row is-miss">
+                  <div class="ind__row">
                     <div class="ind__n">HBM 매출 비중
-                      <small>기록 당시 9.8%</small></div>
-                    <div class="ind__v">14.2 / 20.0%</div>
-                    <div class="ind__s">미달</div>
+                      <small>지켜보는 수치 · 기록 당시 9.8%</small></div>
+                    <div class="ind__v">9.8 → 14.2%</div>
+                    <div class="ind__s">추이만</div>
                   </div>
                 </div>
               </div>
               <div class="hint" style="margin-top:var(--s3)">
-                주가는 목표를 넘었지만 비중은 아직입니다. 판단 시점까지 5일 남았습니다.
+                주가 질문은 이미 답이 나왔습니다. 다만 그게 <b>공급사로 진입했다는 뜻은
+                아닙니다</b> — 갈래 1은 아래에서 따로 여쭙겠습니다.
               </div>
             </div>
           </div>
@@ -938,9 +1030,9 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <div class="card">
             <div class="row" style="justify-content:space-between;gap:var(--s4)">
               <div style="min-width:0">
-                <div style="font-size:var(--text-sm);font-weight:600">01 · 진입한다</div>
+                <div style="font-size:var(--text-sm);font-weight:600">갈래 1 · 01 진입한다</div>
                 <div style="font-size:var(--text-caption);color:var(--ink-2);margin-top:2px">
-                  10개월 전에 매긴 확률입니다. 그때와 같게 보시나요?</div>
+                  수치로 확인할 수 없는 답입니다. 10개월 전에 매긴 확률을 지금도 같게 보시나요?</div>
               </div>
               <div class="prob__v" style="color:var(--rise)">
                 <span class="wedge" style="background:var(--w1)"></span>60%<small>안팎</small>
@@ -973,16 +1065,21 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             <div style="font-size:var(--text-sm);margin-bottom:var(--s3)">
               올해 안에 엔비디아 HBM4 공급사로 진입하는가? — <b>01 · 진입한다</b>를 60%로 보셨습니다
             </div>
+            <div class="hint" style="margin-bottom:var(--s4)">
+              이 질문은 수치로 확인할 수 없어 제안을 드리지 않습니다. 직접 표시해 주세요.
+            </div>
             <div class="ind" style="margin-bottom:var(--s4)">
               <div class="ind__row is-hit">
-                <div class="ind__n">삼성전자 주가</div>
+                <div class="ind__n">같은 날 답이 난 갈래 2 · 95,000원을 넘는가
+                  <small>자동 확인 · 넘었습니다</small></div>
                 <div class="ind__v">97,400 / 95,000원</div>
-                <div class="ind__s">달성</div>
+                <div class="ind__s">넘음</div>
               </div>
-              <div class="ind__row is-miss">
-                <div class="ind__n">HBM 매출 비중</div>
-                <div class="ind__v">17.1 / 20.0%</div>
-                <div class="ind__s">미달</div>
+              <div class="ind__row">
+                <div class="ind__n">HBM 매출 비중
+                  <small>지켜보는 수치 · 판정에 쓰지 않습니다</small></div>
+                <div class="ind__v">9.8 → 17.1%</div>
+                <div class="ind__s">추이만</div>
               </div>
             </div>
             <div class="pick">
@@ -1046,13 +1143,17 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <div class="sec-label">들어간 것 — 핵심 루프</div>
               <ul>
                 <li><i class="ok">✓</i><div>대화로 노트 쓰기
-                  <small>가설 · 시나리오 · 반대 시나리오 · 판단 시점 · 근거 항목</small></div></li>
+                  <small>가설 · 갈래의 질문 · 답들 · 판단 시점 · 근거 항목</small></div></li>
                 <li><i class="ok">✓</i><div>초안 확인 후 저장
                   <small>정해진 칸만 채우고, 없는 건 비워 둡니다</small></div></li>
                 <li><i class="ok">✓</i><div>확률 배분과 도넛
                   <small>합 100% · “그 외 예상 못한 전개”가 항상 붙습니다</small></div></li>
-                <li><i class="ok">✓</i><div>결과 지표 자동 수집
+                <li><i class="ok">✓</i><div>시나리오의 판정 방법
+                  <small>자동 확인 / 사람이 확인 / 나머지 — 지표는 별도 개념이 아닙니다</small></div></li>
+                <li><i class="ok">✓</i><div>자동 확인 수집
                   <small>일 1회 · 장중 터치 인정 · 기한은 갈래의 판단 시점 하나</small></div></li>
+                <li><i class="ok">✓</i><div>지켜보는 수치
+                  <small>판정하지 않고 추이만 — 답이 아닌 수치가 판정에 섞이지 않게</small></div></li>
                 <li><i class="ok">✓</i><div>판단 시점 리마인드
                   <small>과거의 나를 먼저 읽고 그다음에 지금을 봅니다</small></div></li>
                 <li><i class="ok">✓</i><div>결과 확인과 회고
@@ -1066,7 +1167,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <small>수집·관련성 판단 파이프라인이 통째로 필요합니다</small></div></li>
                 <li><i>·</i><div>AI 어드바이저 (매수·홀드·매도 의견)
                   <small>루프가 도는 것을 먼저 확인한 뒤에 붙입니다</small></div></li>
-                <li><i>·</i><div>지표 추이 차트
+                <li><i>·</i><div>추이 차트
                   <small>MVP는 현재값과 목표값 한 줄로 갈음합니다</small></div></li>
                 <li><i>·</i><div>벤치마크 대비 비교
                   <small>회고는 사용자 서술만으로 시작합니다</small></div></li>
@@ -1093,11 +1194,11 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 (function(){
   var screens=[
     ['m-home','홈','다시 볼 시점 하나와 세로 타임라인. MVP에서는 날짜로 도착하는 리마인드만 띄웁니다 — “가설을 흔드는 낌새”는 백그라운드 리서치가 있어야 하는 카드라 뺐습니다.'],
-    ['m-write','새 노트 · 대화','논리는 대화로 받습니다. 남는 가로 폭에 지금 만들어지는 노트를 실시간으로 보여주고, 반대 시나리오와 판단 시점은 대화 중에 묻습니다. 확률은 대화에 안 나오면 비워 둡니다.'],
+    ['m-write','새 노트 · 대화','논리는 대화로 받습니다. 반대 시나리오와 판단 시점은 대화 중에 묻습니다. 사용자가 목표 가격을 말하면 그것을 진입 여부에 붙이지 않고 별개의 갈래로 세웁니다 — 다른 질문이기 때문입니다. 말하지 않았으면 묻지 않습니다. 확률은 대화에 안 나오면 비워 둡니다.'],
     ['m-preview','초안 확인','AI는 자유 형식으로 쓰지 않고 정해진 칸만 채웁니다. “올해 안”을 날짜로 옮긴 부분은 감추지 않고 드러내 확인받습니다.'],
-    ['m-note','노트 상세','나의 관점만 있는 화면입니다. 오른쪽 새 정보 서랍은 MVP에 없습니다. 확률은 도넛 조각과 같은 색의 큰 숫자로 읽고, 지표는 차트 없이 현재값과 목표값 한 줄로 봅니다.'],
-    ['m-remind','다시 보기','메멘토의 핵심 화면. 과거의 나를 먼저 읽고 그다음에 지금을 봅니다. 2단은 AI 조사 결과가 아니라 지표가 어떻게 움직였는지입니다 — 자동 수집만으로 채울 수 있는 정보라서요.'],
-    ['m-judge','결과 확인 · 회고','MVP에서는 판정과 회고를 한 화면에 둡니다. 묻는 것은 두 가지: 예상한 일이 일어났는가, 그리고 그게 논리가 맞아서였는가. 근거 항목은 여기서 사후에 따져봅니다.'],
+    ['m-note','노트 상세','검증할 수 있는 명제는 전부 시나리오입니다. 지표라는 별도 개념이 없고, 시나리오가 자기 판정 방법을 갖습니다 — 자동 확인 / 사람이 확인 / 나머지. 그래서 “95,000원을 넘는가”는 “진입하는가”의 판정 근거가 아니라 그 자체로 갈래입니다. 주가가 올랐다고 수주를 받은 것이 아니니까요. 둘을 나눠 두면 회고에서 “진입은 못 했는데 주가는 넘었다”가 그대로 남습니다. 답이 아닌 수치는 “지켜보는 수치”로 내려가 판정에 관여하지 않습니다.'],
+    ['m-remind','다시 보기','메멘토의 핵심 화면. 과거의 나를 먼저 읽고 그다음에 지금을 봅니다. 2단은 AI 조사 결과가 아니라 수치가 어떻게 움직였는지입니다 — 자동 수집만으로 채울 수 있는 정보라서요. 주가 갈래는 이미 답이 나왔지만 그것이 진입 여부의 답은 아니라고 화면이 분명히 말합니다.'],
+    ['m-judge','결과 확인 · 회고','MVP에서는 판정과 회고를 한 화면에 둡니다. 이 갈래는 수치로 확인할 수 없어 앱이 제안을 하지 않습니다 — 같은 날 답이 난 주가 갈래를 옆에 놓아 대조만 시킵니다. 묻는 것은 두 가지: 예상한 일이 일어났는가, 그리고 그게 논리가 맞아서였는가.'],
     ['m-scope','MVP 범위','제품 화면이 아니라 범위를 적어둔 쪽지입니다. 무엇을 넣고 무엇을 왜 뺐는지.']
   ];
   var nav=document.getElementById('nav'), vp=document.getElementById('vp'),
