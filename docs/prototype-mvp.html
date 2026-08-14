@@ -291,14 +291,50 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .pile__h{display:flex;align-items:center;gap:2px;font-size:var(--text-caption);
   color:var(--ink-1);margin-bottom:6px}
 .pile__h b{font-weight:600}
-.pile__i{display:grid;grid-template-columns:1fr auto;gap:var(--s3);align-items:baseline;
-  padding:8px 0;border-bottom:1px solid var(--line-0);font-size:var(--text-sm)}
+.pile__i{padding:8px 0;border-bottom:1px solid var(--line-0);font-size:var(--text-sm)}
 .pile__i:last-child{border-bottom:none}
 .pile__i em{font-style:normal;display:block;font-size:var(--text-caption);
   color:var(--ink-2);margin-top:2px}
+.pile__row{display:grid;grid-template-columns:1fr auto;gap:var(--s3);align-items:baseline;
+  width:100%;background:none;border:none;padding:0;font:inherit;color:inherit;
+  text-align:left;cursor:pointer}
 .pile__m{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2);
-  white-space:nowrap}
+  white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.pile__chev{display:inline-block;font-size:9px;line-height:1;transition:transform .15s ease}
+.pile__row[aria-expanded="true"] .pile__chev{transform:rotate(180deg)}
 .pile--none .pile__i{color:var(--ink-2);font-size:var(--text-caption)}
+.pile__detail{display:grid;gap:2px;padding-top:8px}
+.pile__src{display:flex;justify-content:space-between;gap:var(--s3);width:100%;
+  padding:6px 8px;background:var(--paper-2);border:none;border-radius:var(--r1);
+  font:inherit;font-size:var(--text-caption);color:var(--ink-1);text-align:left;
+  cursor:pointer;transition:background var(--dur-1) var(--ease-calm)}
+.pile__src:hover{background:var(--line-0)}
+.pile__src span:first-child{flex:1;min-width:0}
+.pile__src span:last-child{font-family:var(--font-mono);font-size:var(--text-micro);
+  color:var(--ink-2);white-space:nowrap;flex:0 0 auto}
+
+/* 출처 한 건을 제대로 읽는 자리 — 더미 훑어보기와 분리된 둘째 단계
+   기본(넓은 화면)은 가운데 뜨는 카드, 좁은 화면 규칙(@container 쪽)에서 하단 시트로 바꾼다 */
+.src-modal-scrim{position:fixed;inset:0;z-index:50;display:flex;align-items:center;
+  justify-content:center;padding:var(--s5);background:rgba(20,18,15,.45);opacity:0;pointer-events:none;
+  transition:opacity var(--dur-2) var(--ease-calm)}
+.src-modal-scrim.is-open{opacity:1;pointer-events:auto}
+.src-modal{position:relative;width:100%;max-width:440px;max-height:82vh;overflow-y:auto;
+  background:var(--paper-0);border-radius:var(--r3);box-shadow:var(--shadow-2);
+  padding:calc(var(--s6) + 6px) var(--s5) calc(var(--s6) + 8px);
+  transform:translateY(10px) scale(.98);opacity:0;
+  transition:transform var(--dur-2) var(--ease-calm),opacity var(--dur-2) var(--ease-calm)}
+.src-modal-scrim.is-open .src-modal{transform:translateY(0) scale(1);opacity:1}
+.src-modal__handle{display:none}
+.src-modal__close{position:absolute;top:var(--s3);right:var(--s3)}
+.src-modal__tag{font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.04em;
+  color:var(--ink-2);margin-bottom:var(--s3);line-height:1.5}
+.src-modal__h{font-size:var(--text-subhead);font-weight:600;line-height:1.4;margin-bottom:6px}
+.src-modal__meta{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2);
+  margin-bottom:var(--s4)}
+.src-modal__body{font-size:var(--text-sm);line-height:1.75;color:var(--ink-1)}
+.src-modal__link{display:inline-block;margin-top:var(--s5);font-size:var(--text-sm);
+  color:var(--ink-0);text-decoration:underline;text-underline-offset:3px}
 
 /* 판정 방법 — 시나리오가 자기 확인 방법을 갖는다 */
 .how{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px;
@@ -429,8 +465,16 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .ind__row{grid-template-columns:1fr auto}
   .split-row{grid-template-columns:1fr 54px;row-gap:6px}
   .split-row .slider{grid-column:1/-1}
-  .pile__i{grid-template-columns:1fr;row-gap:2px}
+  .pile__row{grid-template-columns:1fr;row-gap:2px}
+  .pile__src{flex-direction:column;align-items:flex-start;gap:2px}
   .ind__s{grid-column:2}
+  /* 좁은 화면: 출처 상세는 가운데 카드 대신 하단 시트로 */
+  .src-modal-scrim{align-items:flex-end;padding:0}
+  .src-modal{max-width:none;max-height:86vh;border-radius:16px 16px 0 0;
+    transform:translateY(24px) scale(1)}
+  .src-modal-scrim.is-open .src-modal{transform:translateY(0) scale(1)}
+  .src-modal__handle{display:block;position:absolute;top:10px;left:50%;
+    transform:translateX(-50%);width:36px;height:4px;border-radius:2px;background:var(--line-1)}
   /* 좁은 화면: 축을 왼쪽 끝으로 붙이고 날짜는 카드 안으로 */
   .tline{--axis:5px}
   .titem{grid-template-columns:1fr;padding-left:24px}
@@ -757,12 +801,25 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <div class="pile__h"><span class="wedge" style="background:var(--w1)"></span>
                 <b>01 진입한다</b> 쪽</div>
               <div class="pile__i">
-                <div>엔비디아, 공급사 다변화 검토 착수</div>
-                <span class="pile__m">5일 전 · 출처 3곳</span>
+                <button class="pile__row" type="button" aria-expanded="false" data-sources='[
+                  {"t":"엔비디아, HBM 공급사 다변화 검토 착수 — 관계자 인용 보도","s":"로이터","d":"5일 전","e":"복수의 관계자를 인용해 엔비디아가 HBM 공급망 다변화를 내부적으로 검토 중이라고 전했다. 다만 구체적인 후보사나 시점은 확인되지 않았다."},
+                  {"t":"“삼성 포함 후보군 확대 논의” 후속 취재","s":"블룸버그","d":"5일 전","e":"로이터 보도 이후 블룸버그가 별도 취재를 통해 후보군에 삼성전자가 포함된 정황을 추가로 확인했다고 보도했다. 최종 결정 시점은 언급하지 않았다."},
+                  {"t":"국내 증권가 코멘트 · 다변화 검토의 배경","s":"한국경제","d":"4일 전","e":"국내 반도체 담당 애널리스트들은 이번 검토가 특정 공급사 의존도를 낮추려는 통상적 리스크 관리로 해석된다고 설명했다."}]'>
+                  <div>엔비디아, 공급사 다변화 검토 착수</div>
+                  <span class="pile__m">5일 전 · 출처 3곳 <i class="pile__chev" aria-hidden="true">▾</i></span>
+                </button>
+                <div class="pile__detail" hidden></div>
               </div>
               <div class="pile__i">
-                <div>증권사 12곳 중 7곳이 “연내 진입 가능” 의견</div>
-                <span class="pile__m">출처 4곳</span>
+                <button class="pile__row" type="button" aria-expanded="false" data-sources='[
+                  {"t":"증권사 리포트 12건 취합 — 7건이 연내 진입 가능 의견","s":"조선비즈","d":"1주 전","e":"국내외 증권사 리포트 12건을 취합한 결과 7건이 연내 진입 가능성을 언급했다. 나머지 5건은 시점을 특정하지 않거나 내년 상반기 이후로 봤다."},
+                  {"t":"“공급 부족 지속시 진입 가시성 높다” 리서치 노트","s":"OO투자증권","d":"1주 전","e":"HBM 공급 부족이 이어지는 한 후발주자의 진입 여지가 커진다는 취지의 리서치 노트를 냈다. 확률이나 목표가는 제시하지 않았다."},
+                  {"t":"목표주가 상향 리포트 · 진입 시나리오 반영","s":"XX증권","d":"6일 전","e":"목표주가를 상향하며 근거 중 하나로 신규 공급사 진입 가능성을 언급했다. 다만 진입 여부보다 밸류에이션 재평가에 무게를 둔 리포트다."},
+                  {"t":"업종 전망 세미나 요약 — 공급사 다변화 국면","s":"전자신문","d":"5일 전","e":"업계 세미나 발언을 정리한 기사로, 다수 참석자가 다변화 국면 자체는 인정하면서도 구체적 진입사 예측에는 신중한 입장을 보였다고 전했다."}]'>
+                  <div>증권사 12곳 중 7곳이 “연내 진입 가능” 의견</div>
+                  <span class="pile__m">출처 4곳 <i class="pile__chev" aria-hidden="true">▾</i></span>
+                </button>
+                <div class="pile__detail" hidden></div>
               </div>
             </div>
 
@@ -770,12 +827,22 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <div class="pile__h"><span class="wedge" style="background:var(--w2)"></span>
                 <b>02 진입하지 못한다</b> 쪽</div>
               <div class="pile__i">
-                <div>SK하이닉스 HBM4 양산 일정 단축</div>
-                <span class="pile__m">2일 전 · 출처 2곳</span>
+                <button class="pile__row" type="button" aria-expanded="false" data-sources='[
+                  {"t":"SK하이닉스, HBM4 양산 일정 단축 발표","s":"연합뉴스","d":"2일 전","e":"SK하이닉스가 HBM4 양산 시점을 기존 계획보다 앞당긴다고 공식 발표했다. 회사 측은 고객사 수요에 대응하기 위한 결정이라고 밝혔다."},
+                  {"t":"양산 조기화가 경쟁 구도에 미치는 영향 분석","s":"디지털타임스","d":"2일 전","e":"SK하이닉스의 조기 양산이 후발주자의 진입 시점을 상대적으로 늦추는 효과가 있을 수 있다는 업계 분석을 소개했다."}]'>
+                  <div>SK하이닉스 HBM4 양산 일정 단축</div>
+                  <span class="pile__m">2일 전 · 출처 2곳 <i class="pile__chev" aria-hidden="true">▾</i></span>
+                </button>
+                <div class="pile__detail" hidden></div>
               </div>
               <div class="pile__i">
-                <div>삼성 퀄 테스트 3차 지연 보도</div>
-                <span class="pile__m">3주 전 · 출처 2곳</span>
+                <button class="pile__row" type="button" aria-expanded="false" data-sources='[
+                  {"t":"삼성전자 퀄 테스트 3차 지연 — 업계 소식통","s":"블룸버그","d":"3주 전","e":"익명의 업계 소식통을 인용해 삼성전자의 퀄 테스트 3차 일정이 추가로 밀렸다고 보도했다. 삼성전자 측은 공식 확인을 거부했다."},
+                  {"t":"품질 인증 일정 재조정 관련 후속 보도","s":"한국경제","d":"3주 전","e":"앞선 보도를 국내 매체가 재확인하며, 인증 지연이 수율 이슈 때문인지 고객사 요구사항 변경 때문인지는 불분명하다고 덧붙였다."}]'>
+                  <div>삼성 퀄 테스트 3차 지연 보도</div>
+                  <span class="pile__m">3주 전 · 출처 2곳 <i class="pile__chev" aria-hidden="true">▾</i></span>
+                </button>
+                <div class="pile__detail" hidden></div>
               </div>
             </div>
 
@@ -783,9 +850,14 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <div class="pile__h"><span class="wedge" style="border:1px dashed var(--line-1)"></span>
                 어느 쪽도 아닌 것</div>
               <div class="pile__i">
-                <div>최근 5년간 신규 HBM 공급사 진입이 발표 후 2분기 안에 확정된 사례
-                  <b class="num">7건 중 3건</b></div>
-                <span class="pile__m">출처 2곳</span>
+                <button class="pile__row" type="button" aria-expanded="false" data-sources='[
+                  {"t":"최근 5년 신규 HBM 공급사 진입 사례 정리","s":"OO투자증권 리서치","d":"산업 리포트","e":"2021년 이후 신규 HBM 공급사로 인정된 사례를 정리한 리서치 자료. 발표 시점과 실제 승인 시점 사이의 간격을 사례별로 표기했다."},
+                  {"t":"발표~확정 소요 기간 통계 — 반도체 공급망","s":"자체 집계","d":"과거 사례 DB","e":"공개된 보도자료와 실적 발표를 근거로 발표부터 확정까지 걸린 기간을 집계했다. 표본이 7건으로 적어 통계적 대표성에는 한계가 있다."}]'>
+                  <div>최근 5년간 신규 HBM 공급사 진입이 발표 후 2분기 안에 확정된 사례
+                    <b class="num">7건 중 3건</b></div>
+                  <span class="pile__m">출처 2곳 <i class="pile__chev" aria-hidden="true">▾</i></span>
+                </button>
+                <div class="pile__detail" hidden></div>
               </div>
             </div>
 
@@ -829,8 +901,13 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <div class="pile__h"><span class="wedge" style="background:var(--w1)"></span>
                 <b>01 넘는다</b> 쪽</div>
               <div class="pile__i">
-                <div>외국인 5주 연속 순매수</div>
-                <span class="pile__m">출처 2곳</span>
+                <button class="pile__row" type="button" aria-expanded="false" data-sources='[
+                  {"t":"외국인 순매수 5주 연속 — 수급 동향 정리","s":"한국경제","d":"1일 전","e":"외국인 투자자의 순매수가 5주 연속 이어졌다고 전했다. 매수 배경에 대한 구체적 설명은 없었다."},
+                  {"t":"코스피 수급 브리핑 · 반도체 업종 자금 유입","s":"매일경제","d":"2일 전","e":"반도체 업종 전반으로 외국인 자금이 유입되고 있다는 브리핑 기사로, 개별 종목보다 업종 전체의 수급 흐름을 다뤘다."}]'>
+                  <div>외국인 5주 연속 순매수</div>
+                  <span class="pile__m">출처 2곳 <i class="pile__chev" aria-hidden="true">▾</i></span>
+                </button>
+                <div class="pile__detail" hidden></div>
               </div>
             </div>
             <div class="pile pile--none">
@@ -1357,6 +1434,18 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   </main>
 </div>
 
+<div class="src-modal-scrim" id="srcModal">
+  <div class="src-modal" role="dialog" aria-modal="true" aria-labelledby="srcModalTitle">
+    <div class="src-modal__handle" aria-hidden="true"></div>
+    <button class="btn btn--quiet btn--sm src-modal__close" id="srcModalClose">닫기</button>
+    <div class="src-modal__tag" id="srcModalTag"></div>
+    <h3 class="src-modal__h" id="srcModalTitle"></h3>
+    <div class="src-modal__meta" id="srcModalMeta"></div>
+    <p class="src-modal__body" id="srcModalBody"></p>
+    <span class="src-modal__link">원문은 프로토타입이라 연결돼 있지 않습니다</span>
+  </div>
+</div>
+
 <script>
 (function(){
   var screens=[
@@ -1396,6 +1485,35 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
     var go=e.target.closest('[data-go]');
     if(go){ show(go.dataset.go); return; }
 
+    var row=e.target.closest('.pile__row[data-sources]');
+    if(row){
+      var detail=row.parentElement.querySelector('.pile__detail');
+      var open=row.getAttribute('aria-expanded')==='true';
+      row.setAttribute('aria-expanded', open?'false':'true');
+      if(!open && !detail.dataset.rendered){
+        var items=JSON.parse(row.dataset.sources);
+        detail.innerHTML=items.map(function(it,i){
+          return '<button class="pile__src" type="button" data-idx="'+i+'">'
+            +'<span>'+it.t+'</span><span>'+it.s+' · '+it.d+'</span></button>';
+        }).join('');
+        detail.dataset.rendered='1';
+      }
+      detail.hidden=open;
+      return;
+    }
+
+    var src=e.target.closest('.pile__src');
+    if(src){
+      var wrap=src.closest('.pile__i');
+      var srcRow=wrap.querySelector('.pile__row[data-sources]');
+      var srcItems=JSON.parse(srcRow.dataset.sources);
+      var claim=srcRow.querySelector('div').textContent.trim();
+      var side=wrap.closest('.pile').querySelector('.pile__h b');
+      var tag=(side?side.textContent+' 쪽 근거 · ':'')+claim;
+      openSrcModal(srcItems[+src.dataset.idx], tag);
+      return;
+    }
+
     var pick=e.target.closest('.pick button');
     if(pick){
       pick.parentNode.querySelectorAll('button').forEach(function(b){
@@ -1403,6 +1521,24 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
       });
     }
   });
+
+  // 출처 한 건을 제대로 읽는 자리 — 더미 훑어보기(펼침 목록)와 분리된 둘째 단계
+  var srcModal=document.getElementById('srcModal');
+  var srcModalTag=document.getElementById('srcModalTag');
+  var srcModalTitle=document.getElementById('srcModalTitle');
+  var srcModalMeta=document.getElementById('srcModalMeta');
+  var srcModalBody=document.getElementById('srcModalBody');
+  function openSrcModal(it,tag){
+    srcModalTag.textContent=tag;
+    srcModalTitle.textContent=it.t;
+    srcModalMeta.textContent=it.s+' · '+it.d;
+    srcModalBody.textContent=it.e||'';
+    srcModal.classList.add('is-open');
+  }
+  function closeSrcModal(){ srcModal.classList.remove('is-open'); }
+  document.getElementById('srcModalClose').addEventListener('click',closeSrcModal);
+  srcModal.addEventListener('click',function(e){ if(e.target===srcModal) closeSrcModal(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeSrcModal(); });
 
   // 확률 배분 — 하나를 올리면 나머지가 줄어든다. 그 외는 5%로 잠긴다
   function wire(slider,a,b,mirror){
