@@ -485,17 +485,17 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 .split-row--lock{color:var(--ink-2)}
 .scale{display:flex;justify-content:space-between;padding-top:6px;
   font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-3)}
-/* 답한 뒤에 나오는 남의 답 */
-.others{display:flex;flex-direction:column;gap:0}
-.others__row{display:grid;grid-template-columns:76px 60px 1fr;gap:var(--s3);align-items:baseline;
-  padding:9px 0;border-bottom:1px solid var(--line-0);font-size:var(--text-caption)}
-.others__row:last-child{border-bottom:none}
-.others__row b{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
-  font-size:var(--text-subhead);font-weight:600;text-align:right;color:var(--ink-1)}
-.others__row.is-me b{color:var(--ink-0)}
-.others__row.is-me{font-weight:600}
-.others__why{color:var(--ink-2);line-height:1.6}
-@media (max-width:0px){}
+/* 답마다 그 답을 뒷받침하는 자료 더미 */
+.pile+.pile{margin-top:var(--s4)}
+.pile__h{display:flex;align-items:center;gap:2px;font-size:var(--text-caption);
+  color:var(--ink-1);margin-bottom:6px}
+.pile__h b{font-weight:600}
+.pile__i{display:grid;grid-template-columns:1fr auto;gap:var(--s3);align-items:baseline;
+  padding:8px 0;border-bottom:1px solid var(--line-0);font-size:var(--text-sm)}
+.pile__i:last-child{border-bottom:none}
+.pile__m{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2);
+  white-space:nowrap}
+.pile--none .pile__i{color:var(--ink-2);font-size:var(--text-caption)}
 
 /* ── 수치 추이 차트 ─────────────────────────────── */
 .ichart{position:relative;background:var(--paper-0);border:1px solid var(--line-0);
@@ -604,8 +604,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .bench__row{grid-template-columns:76px 1fr 46px}
   .split-row{grid-template-columns:1fr 54px;row-gap:6px}
   .split-row .slider{grid-column:1/-1;margin-top:0}
-  .others__row{grid-template-columns:64px 54px;row-gap:2px}
-  .others__why{grid-column:1/-1}
+  .pile__i{grid-template-columns:1fr;row-gap:2px}
   /* 좁은 화면: 축을 왼쪽 끝으로 붙이고 날짜는 카드 안으로 */
   .tline{--axis:5px}
   .titem{grid-template-columns:1fr;padding-left:24px}
@@ -2422,12 +2421,47 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <div class="sec-label" style="margin-top:var(--s5)">
             갈래 1 · 엔비디아 HBM4 공급사로 진입하는가 &nbsp;·&nbsp; 2026.12.31까지</div>
 
-          <div class="card" style="background:var(--paper-1);margin-bottom:10px">
-            <div class="sec-label" style="margin-bottom:8px">비슷한 일이 과거에 얼마나 자주 있었나</div>
-            <p style="font-size:var(--text-sm);line-height:var(--lh-body)">
-              최근 5년간 신규 HBM 공급사 진입이 발표 후 2분기 안에 확정된 사례는
-              <b class="num">7건 중 3건</b>입니다.</p>
-            <div class="info__m" style="color:var(--ink-2)">출처 2곳 · 2026.03.02 조사</div>
+          <div class="card" style="margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:var(--s3)">판단에 참고하실 자료</div>
+
+            <div class="pile">
+              <div class="pile__h"><span class="wedge" style="background:var(--w1)"></span>
+                <b>01 진입한다</b> 쪽</div>
+              <div class="pile__i">
+                <div>엔비디아, 공급사 다변화 검토 착수</div>
+                <span class="pile__m">5일 전 · 출처 3곳</span>
+              </div>
+              <div class="pile__i">
+                <div>증권사 12곳 중 7곳이 “연내 진입 가능” 의견</div>
+                <span class="pile__m">출처 4곳</span>
+              </div>
+            </div>
+
+            <div class="pile">
+              <div class="pile__h"><span class="wedge" style="background:var(--w2)"></span>
+                <b>02 진입하지 못한다</b> 쪽</div>
+              <div class="pile__i">
+                <div>SK하이닉스 HBM4 양산 일정 단축</div>
+                <span class="pile__m">2일 전 · 출처 2곳</span>
+              </div>
+              <div class="pile__i">
+                <div>삼성 퀄 테스트 3차 지연 보도</div>
+                <span class="pile__m">3주 전 · 출처 2곳</span>
+              </div>
+            </div>
+
+            <div class="pile">
+              <div class="pile__h"><span class="wedge" style="border:1px dashed var(--line-1)"></span>
+                어느 쪽도 아닌 것</div>
+              <div class="pile__i">
+                <div>최근 5년간 신규 HBM 공급사 진입이 발표 후 2분기 안에 확정된 사례
+                  <b class="num">7건 중 3건</b></div>
+                <span class="pile__m">출처 2곳</span>
+              </div>
+            </div>
+
+            <button class="btn btn--quiet btn--sm" style="margin-top:var(--s3);padding-left:0">
+              ▸ 더 찾아보기</button>
           </div>
 
           <div class="card" style="margin-bottom:10px">
@@ -2449,37 +2483,6 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <span class="split-row__v">5%</span>
             </div>
             <div class="scale" aria-hidden="true"><span>희박</span><span>반반</span><span>유력</span></div>
-            <div class="row" style="margin-top:var(--s4);padding-top:var(--s3);
-                        border-top:1px solid var(--line-0)">
-              <button class="btn btn--sm" id="pdone">이렇게 보겠습니다</button>
-              <span style="font-size:var(--text-caption);color:var(--ink-2)">
-                확정하시면 남들은 어떻게 보는지 보여드립니다</span>
-            </div>
-          </div>
-
-          <div class="card" id="others1" hidden style="margin-bottom:10px">
-            <div class="sec-label" style="margin-bottom:var(--s2)">남들은 이렇게 봅니다</div>
-            <div class="others">
-              <div class="others__row is-me">
-                <span>당신</span><b id="ome">65%</b><span class="others__why"></span>
-              </div>
-              <div class="others__row">
-                <span>컨센서스</span><b>58%</b>
-                <span class="others__why">증권사 12곳 중 7곳이 “연내 진입 가능” · 출처 4곳</span>
-              </div>
-              <div class="others__row">
-                <span>AI</span><b>45%</b>
-                <span class="others__why">SK하이닉스 증설 일정이 앞당겨진 것이 아직 반영되지
-                  않은 것 같습니다. 다만 엔비디아의 공급사 다변화 기조는 우호적입니다. · 출처 3곳</span>
-              </div>
-            </div>
-            <div class="row" style="margin-top:var(--s4);padding-top:var(--s3);
-                        border-top:1px solid var(--line-0)">
-              <button class="btn btn--primary btn--sm">그대로 두기</button>
-              <button class="btn btn--sm">다시 매기기</button>
-              <span style="font-size:var(--text-caption);color:var(--ink-2)">
-                바꾸시면 처음 매긴 값도 함께 남습니다</span>
-            </div>
           </div>
 
           <div class="card">
@@ -2502,10 +2505,21 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 
           <div class="sec-label" style="margin-top:var(--s6)">
             갈래 2 · 12월 말까지 삼성전자가 95,000원을 넘는가 &nbsp;·&nbsp; 2026.12.31까지</div>
-          <div class="card" style="background:var(--paper-1);margin-bottom:10px">
-            <div class="sec-label" style="margin-bottom:8px">비슷한 일이 과거에 얼마나 자주 있었나</div>
-            <p style="font-size:var(--text-sm);color:var(--ink-2)">
-              비슷한 사례를 찾지 못했습니다.</p>
+          <div class="card" style="margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:var(--s3)">판단에 참고하실 자료</div>
+            <div class="pile">
+              <div class="pile__h"><span class="wedge" style="background:var(--w1)"></span>
+                <b>01 넘는다</b> 쪽</div>
+              <div class="pile__i">
+                <div>외국인 5주 연속 순매수</div>
+                <span class="pile__m">출처 2곳</span>
+              </div>
+            </div>
+            <div class="pile pile--none">
+              <div class="pile__h"><span class="wedge" style="background:var(--w2)"></span>
+                <b>02 넘지 못한다</b> 쪽</div>
+              <div class="pile__i"><div>찾은 자료가 없습니다</div></div>
+            </div>
           </div>
 
           <div class="card" style="margin-bottom:10px">
@@ -2605,7 +2619,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
     ['s-review','회고록','결과와 논리는 별개의 축입니다. AI는 사실과 벤치마크 대비만 놓고, “운이었다”는 판단은 사용자가 내립니다.'],
     ['s-write','새 노트 · 1단계','논리는 대화로 받습니다. 남는 가로 폭에는 지금 만들어지고 있는 노트를 실시간으로 보여줍니다. 반대 시나리오는 여기서 묻는 것이 정상 경로입니다 — "반대로 흘러간다면 어떤 모습일까요?"가 그 질문이고, 이 대화에서는 답을 얻었으므로 되묻기 없이 초안 확인으로 넘어갑니다.'],
     ['s-preview','노트 초안 확인','AI는 자유 형식으로 쓰지 않습니다. 정해진 칸을 채울 뿐이고, 대화에 없는 내용은 비워 둡니다. "올해 안" 같은 말을 날짜로 해석한 부분은 드러내서 확인받습니다.'],
-    ['s-setup','확인 방법 · 2단계','갈래마다 어느 답이 기계로 확인되는지를 정하는 자리입니다. 시나리오 밑에 조건을 여러 개 다는 자리가 아닙니다. 질문이 수치에 관한 것이 아니면 auto를 권하지 않고, 대신 지켜볼 수치로 담을지만 묻습니다 — 담아도 판정에는 쓰지 않습니다. 여집합인 답과 “그 외”는 조건을 가질 수 없어 화면에 나오지 않습니다. 빈 폼이 아니라 대화에서 뽑아 채워둔 폼이고, 건너뛰기가 1급 선택지입니다.']
+    ['s-setup','확률 · 확인 방법 · 2단계','AI는 확률을 제안하지 않습니다. 대신 각 답을 뒷받침하는 자료를 갈라 모아주고, 사용자가 양쪽 더미의 무게를 재서 스스로 나눕니다. 남의 견해를 확률로 환산하지 않는 것이 핵심입니다 — “증권사 12곳 중 7곳이 연내 진입 가능”은 사실이지만 그걸 58%로 바꾸면 사실이 아닙니다. 애널리스트는 확률을 말한 적이 없고, 서로 베껴서 상관돼 있고, 표본은 12입니다. 기저율도 43%가 아니라 “7건 중 3건”으로 적습니다. 한쪽 더미가 비면 “찾은 자료가 없습니다”라고 적고, 개수를 세어 보여주지도 않습니다 — 그게 곧 숫자 제안이 되니까요. — 확인 방법 쪽은 갈래마다 어느 답이 기계로 확인되는지를 정합니다. 시나리오 밑에 조건을 여러 개 다는 자리가 아닙니다. 질문이 수치에 관한 것이 아니면 auto를 권하지 않고, 대신 지켜볼 수치로 담을지만 묻습니다 — 담아도 판정에는 쓰지 않습니다. 여집합인 답과 “그 외”는 조건을 가질 수 없어 화면에 나오지 않습니다. 빈 폼이 아니라 대화에서 뽑아 채워둔 폼이고, 건너뛰기가 1급 선택지입니다.']
   ];
   var nav=document.getElementById('nav'), vp=document.getElementById('vp'),
       cap=document.getElementById('caption');
@@ -2691,16 +2705,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
     }
     el.addEventListener('input',paint); paint();
   }
-  wire('sp1','sv1','sv2','ome');
+  wire('sp1','sv1','sv2');
   wire('sp2','tv1','tv2');
-
-  // 남의 답은 내가 확정한 뒤에만 열린다
-  var pdone=document.getElementById('pdone');
-  if(pdone) pdone.addEventListener('click',function(){
-    var box=document.getElementById('others1');
-    box.hidden=false; this.disabled=true; this.textContent='확정했습니다';
-    box.scrollIntoView({block:'nearest',behavior:'smooth'});
-  });
 
   // 폭 토글
   var wtog=document.getElementById('wtog');

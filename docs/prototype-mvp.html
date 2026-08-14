@@ -286,14 +286,19 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .slider{width:100%;height:24px;accent-color:var(--ink-2)}
 .scale{display:flex;justify-content:space-between;padding-top:6px;
   font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-3)}
-.others__row{display:grid;grid-template-columns:76px 60px 1fr;gap:var(--s3);align-items:baseline;
-  padding:9px 0;border-bottom:1px solid var(--line-0);font-size:var(--text-caption)}
-.others__row:last-child{border-bottom:none}
-.others__row b{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
-  font-size:var(--text-subhead);font-weight:600;text-align:right;color:var(--ink-1)}
-.others__row.is-me{font-weight:600}
-.others__row.is-me b{color:var(--ink-0)}
-.others__why{color:var(--ink-2);line-height:1.6}
+/* 답마다 그 답을 뒷받침하는 자료 더미 */
+.pile+.pile{margin-top:var(--s4)}
+.pile__h{display:flex;align-items:center;gap:2px;font-size:var(--text-caption);
+  color:var(--ink-1);margin-bottom:6px}
+.pile__h b{font-weight:600}
+.pile__i{display:grid;grid-template-columns:1fr auto;gap:var(--s3);align-items:baseline;
+  padding:8px 0;border-bottom:1px solid var(--line-0);font-size:var(--text-sm)}
+.pile__i:last-child{border-bottom:none}
+.pile__i em{font-style:normal;display:block;font-size:var(--text-caption);
+  color:var(--ink-2);margin-top:2px}
+.pile__m{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2);
+  white-space:nowrap}
+.pile--none .pile__i{color:var(--ink-2);font-size:var(--text-caption)}
 
 /* 판정 방법 — 시나리오가 자기 확인 방법을 갖는다 */
 .how{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px;
@@ -424,8 +429,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .ind__row{grid-template-columns:1fr auto}
   .split-row{grid-template-columns:1fr 54px;row-gap:6px}
   .split-row .slider{grid-column:1/-1}
-  .others__row{grid-template-columns:64px 54px;row-gap:2px}
-  .others__why{grid-column:1/-1}
+  .pile__i{grid-template-columns:1fr;row-gap:2px}
   .ind__s{grid-column:2}
   /* 좁은 화면: 축을 왼쪽 끝으로 붙이고 날짜는 카드 안으로 */
   .tline{--axis:5px}
@@ -746,27 +750,61 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <div class="sec-label" style="margin-top:var(--s6)">
             갈래 1 · 엔비디아 HBM4 공급사로 진입하는가 · 2026.12.31</div>
 
-          <div class="card" style="background:var(--paper-1);margin-bottom:10px">
-            <div class="sec-label" style="margin-bottom:8px">비슷한 일이 과거에 얼마나 자주 있었나</div>
-            <p style="font-size:var(--text-sm);line-height:var(--lh-body)">
-              최근 5년간 신규 HBM 공급사 진입이 발표 후 2분기 안에 확정된 사례는
-              <b class="num">7건 중 3건</b>입니다.</p>
-            <p style="font-size:var(--text-caption);color:var(--ink-2);margin-top:6px">
-              출처 2곳</p>
+          <div class="card" style="margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:var(--s3)">판단에 참고하실 자료</div>
+
+            <div class="pile">
+              <div class="pile__h"><span class="wedge" style="background:var(--w1)"></span>
+                <b>01 진입한다</b> 쪽</div>
+              <div class="pile__i">
+                <div>엔비디아, 공급사 다변화 검토 착수</div>
+                <span class="pile__m">5일 전 · 출처 3곳</span>
+              </div>
+              <div class="pile__i">
+                <div>증권사 12곳 중 7곳이 “연내 진입 가능” 의견</div>
+                <span class="pile__m">출처 4곳</span>
+              </div>
+            </div>
+
+            <div class="pile">
+              <div class="pile__h"><span class="wedge" style="background:var(--w2)"></span>
+                <b>02 진입하지 못한다</b> 쪽</div>
+              <div class="pile__i">
+                <div>SK하이닉스 HBM4 양산 일정 단축</div>
+                <span class="pile__m">2일 전 · 출처 2곳</span>
+              </div>
+              <div class="pile__i">
+                <div>삼성 퀄 테스트 3차 지연 보도</div>
+                <span class="pile__m">3주 전 · 출처 2곳</span>
+              </div>
+            </div>
+
+            <div class="pile">
+              <div class="pile__h"><span class="wedge" style="border:1px dashed var(--line-1)"></span>
+                어느 쪽도 아닌 것</div>
+              <div class="pile__i">
+                <div>최근 5년간 신규 HBM 공급사 진입이 발표 후 2분기 안에 확정된 사례
+                  <b class="num">7건 중 3건</b></div>
+                <span class="pile__m">출처 2곳</span>
+              </div>
+            </div>
+
+            <button class="btn btn--quiet btn--sm" style="margin-top:var(--s3);padding-left:0">
+              ▸ 더 찾아보기</button>
           </div>
 
           <div class="card" style="margin-bottom:10px">
             <div class="sec-label" style="margin-bottom:var(--s2)">어떻게 나눠 보시나요 · 눈금 하나가 5%</div>
             <div class="split-row">
               <span class="split-row__n"><span class="wedge" style="background:var(--w1)"></span>01 진입한다</span>
-              <input type="range" class="slider" id="mp1" min="5" max="90" step="5" value="65"
+              <input type="range" class="slider" id="mp1" min="5" max="90" step="5" value="60"
                      aria-label="진입한다 확률">
-              <span class="split-row__v" id="mv1">65%</span>
+              <span class="split-row__v" id="mv1">60%</span>
             </div>
             <div class="split-row">
               <span class="split-row__n"><span class="wedge" style="background:var(--w2)"></span>02 진입하지 못한다</span>
               <span style="font-size:var(--text-caption);color:var(--ink-2)">자동으로 조정됩니다</span>
-              <span class="split-row__v" id="mv2">30%</span>
+              <span class="split-row__v" id="mv2">35%</span>
             </div>
             <div class="split-row split-row--lock">
               <span class="split-row__n"><span class="wedge" style="background:var(--w3)"></span>03 그 외 예상 못한 전개</span>
@@ -774,35 +812,6 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               <span class="split-row__v">5%</span>
             </div>
             <div class="scale" aria-hidden="true"><span>희박</span><span>반반</span><span>유력</span></div>
-            <div class="row" style="margin-top:var(--s4);padding-top:var(--s3);
-                        border-top:1px solid var(--line-0)">
-              <button class="btn btn--sm" id="mdone">이렇게 보겠습니다</button>
-              <span style="font-size:var(--text-caption);color:var(--ink-2)">
-                확정하시면 남들은 어떻게 보는지 보여드립니다</span>
-            </div>
-          </div>
-
-          <div class="card" id="mothers" hidden style="margin-bottom:10px">
-            <div class="sec-label" style="margin-bottom:var(--s2)">남들은 이렇게 봅니다</div>
-            <div class="others__row is-me">
-              <span>당신</span><b id="mme">65%</b><span class="others__why"></span>
-            </div>
-            <div class="others__row">
-              <span>컨센서스</span><b>58%</b>
-              <span class="others__why">증권사 12곳 중 7곳이 “연내 진입 가능”</span>
-            </div>
-            <div class="others__row">
-              <span>AI</span><b>45%</b>
-              <span class="others__why">SK하이닉스 증설 일정이 앞당겨진 것이 아직
-                반영되지 않은 것 같습니다.</span>
-            </div>
-            <div class="row" style="margin-top:var(--s4);padding-top:var(--s3);
-                        border-top:1px solid var(--line-0)">
-              <button class="btn btn--primary btn--sm">그대로 두기</button>
-              <button class="btn btn--sm">다시 매기기</button>
-              <span style="font-size:var(--text-caption);color:var(--ink-2)">
-                바꾸시면 처음 매긴 값도 함께 남습니다</span>
-            </div>
           </div>
 
           <div class="card">
@@ -814,9 +823,21 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 
           <div class="sec-label" style="margin-top:var(--s6)">
             갈래 2 · 12월 말까지 95,000원을 넘는가 · 2026.12.31</div>
-          <div class="card" style="background:var(--paper-1);margin-bottom:10px">
-            <p style="font-size:var(--text-sm);color:var(--ink-2)">
-              비슷한 사례를 찾지 못했습니다.</p>
+          <div class="card" style="margin-bottom:10px">
+            <div class="sec-label" style="margin-bottom:var(--s3)">판단에 참고하실 자료</div>
+            <div class="pile">
+              <div class="pile__h"><span class="wedge" style="background:var(--w1)"></span>
+                <b>01 넘는다</b> 쪽</div>
+              <div class="pile__i">
+                <div>외국인 5주 연속 순매수</div>
+                <span class="pile__m">출처 2곳</span>
+              </div>
+            </div>
+            <div class="pile pile--none">
+              <div class="pile__h"><span class="wedge" style="background:var(--w2)"></span>
+                <b>02 넘지 못한다</b> 쪽</div>
+              <div class="pile__i"><div>찾은 자료가 없습니다</div></div>
+            </div>
           </div>
           <div class="card" style="margin-bottom:10px">
             <div class="split-row">
@@ -936,7 +957,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <div class="prob__v" style="color:var(--rise)">
                     <span class="wedge" style="background:var(--w1)"></span>60%<small>안팎</small>
                   </div>
-                  <div class="prob__d">처음 매긴 값 <b>65%</b> → 자료를 본 뒤 <b>60%</b></div>
+                  <div class="prob__d">처음 <b>65%</b> → 새 정보를 보고 <b>60%</b></div>
                 </div>
                 <div class="branch__meta">
                   <span>수치로 확인할 수 없습니다 · 판단 시점이 오면 여쭙겠습니다</span>
@@ -1292,8 +1313,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <small>정해진 칸만 채우고, 없는 건 비워 둡니다</small></div></li>
                 <li><i class="ok">✓</i><div>갈래마다 확률 배분
                   <small>합 100% · “그 외”가 항상 붙습니다 · 하나를 올리면 나머지가 줄어듭니다</small></div></li>
-                <li><i class="ok">✓</i><div>확률 자료 조사
-                  <small>기저율은 답하기 전, 컨센서스와 AI 추정치는 답한 뒤</small></div></li>
+                <li><i class="ok">✓</i><div>확률 판단 자료
+                  <small>답마다 뒷받침 자료를 갈라 모아 드립니다 · 숫자는 제안하지 않습니다</small></div></li>
                 <li><i class="ok">✓</i><div>시나리오의 판정 방법
                   <small>자동 확인 / 사람이 확인 / 나머지 — 지표는 별도 개념이 아닙니다</small></div></li>
                 <li><i class="ok">✓</i><div>자동 확인 수집
@@ -1342,7 +1363,7 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
     ['m-home','홈','다시 볼 시점 하나와 세로 타임라인. MVP에서는 날짜로 도착하는 리마인드만 띄웁니다 — “가설을 흔드는 낌새”는 백그라운드 리서치가 있어야 하는 카드라 뺐습니다.'],
     ['m-write','새 노트 · 대화','논리는 대화로 받습니다. 반대 시나리오와 판단 시점은 대화 중에 묻습니다. 사용자가 목표 가격을 말하면 그것을 진입 여부에 붙이지 않고 별개의 갈래로 세웁니다 — 다른 질문이기 때문입니다. 말하지 않았으면 묻지 않습니다. 확률은 대화에 안 나오면 비워 둡니다.'],
     ['m-preview','초안 확인','AI는 자유 형식으로 쓰지 않고 정해진 칸만 채웁니다. “올해 안”을 날짜로 옮긴 부분은 감추지 않고 드러내 확인받습니다.'],
-    ['m-setup','확률 · 확인 방법 · 2단계','확률은 갈래마다 나눕니다. 순서가 이 화면의 전부입니다 — 기저율(과거에 얼마나 자주 있었나)은 답하기 전에 보여주고, 컨센서스와 AI 추정치는 답한 뒤에 보여줍니다. AI가 먼저 숫자를 내면 사용자는 그걸 승인할 뿐이고, 그러면 노트에 남는 것이 내 판단이 아니라 AI의 판단이 됩니다. 회고에서 “내 논리가 맞았나”를 물을 대상이 사라지죠. 기저율은 43%가 아니라 “7건 중 3건”으로 적습니다 — 표본이 7건이라는 사실이 사라지면 안 되니까요. 못 찾으면 못 찾았다고 적고 지어내지 않습니다. 답한 뒤 기본 동작은 “그대로 두기”입니다. 차이를 보여주는 것이 목적이지 수렴시키는 것이 목적이 아닙니다.'],
+    ['m-setup','확률 · 확인 방법 · 2단계','AI는 확률을 제안하지 않습니다. 대신 각 답을 뒷받침하는 자료를 갈라 모아주고, 사용자가 양쪽 더미의 무게를 재서 스스로 나눕니다. — 남의 견해를 확률로 환산하지 않는 것이 핵심입니다. “증권사 12곳 중 7곳이 연내 진입 가능”은 사실이지만 그걸 58%로 바꾸면 사실이 아닙니다. 애널리스트는 확률을 말한 적이 없고, 서로 베껴서 상관돼 있고, 표본은 12입니다. 그런 값을 사용자의 확률 옆에 세우면 셋이 같은 종류처럼 읽히는데 실제로 확률인 것은 하나뿐입니다. 기저율도 43%가 아니라 “7건 중 3건”으로 적습니다. 한쪽 더미가 비면 “찾은 자료가 없습니다”라고 적습니다 — 한쪽에만 쌓이는 것 자체가 정보이고, 개수를 세어 보여주면 그게 곧 숫자 제안이 됩니다.'],
     ['m-note','노트 상세','검증할 수 있는 명제는 전부 시나리오입니다. 지표라는 별도 개념이 없고, 시나리오가 자기 판정 방법을 갖습니다 — 자동 확인 / 사람이 확인 / 나머지. 그래서 “95,000원을 넘는가”는 “진입하는가”의 판정 근거가 아니라 그 자체로 갈래입니다. 주가가 올랐다고 수주를 받은 것이 아니니까요. 둘을 나눠 두면 회고에서 “진입은 못 했는데 주가는 넘었다”가 그대로 남습니다. 답이 아닌 수치는 “지켜보는 수치”로 내려가 판정에 관여하지 않습니다.'],
     ['m-remind','다시 보기','메멘토의 핵심 화면. 과거의 나를 먼저 읽고 그다음에 지금을 봅니다. 2단은 AI 조사 결과가 아니라 수치가 어떻게 움직였는지입니다 — 자동 수집만으로 채울 수 있는 정보라서요. 주가 갈래는 이미 답이 나왔지만 그것이 진입 여부의 답은 아니라고 화면이 분명히 말합니다.'],
     ['m-judge','결과 확인 · 회고','MVP에서는 판정과 회고를 한 화면에 둡니다. 이 갈래는 수치로 확인할 수 없어 앱이 제안을 하지 않습니다 — 같은 날 답이 난 주가 갈래를 옆에 놓아 대조만 시킵니다. 묻는 것은 두 가지: 예상한 일이 일어났는가, 그리고 그게 논리가 맞아서였는가.'],
@@ -1394,16 +1415,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
     }
     el.addEventListener('input',paint); paint();
   }
-  wire('mp1','mv1','mv2','mme');
+  wire('mp1','mv1','mv2');
   wire('mp2','mt1','mt2');
-
-  // 남의 답은 내가 확정한 뒤에만 열린다
-  var mdone=document.getElementById('mdone');
-  if(mdone) mdone.addEventListener('click',function(){
-    var box=document.getElementById('mothers');
-    box.hidden=false; this.disabled=true; this.textContent='확정했습니다';
-    box.scrollIntoView({block:'nearest',behavior:'smooth'});
-  });
 
   // 폭 토글
   var wtog=document.getElementById('wtog');
