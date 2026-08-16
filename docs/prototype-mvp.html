@@ -345,7 +345,7 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .how--comp{background:transparent;color:var(--ink-2);border:1px dashed var(--line-1)}
 .branch__h{align-items:center}
 
-/* 수치 한 줄 — MVP는 차트 없이 목표 대비 현재값 */
+/* 수치 한 줄 — 목표 대비 현재값. 바로 아래에 축약 추이 그림이 붙는다 (ux-design §7) */
 .ind{display:flex;flex-direction:column}
 .ind__row{display:grid;grid-template-columns:1fr auto auto;gap:var(--s3) var(--s4);
   align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line-0)}
@@ -360,6 +360,56 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .ind__row.is-hit .ind__s{color:var(--fall)}
 .ind__row.is-hit .ind__v{color:var(--ink-0)}
 .ind__row.is-miss .ind__s{color:var(--countdown)}
+
+/* 수치 추이 — ux-design §7. 캔들·이동평균·보조지표 없이
+   기록선(점선)·목표선(실선)·그 사이 띠·추이선만 그린다 */
+/* 축약형 — 수치 한 줄 아래에 놓는 작은 그림. 노트 상세·다시 보기.
+   작아도 세 질문(기록은 어디, 목표는 어디, 얼마나 지나왔나)에는 답해야 한다 —
+   기록선·목표선 값 라벨과 시작·끝 날짜는 축약형에도 남긴다 */
+.spark{grid-column:1/-1;margin-top:6px}
+.spark__plot{position:relative}
+.spark svg{display:block;width:100%;height:72px;overflow:visible}
+.spark__foot{display:flex;justify-content:space-between;gap:var(--s3);margin-top:4px;
+  font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2)}
+/* 전체형 — 결과 확인. 어떻게 넘었는지가 남도록 */
+.ichart{position:relative;background:var(--paper-0);border:1px solid var(--line-0);
+  border-radius:var(--r3);padding:var(--s4) var(--s4) var(--s3)}
+.ichart__h{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:baseline;
+  justify-content:space-between;margin-bottom:var(--s3)}
+.ichart__t{font-size:var(--text-sm);font-weight:600}
+.ichart__t small{display:block;font-weight:400;font-size:var(--text-caption);
+  color:var(--ink-2);margin-top:2px}
+.ichart__now{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-subhead);color:var(--ink-0);text-align:right}
+.ichart__now span{display:block;font-size:var(--text-micro);color:var(--ink-2);margin-top:2px}
+.ichart__plot{position:relative}
+.ichart svg{display:block;width:100%;height:150px;overflow:visible}
+.ilab{position:absolute;font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-micro);color:var(--ink-2);background:var(--paper-0);
+  padding:0 5px;transform:translateY(-50%);white-space:nowrap;pointer-events:none}
+.ilab--cross{transform:translate(-50%,-100%);background:none;padding:0;color:var(--ink-1)}
+.ichart__foot{display:flex;justify-content:space-between;gap:var(--s3);margin-top:6px;
+  font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2)}
+.ichart__legend{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:var(--s3);
+  padding-top:var(--s3);border-top:1px solid var(--line-0);
+  font-size:var(--text-caption);color:var(--ink-2)}
+.ichart__legend span{display:flex;align-items:center;gap:7px}
+.ichart__legend i{width:16px;height:0;flex:0 0 auto}
+.tip{position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-100%);
+  background:var(--ink-0);color:var(--paper-0);padding:6px 9px;border-radius:var(--r2);
+  font-family:var(--font-mono);font-size:var(--text-micro);white-space:nowrap;z-index:2;
+  transition:opacity var(--dur-1) var(--ease-calm)}
+.ichart.is-hot .tip{opacity:1}
+.ichart table{width:100%;border-collapse:collapse;margin-top:var(--s3);
+  font-size:var(--text-caption)}
+.ichart table th,.ichart table td{text-align:left;padding:5px 8px;
+  border-bottom:1px solid var(--line-0)}
+.ichart table td:last-child,.ichart table th:last-child{text-align:right;
+  font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.ichart details{margin-top:var(--s3)}
+.ichart summary{font-size:var(--text-caption);color:var(--ink-2);cursor:pointer;
+  min-height:32px;display:flex;align-items:center}
+.ichart summary:hover{color:var(--ink-0)}
 
 /* 다음에 살펴볼 것 — AI가 언제 무엇을 다시 볼지. 약속이 아니라 예정이라 "확인합니다"까지만 쓴다 */
 .watchlist{display:grid}
@@ -474,6 +524,12 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .desk-only{display:none!important}
   .mob-only{display:block}
   .ind__row{grid-template-columns:1fr auto}
+  .ichart svg{height:124px}
+  .spark svg{height:56px}
+  .ichart__h{flex-direction:column;align-items:flex-start;gap:4px}
+  .ichart__now{text-align:left}
+  .ilab--cross{transform:translate(-100%,-100%)}
+  .ichart__legend{flex-direction:column;gap:8px}
   .split-row{grid-template-columns:1fr 54px;row-gap:6px}
   .split-row .slider{grid-column:1/-1}
   .pile__row{grid-template-columns:1fr;row-gap:2px}
@@ -1144,7 +1200,30 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <div class="ind__n">삼성전자 · 한국투자증권
                       <small>이상 · 장중 한 번이라도 닿으면 달성</small></div>
                     <div class="ind__v">97,400 / 95,000원</div>
-                    <div class="ind__s">달성 · 11.23</div>
+                    <div class="ind__s">달성 · 11.02</div>
+                    <div class="spark">
+                      <div class="spark__plot">
+                        <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                          <rect x="0" y="37.3" width="640"
+                                height="81.7" fill="var(--paper-2)" opacity=".55"></rect>
+                          <line x1="0" y1="37.3" x2="640" y2="37.3"
+                                stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                          <line x1="0" y1="119.0" x2="640" y2="119.0"
+                                stroke="var(--line-1)" stroke-width="1" stroke-dasharray="3 4"
+                                vector-effect="non-scaling-stroke"></line>
+                          <path d="M0.0,121.6 L14.7,113.3 L29.5,119.7 L44.2,119.5 L58.9,124.2 L73.7,115.9 L88.4,101.7 L103.2,106.8 L117.9,99.5 L132.6,105.3 L147.4,102.2 L162.1,102.3 L176.8,117.3 L191.6,92.6 L206.3,93.8 L221.1,91.9 L235.8,109.0 L250.5,107.2 L265.3,97.6 L280.0,91.7 L294.7,82.9 L309.5,83.6 L324.2,76.6 L338.9,83.8 L353.7,73.7 L368.4,70.6 L383.2,76.5 L397.9,55.3 L412.6,61.9 L427.4,54.5 L442.1,65.8 L456.8,64.1 L471.6,58.4 L486.3,54.0 L501.1,45.9 L515.8,45.9 L530.5,48.2 L545.3,48.9 L560.0,32.0 L574.7,28.1 L589.5,33.6 L604.2,29.1 L629.5,25.8" fill="none" stroke="var(--ink-2)" stroke-width="2"
+                                stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                          <circle cx="629.5" cy="25.8" r="6" fill="var(--rise)"
+                                  stroke="var(--paper-0)" stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                        </svg>
+                        <span class="ilab" style="left:0;top:24.9%">목표 95,000</span>
+                        <span class="ilab" style="left:0;top:79.3%">기록 78,000</span>
+                      </div>
+                      <div class="spark__foot">
+                        <span>2026.03.02 · 기록</span>
+                        <span>2026.12.31 · 판단 시점</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -1196,6 +1275,23 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <small>분기 공시 기준</small></div>
                 <div class="ind__v">9.8 → 14.2%</div>
                 <div class="ind__s">추이만</div>
+                <div class="spark">
+                  <div class="spark__plot">
+                    <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                      <path d="M0,116 L60,110 L120,118 L180,99 L240,104 L300,88 L360,92 L420,74 L480,66 L540,58 L600,46 L629,44"
+                            fill="none" stroke="var(--ink-2)" stroke-width="2"
+                            stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      <circle cx="629" cy="44" r="6" fill="var(--paper-0)" stroke="var(--ink-2)"
+                              stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                    </svg>
+                    <span class="ilab" style="left:0;top:77.3%">기록 9.8%</span>
+                    <span class="ilab" style="right:0;top:29.3%;transform:translate(0,-150%)">지금 14.2%</span>
+                  </div>
+                  <div class="spark__foot">
+                    <span>2026.03.02 · 기록</span>
+                    <span>오늘</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="hint" style="margin-top:var(--s3)">
@@ -1282,13 +1378,53 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <div class="ind__n">갈래 2 · 95,000원을 넘는가
                       <small>자동 확인 · 기록 당시 77,463원</small></div>
                     <div class="ind__v">97,400 / 95,000원</div>
-                    <div class="ind__s">넘음 · 11.23</div>
+                    <div class="ind__s">넘음 · 11.02</div>
+                    <div class="spark">
+                      <div class="spark__plot">
+                        <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                          <rect x="0" y="37.3" width="640"
+                                height="81.7" fill="var(--paper-2)" opacity=".55"></rect>
+                          <line x1="0" y1="37.3" x2="640" y2="37.3"
+                                stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                          <line x1="0" y1="119.0" x2="640" y2="119.0"
+                                stroke="var(--line-1)" stroke-width="1" stroke-dasharray="3 4"
+                                vector-effect="non-scaling-stroke"></line>
+                          <path d="M0.0,121.6 L14.7,113.3 L29.5,119.7 L44.2,119.5 L58.9,124.2 L73.7,115.9 L88.4,101.7 L103.2,106.8 L117.9,99.5 L132.6,105.3 L147.4,102.2 L162.1,102.3 L176.8,117.3 L191.6,92.6 L206.3,93.8 L221.1,91.9 L235.8,109.0 L250.5,107.2 L265.3,97.6 L280.0,91.7 L294.7,82.9 L309.5,83.6 L324.2,76.6 L338.9,83.8 L353.7,73.7 L368.4,70.6 L383.2,76.5 L397.9,55.3 L412.6,61.9 L427.4,54.5 L442.1,65.8 L456.8,64.1 L471.6,58.4 L486.3,54.0 L501.1,45.9 L515.8,45.9 L530.5,48.2 L545.3,48.9 L560.0,32.0 L574.7,28.1 L589.5,33.6 L604.2,29.1 L629.5,25.8" fill="none" stroke="var(--ink-2)" stroke-width="2"
+                                stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                          <circle cx="629.5" cy="25.8" r="6" fill="var(--rise)"
+                                  stroke="var(--paper-0)" stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                        </svg>
+                        <span class="ilab" style="left:0;top:24.9%">목표 95,000</span>
+                        <span class="ilab" style="left:0;top:79.3%">기록 78,000</span>
+                      </div>
+                      <div class="spark__foot">
+                        <span>2026.03.02 · 기록</span>
+                        <span>2026.12.31 · 판단 시점</span>
+                      </div>
+                    </div>
                   </div>
                   <div class="ind__row">
                     <div class="ind__n">HBM 매출 비중
                       <small>지켜보는 수치 · 기록 당시 9.8%</small></div>
                     <div class="ind__v">9.8 → 14.2%</div>
                     <div class="ind__s">추이만</div>
+                    <div class="spark">
+                      <div class="spark__plot">
+                        <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                          <path d="M0,116 L60,110 L120,118 L180,99 L240,104 L300,88 L360,92 L420,74 L480,66 L540,58 L600,46 L629,44"
+                                fill="none" stroke="var(--ink-2)" stroke-width="2"
+                                stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                          <circle cx="629" cy="44" r="6" fill="var(--paper-0)" stroke="var(--ink-2)"
+                                  stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                        </svg>
+                        <span class="ilab" style="left:0;top:77.3%">기록 9.8%</span>
+                        <span class="ilab" style="right:0;top:29.3%;transform:translate(0,-150%)">지금 14.2%</span>
+                      </div>
+                      <div class="spark__foot">
+                        <span>2026.03.02 · 기록</span>
+                        <span>오늘</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1341,18 +1477,128 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             <div class="hint" style="margin-bottom:var(--s4)">
               수치로 확인할 수 없는 질문입니다. 직접 표시해 주세요.
             </div>
-            <div class="ind" style="margin-bottom:var(--s4)">
-              <div class="ind__row is-hit">
-                <div class="ind__n">같은 날 답이 난 갈래 2 · 95,000원을 넘는가
-                  <small>자동 확인 · 넘었습니다</small></div>
-                <div class="ind__v">97,400 / 95,000원</div>
-                <div class="ind__s">넘음</div>
+            <div class="sec-label">같은 날 답이 난 갈래 2 · 95,000원을 넘는가
+              <span class="how how--auto" style="margin-left:6px">자동 확인</span></div>
+            <div class="ichart" id="ic1" style="margin-bottom:var(--s4)">
+              <div class="ichart__h">
+                <div class="ichart__t">삼성전자 · 95,000원 이상
+                  <small>한 번이라도 닿으면 달성 · 장중 포함</small></div>
+                <div class="ichart__now">97,400<span>12.26 종가 · 11.02 달성</span></div>
               </div>
+
+              <div class="ichart__plot">
+              <svg viewBox="0 0 640 150" preserveAspectRatio="none"
+                   role="img" aria-label="삼성전자 종가 추이. 기록 시점 78,000원에서 마지막 종가 97,400원. 11월 2일 장중 고가가 96,000원까지 닿아 목표 95,000원을 달성. 종가는 11월 18일부터 목표 위. 상세 값은 아래 표 참조.">
+                <!-- 기록선과 목표선 사이 = 가야 했던 거리 -->
+                <rect x="0" y="37.3" width="640" height="81.7"
+                      fill="var(--paper-2)" opacity=".55"></rect>
+                <!-- 오늘 이후 = 남은 기간 -->
+                <rect x="629.5" y="0" width="10.5" height="150"
+                      fill="url(#future)"></rect>
+                <defs>
+                  <pattern id="future" width="6" height="6" patternUnits="userSpaceOnUse"
+                           patternTransform="rotate(45)">
+                    <line x1="0" y1="0" x2="0" y2="6" stroke="var(--line-0)" stroke-width="2"></line>
+                  </pattern>
+                </defs>
+
+                <!-- 목표선 (실선) / 기록선 (점선 = 과거의 기준) -->
+                <line x1="0" y1="37.3" x2="640" y2="37.3"
+                      stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                <line x1="0" y1="119.0" x2="640" y2="119.0"
+                      stroke="var(--line-1)" stroke-width="1" stroke-dasharray="3 4"
+                      vector-effect="non-scaling-stroke"></line>
+
+                <!-- 그날의 고가~저가 -->
+                <polygon points="0.0,117.3 14.7,109.0 29.5,116.6 44.2,115.7 58.9,120.9 73.7,112.4 88.4,96.2 103.2,104.2 117.9,96.8 132.6,101.1 147.4,97.2 162.1,97.4 176.8,108.9 191.6,87.9 206.3,91.2 221.1,86.6 235.8,101.3 250.5,102.9 265.3,91.7 280.0,85.6 294.7,80.3 309.5,79.5 324.2,74.5 338.9,80.3 353.7,69.5 368.4,66.7 383.2,73.6 397.9,49.9 412.6,58.5 427.4,50.5 442.1,62.8 456.8,60.5 471.6,55.0 486.3,49.0 501.1,38.8 515.8,32.5 530.5,39.6 545.3,44.5 560.0,26.8 574.7,22.7 589.5,29.4 604.2,24.0 629.5,20.8 629.5,30.3 604.2,37.0 589.5,36.2 574.7,32.4 560.0,37.1 545.3,53.9 530.5,53.9 515.8,51.1 501.1,53.5 486.3,59.3 471.6,61.1 456.8,67.0 442.1,70.4 427.4,62.3 412.6,66.7 397.9,63.5 383.2,81.5 368.4,75.8 353.7,76.3 338.9,87.2 324.2,80.5 309.5,88.4 294.7,87.1 280.0,96.1 265.3,102.1 250.5,110.6 235.8,113.0 221.1,95.8 206.3,98.3 191.6,97.0 176.8,125.1 162.1,106.7 147.4,106.8 132.6,110.7 117.9,101.7 103.2,108.6 88.4,105.6 73.7,119.5 58.9,127.4 44.2,124.2 29.5,123.2 14.7,117.9 0.0,127.0" fill="var(--ink-3)" opacity=".38"></polygon>
+
+                <!-- 종가 추이 -->
+                <path d="M0.0,121.6 L14.7,113.3 L29.5,119.7 L44.2,119.5 L58.9,124.2 L73.7,115.9 L88.4,101.7 L103.2,106.8 L117.9,99.5 L132.6,105.3 L147.4,102.2 L162.1,102.3 L176.8,117.3 L191.6,92.6 L206.3,93.8 L221.1,91.9 L235.8,109.0 L250.5,107.2 L265.3,97.6 L280.0,91.7 L294.7,82.9 L309.5,83.6 L324.2,76.6 L338.9,83.8 L353.7,73.7 L368.4,70.6 L383.2,76.5 L397.9,55.3 L412.6,61.9 L427.4,54.5 L442.1,65.8 L456.8,64.1 L471.6,58.4 L486.3,54.0 L501.1,45.9 L515.8,45.9 L530.5,48.2 L545.3,48.9 L560.0,32.0 L574.7,28.1 L589.5,33.6 L604.2,29.1 L629.5,25.8" fill="none" stroke="var(--ink-2)" stroke-width="2"
+                      stroke-linejoin="round" stroke-linecap="round"
+                      vector-effect="non-scaling-stroke"></path>
+
+                <!-- 장중에만 닿은 날 -->
+                <line x1="515.8" y1="32.5" x2="515.8" y2="55.0" stroke="var(--ink-2)"
+                      stroke-width="2" vector-effect="non-scaling-stroke" opacity=".7"></line>
+
+                <!-- 종가가 목표를 넘어선 지점 -->
+                <circle cx="515.8" cy="32.5" r="5"
+                        fill="var(--rise)" stroke="var(--paper-0)" stroke-width="2"
+                        vector-effect="non-scaling-stroke"></circle>
+                <!-- 오늘 -->
+                <circle cx="629.5" cy="25.8" r="4.5"
+                        fill="var(--paper-0)" stroke="var(--ink-1)" stroke-width="2"
+                        vector-effect="non-scaling-stroke"></circle>
+
+                <line class="cross" x1="0" y1="0" x2="0" y2="150" stroke="var(--line-1)"
+                      stroke-width="1" vector-effect="non-scaling-stroke" opacity="0"></line>
+              </svg>
+                <span class="ilab" style="left:0;top:24.9%">목표 95,000</span>
+                <span class="ilab" style="left:0;top:79.3%">기록 78,000</span>
+                <span class="ilab ilab--cross" style="left:80.6%;top:11%">11.02 달성</span>
+              </div>
+
+              <div class="ichart__foot">
+                <span>2026.03.02 · 기록</span>
+                <span>2026.12.31 · 판단 시점</span>
+              </div>
+
+              <div class="ichart__legend">
+                <span><i style="background:var(--ink-2);height:2px"></i>종가</span>
+                <span><i style="background:var(--rise);width:10px;height:10px;border-radius:50%"></i>목표에 처음 닿은 날</span>
+                <span><i style="background:var(--ink-3);opacity:.4;height:10px;border-radius:2px"></i>그날의 고가~저가</span>
+                <span><i style="background:var(--paper-2);height:10px;border-radius:2px"></i>가야 했던 거리</span>
+                <span><i style="background:repeating-linear-gradient(45deg,var(--line-0) 0 2px,transparent 2px 5px);height:10px;border-radius:2px"></i>남은 기간</span>
+              </div>
+
+              <p style="margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line-0);
+                        font-size:var(--text-caption);color:var(--ink-1);max-width:70ch">
+                <b style="font-weight:600">11.02</b>에 장중 고가가 96,000까지 닿아 그날을 달성일로
+                기록했습니다. 그날 종가는 93,198이었지만, <b style="font-weight:600">한 번이라도
+                닿으면 달성</b>이 기준입니다. 종가가 목표 위로 자리 잡은 것은 11.18부터입니다.
+              </p>
+
+              <details>
+                <summary>값으로 보기</summary>
+                <table>
+                  <thead><tr><th>시점</th><th>고가</th><th>종가</th></tr></thead>
+                  <tbody>
+                    <tr><td>2026.03.02 · 기록</td><td>78,900</td><td>78,000</td></tr>
+                    <tr><td>2026.06.15</td><td>84,700</td><td>83,642</td></tr>
+                    <tr><td>2026.09.07</td><td>92,100</td><td>91,253</td></tr>
+                    <tr><td>2026.11.02 · <b>달성</b></td><td>96,000</td><td>93,198</td></tr>
+                    <tr><td>2026.11.18 · 종가도 넘김</td><td>96,800</td><td>96,099</td></tr>
+                    <tr><td>2026.12.26 · 마지막 종가</td><td>97,900</td><td>97,400</td></tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <div class="tip" id="tip1"></div>
+            </div>
+
+            <div class="ind" style="margin-bottom:var(--s4)">
               <div class="ind__row">
                 <div class="ind__n">HBM 매출 비중
                   <small>지켜보는 수치 · 판정에 쓰지 않습니다</small></div>
                 <div class="ind__v">9.8 → 17.1%</div>
                 <div class="ind__s">추이만</div>
+                <div class="spark">
+                  <div class="spark__plot">
+                    <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                      <path d="M0,116 L60,110 L120,118 L180,99 L240,104 L300,88 L360,92 L420,74 L480,66 L540,58 L600,40 L629,32"
+                            fill="none" stroke="var(--ink-2)" stroke-width="2"
+                            stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      <circle cx="629" cy="32" r="6" fill="var(--paper-0)" stroke="var(--ink-2)"
+                              stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                    </svg>
+                    <span class="ilab" style="left:0;top:77.3%">기록 9.8%</span>
+                    <span class="ilab" style="right:0;top:21.3%;transform:translate(0,-150%)">마지막 17.1%</span>
+                  </div>
+                  <div class="spark__foot">
+                    <span>2026.03.02 · 기록</span>
+                    <span>2026.12.31 · 판단 시점</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="pick">
@@ -1429,6 +1675,8 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <small>일 1회 · 장중 터치 인정 · 기한은 갈래의 판단 시점 하나</small></div></li>
                 <li><i class="ok">✓</i><div>지켜보는 수치
                   <small>판정하지 않고 추이만 — 답이 아닌 수치가 판정에 섞이지 않게</small></div></li>
+                <li><i class="ok">✓</i><div>추이 차트
+                  <small>노트 상세·다시 보기는 축약형, 결과 확인은 전체형 (ux-design §7)</small></div></li>
                 <li><i class="ok">✓</i><div>판단 시점 리마인드
                   <small>과거의 나를 먼저 읽고 그다음에 지금을 봅니다</small></div></li>
                 <li><i class="ok">✓</i><div>결과 확인과 회고
@@ -1442,8 +1690,6 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <small>수집·관련성 판단 파이프라인이 통째로 필요합니다</small></div></li>
                 <li><i>·</i><div>AI 어드바이저 (매수·홀드·매도 의견)
                   <small>루프가 도는 것을 먼저 확인한 뒤에 붙입니다</small></div></li>
-                <li><i>·</i><div>추이 차트
-                  <small>MVP는 현재값과 목표값 한 줄로 갈음합니다</small></div></li>
                 <li><i>·</i><div>벤치마크 대비 비교
                   <small>회고는 사용자 서술만으로 시작합니다</small></div></li>
                 <li><i>·</i><div>확률 변경 이력 화면, 노트 목록·검색
@@ -1584,6 +1830,32 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   }
   wire('mp1','mv1','mv2');
   wire('mp2','mt1','mt2');
+
+  // 수치 추이 — 크로스헤어 + 툴팁 (결과 확인 전체형)
+  var SERIES=[[0.0, 121.6, "2026-03-02", 77463], [14.7, 113.3, "2026-03-09", 79187], [29.5, 119.7, "2026-03-16", 77844], [44.2, 119.5, "2026-03-23", 77892], [58.9, 124.2, "2026-03-30", 76904], [73.7, 115.9, "2026-04-06", 78642], [88.4, 101.7, "2026-04-13", 81591], [103.2, 106.8, "2026-04-20", 80528], [117.9, 99.5, "2026-04-27", 82056], [132.6, 105.3, "2026-05-04", 80854], [147.4, 102.2, "2026-05-11", 81493], [162.1, 102.3, "2026-05-18", 81462], [176.8, 117.3, "2026-05-25", 78340], [191.6, 92.6, "2026-06-01", 83498], [206.3, 93.8, "2026-06-08", 83245], [221.1, 91.9, "2026-06-15", 83642], [235.8, 109.0, "2026-06-22", 80067], [250.5, 107.2, "2026-06-29", 80441], [265.3, 97.6, "2026-07-06", 82449], [280.0, 91.7, "2026-07-13", 83669], [294.7, 82.9, "2026-07-20", 85501], [309.5, 83.6, "2026-07-27", 85359], [324.2, 76.6, "2026-08-03", 86818], [338.9, 83.8, "2026-08-10", 85317], [353.7, 73.7, "2026-08-17", 87429], [368.4, 70.6, "2026-08-24", 88072], [383.2, 76.5, "2026-08-31", 86833], [397.9, 55.3, "2026-09-07", 91253], [412.6, 61.9, "2026-09-14", 89870], [427.4, 54.5, "2026-09-21", 91418], [442.1, 65.8, "2026-09-28", 89058], [456.8, 64.1, "2026-10-05", 89427], [471.6, 58.4, "2026-10-12", 90603], [486.3, 54.0, "2026-10-19", 91531], [501.1, 45.9, "2026-10-26", 93214], [515.8, 45.9, "2026-11-02", 93198], [530.5, 48.2, "2026-11-09", 92738], [545.3, 48.9, "2026-11-16", 92581], [560.0, 32.0, "2026-11-23", 96099], [574.7, 28.1, "2026-11-30", 96903], [589.5, 33.6, "2026-12-07", 95767], [604.2, 29.1, "2026-12-14", 96698], [629.5, 25.8, "2026-12-26", 97400]];
+  (function(){
+    var box=document.getElementById('ic1'); if(!box) return;
+    var svg=box.querySelector('svg'), tip=document.getElementById('tip1'),
+        cross=svg.querySelector('.cross'), VW=640;
+    function move(e){
+      var r=svg.getBoundingClientRect();
+      var vx=(e.clientX-r.left)/r.width*VW;
+      var best=SERIES[0],bd=1e9;
+      for(var i=0;i<SERIES.length;i++){var d=Math.abs(SERIES[i][0]-vx);if(d<bd){bd=d;best=SERIES[i];}}
+      cross.setAttribute('x1',best[0]); cross.setAttribute('x2',best[0]);
+      cross.setAttribute('opacity','1');
+      var px=best[0]/VW*r.width;
+      tip.style.left=px+'px';
+      tip.style.top=(best[1]/150*r.height + (r.top-box.getBoundingClientRect().top) - 10)+'px';
+      var d=best[2].slice(5).replace('-','.');
+      tip.textContent=d+'  '+best[3].toLocaleString()+'원';
+      box.classList.add('is-hot');
+    }
+    svg.addEventListener('mousemove',move);
+    svg.addEventListener('mouseleave',function(){
+      box.classList.remove('is-hot'); cross.setAttribute('opacity','0');
+    });
+  })();
 
   // 폭 토글
   var wtog=document.getElementById('wtog');
