@@ -11,9 +11,14 @@
 
 | 문서 | 내용 |
 |---|---|
-| [`docs/development-plan.md`](docs/development-plan.md) | 개발 계획 — 문제의식, 핵심 컨셉, 기능 명세, 데이터 모델, 아키텍처, MVP 범위, 확정된 결정과 오픈 이슈 |
+| [`docs/development-plan.md`](docs/development-plan.md) | 개발 계획 — 문제의식, 핵심 컨셉, 기능 명세, 데이터 모델, 아키텍처, MVP 범위, 확정된 결정과 오픈 이슈, 구현 마스터플랜(§13) |
 | [`docs/ux-design.md`](docs/ux-design.md) | UX 설계 — 화면 구조, 화면별 와이어프레임과 인터랙션 원칙, 문구(마이크로카피) |
-| [`docs/prototype-mvp.html`](docs/prototype-mvp.html) | MVP 화면 프로토타입 — 브라우저에서 바로 열어 확인하는 정적 목업 |
+| [`docs/prototype-mvp.html`](docs/prototype-mvp.html) | MVP 화면 프로토타입 — 브라우저에서 바로 열어 확인하는 정적 목업. 각 화면의 수용 기준 |
+| [`docs/dev/`](docs/dev/) | 분야별 구현 계획 — DB 스키마, 백엔드, 프론트엔드, AI 에이전트, 수치 수집, 인프라 (마스터플랜 §13에서 참조) |
+
+확정된 구현 스택: **Next.js(웹) + FastAPI(API·워커) + Supabase(Postgres·Auth) +
+Claude API**, 처음부터 멀티유저. 마일스톤은 M0(부트스트랩)부터 M9(베타 마감)까지
+`development-plan.md` §13.5에 정의되어 있다.
 
 ## 핵심 컨셉
 
@@ -57,6 +62,8 @@
 AI는 리서치·요약·리마인드 큐레이션·회고 초안·소크라테스식 질문을 담당한다.
 단, **가설은 항상 사용자의 입에서 나와야 한다** — AI가 완성된 가설 문장을 주고
 수락받는 방식은 금지다(그러면 회고에서 검증되는 것이 AI의 논리가 된다).
+**시나리오 확률도 AI는 숫자를 내지 않는다** — 답별로 뒷받침 자료를 갈라 보여줄 뿐,
+배분은 사용자가 한다(앵커링이 걸리면 노트에 남는 것이 내 판단이 아니게 된다).
 매수/매도 의견 자체는 프롬프트 단에서 제한하지 않되, 면책 고지는 UI 레벨에서 상시
 노출한다.
 
