@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Claude Code local settings
+.claude/
+
+# env
+.env
+.env.*.local
+
+# node / pnpm
+node_modules/
+
+# python (apps/api)
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# supabase local
+supabase/.temp/
+supabase/.branches/

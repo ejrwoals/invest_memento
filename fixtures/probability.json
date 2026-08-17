@@ -1,0 +1,141 @@
+[
+  {
+    "name": "raise A to 80",
+    "scenarios": [
+      { "id": "A", "probability": 65, "is_residual": false },
+      { "id": "B", "probability": 25, "is_residual": false },
+      { "id": "residual", "probability": 10, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 80 },
+    "locked_ids": [],
+    "expected": { "A": 80, "B": 15, "residual": 5 }
+  },
+  {
+    "name": "raise A to 95 zeroes B but keeps residual at 5",
+    "scenarios": [
+      { "id": "A", "probability": 65, "is_residual": false },
+      { "id": "B", "probability": 25, "is_residual": false },
+      { "id": "residual", "probability": 10, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 95 },
+    "locked_ids": [],
+    "expected": { "A": 95, "B": 0, "residual": 5 }
+  },
+  {
+    "name": "cap 100 at 95",
+    "scenarios": [
+      { "id": "A", "probability": 65, "is_residual": false },
+      { "id": "B", "probability": 25, "is_residual": false },
+      { "id": "residual", "probability": 10, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 100 },
+    "locked_ids": [],
+    "expected": { "A": 95, "B": 0, "residual": 5 }
+  },
+  {
+    "name": "drop A to 0 keeps 25:10 ratio",
+    "scenarios": [
+      { "id": "A", "probability": 65, "is_residual": false },
+      { "id": "B", "probability": 25, "is_residual": false },
+      { "id": "residual", "probability": 10, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 0 },
+    "locked_ids": [],
+    "expected": { "A": 0, "B": 70, "residual": 30 }
+  },
+  {
+    "name": "snap 63 to 65",
+    "scenarios": [
+      { "id": "A", "probability": 65, "is_residual": false },
+      { "id": "B", "probability": 25, "is_residual": false },
+      { "id": "residual", "probability": 10, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 63 },
+    "locked_ids": [],
+    "expected": { "A": 65, "B": 25, "residual": 10 }
+  },
+  {
+    "name": "locked B clips A at 70",
+    "scenarios": [
+      { "id": "A", "probability": 65, "is_residual": false },
+      { "id": "B", "probability": 25, "is_residual": false },
+      { "id": "residual", "probability": 10, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 80 },
+    "locked_ids": ["B"],
+    "expected": { "A": 70, "B": 25, "residual": 5 }
+  },
+  {
+    "name": "two scenarios only",
+    "scenarios": [
+      { "id": "A", "probability": 60, "is_residual": false },
+      { "id": "residual", "probability": 40, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 90 },
+    "locked_ids": [],
+    "expected": { "A": 90, "residual": 10 }
+  },
+  {
+    "name": "two scenarios cap at 95",
+    "scenarios": [
+      { "id": "A", "probability": 60, "is_residual": false },
+      { "id": "residual", "probability": 40, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 100 },
+    "locked_ids": [],
+    "expected": { "A": 95, "residual": 5 }
+  },
+  {
+    "name": "everything else locked forces complement",
+    "scenarios": [
+      { "id": "A", "probability": 65, "is_residual": false },
+      { "id": "B", "probability": 25, "is_residual": false },
+      { "id": "residual", "probability": 10, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 80 },
+    "locked_ids": ["B", "residual"],
+    "expected": { "A": 65, "B": 25, "residual": 10 }
+  },
+  {
+    "name": "residual borrows from largest item",
+    "scenarios": [
+      { "id": "A", "probability": 30, "is_residual": false },
+      { "id": "B", "probability": 65, "is_residual": false },
+      { "id": "residual", "probability": 5, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 85 },
+    "locked_ids": [],
+    "expected": { "A": 85, "B": 10, "residual": 5 }
+  },
+  {
+    "name": "first allocation splits rest equally",
+    "scenarios": [
+      { "id": "A", "probability": null, "is_residual": false },
+      { "id": "B", "probability": null, "is_residual": false },
+      { "id": "residual", "probability": null, "is_residual": true }
+    ],
+    "changed": { "id": "A", "value": 60 },
+    "locked_ids": [],
+    "expected": { "A": 60, "B": 20, "residual": 20 }
+  },
+  {
+    "name": "residual itself cannot go below 5",
+    "scenarios": [
+      { "id": "A", "probability": 65, "is_residual": false },
+      { "id": "B", "probability": 25, "is_residual": false },
+      { "id": "residual", "probability": 10, "is_residual": true }
+    ],
+    "changed": { "id": "residual", "value": 0 },
+    "locked_ids": [],
+    "expected": { "A": 70, "B": 25, "residual": 5 }
+  },
+  {
+    "name": "single scenario has no probability",
+    "scenarios": [
+      { "id": "only", "probability": null, "is_residual": true }
+    ],
+    "changed": { "id": "only", "value": 50 },
+    "locked_ids": [],
+    "expected": null
+  }
+]

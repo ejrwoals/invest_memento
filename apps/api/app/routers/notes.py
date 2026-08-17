@@ -1,0 +1,459 @@
+"""노트 CRUD + 갈래 확률 갱신 — HTTP 계층은 얇게, 규칙은 domain 이 정본.
+
+모든 엔드포인트는 RequireUser 로 보호되고, 모든 쿼리는 user_id 로 스코핑한다.
+남의 리소스는 403이 아니라 404 — 존재 여부 자체를 흘리지 않는다 (02-backend §3).
+확률 쓰기 경로는 PATCH /galae/{id}/probabilities 하나뿐이다 — 개별 시나리오
+확률 수정 API는 만들지 않는다 (02-backend §4 "만들지 않는 엔드포인트").
+"""
+
+import zlib
+from collections.abc import Sequence
+from datetime import date, datetime
+from decimal import Decimal
+from uuid import UUID
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import delete, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.auth import RequireUser
+from app.db import SessionDep
+from app.db.models import Galae, Instrument, Note, Premise, ProbabilityEntry, Scenario
+from app.domain.probability import ScenarioProb, redistribute
+from app.domain.validation import Issue, NoteDraft, ScenarioDraft, Severity, validate_note
+
+router = APIRouter()
+
+RESIDUAL_NAME = "그 외 예상 못한 전개"
+
+# 색을 고르지 않고 저장하면 대상 이름에서 결정적으로 배정한다 — 같은 대상은 늘 같은 색
+_PALETTE = ("#2563eb", "#dc2626", "#059669", "#d97706", "#7c3aed", "#0891b2")
+
+
+# ── 응답 스키마 ──────────────────────────────────────────────────────────────
+
+
+class FixOut(BaseModel):
+    label: str
+    action: str
+
+
+class IssueOut(BaseModel):
+    code: str
+    severity: Severity
+    field: str
+    message: str
+    fix: FixOut | None = None
+
+    @classmethod
+    def from_issue(cls, issue: Issue) -> "IssueOut":
+        fix = FixOut(label=issue.fix.label, action=issue.fix.action) if issue.fix else None
+        return cls(
+            code=issue.code,
+            severity=issue.severity,
+            field=issue.field,
+            message=issue.message,
+            fix=fix,
+        )
+
+
+class NoteSummary(BaseModel):
+    id: UUID
+    target_name: str
+    thesis_summary: str
+    color: str
+    is_complete: bool  # 판단 시점 있는 갈래가 하나 이상 — 저장하지 않고 여기서 계산한다
+    next_judge_end: date | None  # 열린 갈래의 가장 가까운 판단 시점
+    galae_count: int
+
+
+class ScenarioOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+    description: str | None
+    trigger_conditions: str | None
+    position: int
+    is_residual: bool
+    status: str
+    status_reason: str | None
+    probability: int | None
+    resolution_type: str
+    series_provider: str | None
+    series_code: str | None
+    series_label: str | None
+    comparator: str | None
+    target_value: Decimal | None
+    target_low: Decimal | None
+    target_high: Decimal | None
+    baseline_date: date | None
+    auto_status: str | None
+    met_at: date | None
+    progress: float | None
+    marked: str | None
+    marked_at: datetime | None
+
+
+class GalaeOut(BaseModel):
+    id: UUID
+    question: str
+    judge_kind: str | None
+    judge_start: date | None
+    judge_end: date | None
+    status: str
+    position: int
+    scenarios: list[ScenarioOut]
+
+
+class PremiseOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    statement: str
+    position: int
+    quoted_from: UUID | None
+    linked_watch_id: UUID | None
+
+
+class NoteDetail(BaseModel):
+    id: UUID
+    target_type: str
+    target_symbol: str | None
+    target_name: str
+    thesis_summary: str
+    thesis_detail: str | None
+    color: str
+    archived_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+    is_complete: bool
+    galae: list[GalaeOut]
+    premises: list[PremiseOut]
+
+
+class ProbabilityChange(BaseModel):
+    scenario_id: UUID
+    value: int = Field(ge=0, le=100)
+
+
+class ProbabilitiesPatch(BaseModel):
+    changed: ProbabilityChange
+    locked_ids: list[UUID] = Field(default_factory=list)
+    reason: str | None = None  # 무엇을 보고 바꿨는지 (선택) — 움직인 시나리오의 이력에 남긴다
+
+
+class ScenarioProbabilityOut(BaseModel):
+    scenario_id: UUID
+    value: int
+
+
+class GalaeProbabilitiesOut(BaseModel):
+    galae_id: UUID
+    probabilities: list[ScenarioProbabilityOut]
+
+
+# ── 순수 헬퍼 — DB 없이 테스트한다 ──────────────────────────────────────────
+
+
+def ensure_residual(scenarios: Sequence[ScenarioDraft]) -> list[ScenarioDraft]:
+    """갈래에 residual(`그 외 예상 못한 전개`)이 없으면 끝에 하나 추가한다.
+
+    residual 생성은 갈래 생성 코드의 책임이다 — DB partial unique index 가
+    "정확히 1개"를 보강한다 (01-db-schema §4.3).
+    """
+    if any(s.is_residual for s in scenarios):
+        return list(scenarios)
+    residual = ScenarioDraft(name=RESIDUAL_NAME, is_residual=True, resolution_type="complement")
+    return [*scenarios, residual]
+
+
+def pick_color(draft: NoteDraft) -> str:
+    if draft.color:
+        return draft.color
+    return _PALETTE[zlib.crc32(draft.target_name.encode()) % len(_PALETTE)]
+
+
+def _error(status: int, code: str, message: str) -> HTTPException:
+    return HTTPException(status_code=status, detail={"code": code, "message": message})
+
+
+def check_auto_conditions(draft: NoteDraft) -> None:
+    """auto 시나리오의 조건 완비 검사 — DB CHECK(01-db-schema §3.4)에 걸리기 전에
+    완성된 문장으로 알려준다. gte/lte 는 목표값까지 요구한다(없으면 판정 불능)."""
+    for s in (s for g in draft.galae for s in g.scenarios):
+        if s.resolution_type != "auto":
+            continue
+        ok = (
+            s.series_provider is not None
+            and s.series_code is not None
+            and s.comparator is not None
+        )
+        if s.comparator == "between":
+            ok = ok and s.target_low is not None and s.target_high is not None
+        elif s.comparator == "change_pct":
+            ok = ok and s.baseline_date is not None and s.target_value is not None
+        else:
+            ok = ok and s.target_value is not None
+        if not ok:
+            raise _error(
+                422,
+                "AUTO_CONDITION_INCOMPLETE",
+                f"'{s.name}' 시나리오가 자동 판정인데 계열·비교 조건이 완성되지 않았습니다. "
+                "조건을 채우거나 직접 표시(manual)로 저장해 주세요.",
+            )
+
+
+def _is_complete(galae: Sequence[Galae]) -> bool:
+    return any(g.judge_end is not None for g in galae)
+
+
+def _next_judge_end(galae: Sequence[Galae]) -> date | None:
+    dues = [g.judge_end for g in galae if g.status == "open" and g.judge_end is not None]
+    return min(dues) if dues else None
+
+
+def _note_detail(note: Note) -> NoteDetail:
+    return NoteDetail(
+        id=note.id,
+        target_type=note.target_type,
+        target_symbol=note.target_symbol,
+        target_name=note.target_name,
+        thesis_summary=note.thesis_summary,
+        thesis_detail=note.thesis_detail,
+        color=note.color,
+        archived_at=note.archived_at,
+        created_at=note.created_at,
+        updated_at=note.updated_at,
+        is_complete=_is_complete(note.galae),
+        galae=[
+            GalaeOut(
+                id=g.id,
+                question=g.question,
+                judge_kind=g.judge_kind,
+                judge_start=g.judge_start,
+                judge_end=g.judge_end,
+                status=g.status,
+                position=g.position,
+                scenarios=[ScenarioOut.model_validate(s) for s in g.scenarios],
+            )
+            for g in note.galae
+        ],
+        premises=[PremiseOut.model_validate(p) for p in note.premises],
+    )
+
+
+def _scenario_row(draft: ScenarioDraft, position: int) -> Scenario:
+    is_auto = draft.resolution_type == "auto"
+    return Scenario(
+        name=draft.name,
+        description=draft.description,
+        trigger_conditions=draft.trigger_conditions,
+        position=position,
+        is_residual=draft.is_residual,
+        resolution_type=draft.resolution_type,
+        probability=None,  # 저장 시 확률은 전부 null — 배분은 갈래 단위 API에서만 (§3.1)
+        series_provider=draft.series_provider if is_auto else None,
+        series_code=draft.series_code if is_auto else None,
+        series_label=draft.series_label if is_auto else None,
+        comparator=draft.comparator if is_auto else None,
+        target_value=draft.target_value if is_auto else None,
+        target_low=draft.target_low if is_auto else None,
+        target_high=draft.target_high if is_auto else None,
+        baseline_date=draft.baseline_date if is_auto else None,
+    )
+
+
+# ── 엔드포인트 ──────────────────────────────────────────────────────────────
+
+
+@router.post("/notes/validate")
+def validate(draft: NoteDraft, user: RequireUser) -> list[IssueOut]:
+    """검증기만 실행한다 — 저장하지 않는다. 미리보기 진입 시 클라이언트가 호출."""
+    return [IssueOut.from_issue(i) for i in validate_note(draft)]
+
+
+@router.post("/notes", status_code=201)
+async def create_note(draft: NoteDraft, user: RequireUser, session: SessionDep) -> NoteDetail:
+    issues = validate_note(draft)
+    blocking = [i for i in issues if i.severity == "blocking"]
+    if blocking:
+        # blocking(NO_TARGET·NO_THESIS)만 저장을 막는다 — 나머지는 전부 저장된다 (§3.1)
+        raise HTTPException(
+            status_code=422,
+            detail=[IssueOut.from_issue(i).model_dump() for i in blocking],
+        )
+    check_auto_conditions(draft)
+    if draft.target_type is None:
+        raise _error(
+            422, "NO_TARGET_TYPE", "대상 유형(ticker·asset·theme)이 비어 있어 저장할 수 없습니다."
+        )
+    if draft.target_symbol is not None:
+        known = await session.scalar(
+            select(Instrument.symbol).where(Instrument.symbol == draft.target_symbol)
+        )
+        if known is None:
+            raise _error(
+                422,
+                "UNKNOWN_SYMBOL",
+                f"등록되지 않은 심볼입니다: {draft.target_symbol}. "
+                "instruments 카탈로그에 먼저 추가해야 합니다.",
+            )
+
+    note = Note(
+        user_id=UUID(user.id),
+        target_type=draft.target_type,
+        target_symbol=draft.target_symbol,
+        target_name=draft.target_name,
+        thesis_summary=draft.thesis_summary,
+        thesis_detail=draft.thesis_detail,
+        color=pick_color(draft),
+    )
+    for gpos, g in enumerate(draft.galae):
+        galae = Galae(
+            question=g.question,
+            judge_kind=g.judge_kind,
+            judge_start=g.judge_start,
+            judge_end=g.judge_end,
+            position=gpos,
+        )
+        galae.scenarios = [
+            _scenario_row(s, spos) for spos, s in enumerate(ensure_residual(g.scenarios))
+        ]
+        note.galae.append(galae)
+    note.premises = [
+        Premise(
+            statement=p.statement,
+            position=ppos,
+            quoted_from=UUID(p.quoted_from) if p.quoted_from else None,
+        )
+        for ppos, p in enumerate(draft.premises)
+    ]
+    session.add(note)
+    await session.commit()  # 단일 트랜잭션 — 부분 저장은 없다 (02-backend §9)
+    saved = await _load_note(session, UUID(user.id), note.id)
+    assert saved is not None
+    return _note_detail(saved)
+
+
+@router.get("/notes")
+async def list_notes(user: RequireUser, session: SessionDep) -> list[NoteSummary]:
+    notes = (
+        await session.scalars(
+            select(Note)
+            .where(Note.user_id == UUID(user.id))
+            .options(selectinload(Note.galae))
+            .order_by(Note.created_at.desc())
+        )
+    ).all()
+    return [
+        NoteSummary(
+            id=n.id,
+            target_name=n.target_name,
+            thesis_summary=n.thesis_summary,
+            color=n.color,
+            is_complete=_is_complete(n.galae),
+            next_judge_end=_next_judge_end(n.galae),
+            galae_count=len(n.galae),
+        )
+        for n in notes
+    ]
+
+
+async def _load_note(session: AsyncSession, user_id: UUID, note_id: UUID) -> Note | None:
+    result = await session.scalars(
+        select(Note)
+        .where(Note.id == note_id, Note.user_id == user_id)
+        .options(
+            selectinload(Note.galae).selectinload(Galae.scenarios),
+            selectinload(Note.premises),
+        )
+    )
+    return result.first()
+
+
+@router.get("/notes/{note_id}")
+async def get_note(note_id: UUID, user: RequireUser, session: SessionDep) -> NoteDetail:
+    note = await _load_note(session, UUID(user.id), note_id)
+    if note is None:
+        raise HTTPException(status_code=404, detail="note not found")
+    return _note_detail(note)
+
+
+@router.delete("/notes/{note_id}", status_code=204)
+async def delete_note(note_id: UUID, user: RequireUser, session: SessionDep) -> None:
+    owned = await session.scalar(
+        select(Note.id).where(Note.id == note_id, Note.user_id == UUID(user.id))
+    )
+    if owned is None:
+        raise HTTPException(status_code=404, detail="note not found")
+    # residual 삭제 보호 트리거(01-db-schema §4.3)는 노트 cascade 삭제에도 발화하므로,
+    # 같은 트랜잭션 안에서 is_residual 을 접어 무장해제한 뒤 지운다.
+    await session.execute(
+        update(Scenario)
+        .values(is_residual=False)
+        .where(Scenario.galae_id.in_(select(Galae.id).where(Galae.note_id == note_id)))
+    )
+    await session.execute(delete(Note).where(Note.id == note_id))
+    await session.commit()
+
+
+@router.patch("/galae/{galae_id}/probabilities")
+async def patch_probabilities(
+    galae_id: UUID, body: ProbabilitiesPatch, user: RequireUser, session: SessionDep
+) -> GalaeProbabilitiesOut:
+    galae = await session.scalar(
+        select(Galae)
+        .join(Note)
+        .where(Galae.id == galae_id, Note.user_id == UUID(user.id))
+        .options(selectinload(Galae.scenarios))
+    )
+    if galae is None:
+        raise HTTPException(status_code=404, detail="galae not found")
+
+    changed_id = str(body.changed.scenario_id)
+    if changed_id not in {str(s.id) for s in galae.scenarios}:
+        # 갈래 밖의 시나리오 — 존재 여부를 흘리지 않고 404
+        raise HTTPException(status_code=404, detail="scenario not found")
+
+    current = [
+        ScenarioProb(id=str(s.id), probability=s.probability, is_residual=s.is_residual)
+        for s in galae.scenarios
+    ]
+    try:
+        result = redistribute(
+            current, changed_id, body.changed.value, {str(i) for i in body.locked_ids}
+        )
+    except ValueError as e:
+        raise _error(422, "PROBABILITY_INPUT_INVALID", str(e)) from e
+    if result is None:
+        raise _error(
+            422,
+            "SINGLE_SCENARIO",
+            "답이 하나뿐인 갈래에는 확률을 배분하지 않습니다. 시나리오를 먼저 추가해 주세요.",
+        )
+
+    # 한 트랜잭션: scenarios.probability 전체 UPDATE + 바뀐 값만 probability_entries INSERT.
+    # reason 은 사용자가 직접 움직인 시나리오의 이력에만 남긴다 — 나머지는 기계적 재분배다.
+    for s in galae.scenarios:
+        new_value = result[str(s.id)]
+        if s.probability != new_value:
+            session.add(
+                ProbabilityEntry(
+                    scenario_id=s.id,
+                    value=new_value,
+                    reason=body.reason if str(s.id) == changed_id else None,
+                )
+            )
+        s.probability = new_value
+    await session.commit()
+
+    return GalaeProbabilitiesOut(
+        galae_id=galae.id,
+        probabilities=[
+            ScenarioProbabilityOut(scenario_id=s.id, value=result[str(s.id)])
+            for s in galae.scenarios
+        ],
+    )

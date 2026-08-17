@@ -1,0 +1,12 @@
+{
+  "name": "invest-memento",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "cd apps/api && uv run uvicorn app.main:app --reload --port 8003",
+    "lint:web": "pnpm --filter web lint",
+    "typecheck:web": "pnpm --filter web exec next typegen && pnpm --filter web exec tsc --noEmit",
+    "test:api": "cd apps/api && uv run pytest",
+    "lint:api": "cd apps/api && uv run ruff check ."
+  }
+}

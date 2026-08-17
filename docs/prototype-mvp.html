@@ -201,6 +201,80 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .fcard__t{font-size:var(--text-sm);color:var(--ink-0)}
 .fcard__t b{font-weight:600}
 
+/* ── 보유 종목 ───────────────────────────────────── */
+.htabs{display:flex;gap:6px;margin-bottom:var(--s3)}
+.htabs button{min-height:34px;padding:0 14px;border:1px solid var(--line-1);
+  border-radius:var(--r-pill);background:transparent;color:var(--ink-2);
+  font-size:var(--text-caption);transition:background var(--dur-1) var(--ease-calm)}
+.htabs button:hover{background:var(--paper-1);color:var(--ink-0)}
+.htabs button[aria-selected="true"]{background:var(--ink-0);color:var(--paper-0);border-color:var(--ink-0)}
+.hold{border:1px solid var(--line-0);border-radius:var(--r3);background:var(--paper-0)}
+.hold__row{display:flex;align-items:center;gap:var(--s4);padding:var(--s4) var(--s5);
+  border-bottom:1px solid var(--line-0);flex-wrap:wrap}
+.hold__row:last-child{border-bottom:none}
+.hold__name{flex:1 1 150px;min-width:0}
+.hold__name b{font-weight:600}
+.hold__code{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-3);
+  letter-spacing:.06em;margin-left:6px}
+.hold__qty{width:64px;text-align:right;color:var(--ink-1);flex:0 0 auto}
+.hold__price{width:104px;text-align:right;flex:0 0 auto}
+.hold__val{width:120px;text-align:right;flex:0 0 auto}
+.hold__avg{width:96px;text-align:right;flex:0 0 auto;color:var(--ink-1)}
+.hold__ret{width:72px;text-align:right;flex:0 0 auto;font-weight:600}
+.hold__ret--up{color:var(--rise)}
+.hold__ret--down{color:var(--fall)}
+.hold__link{width:104px;flex:0 0 auto;display:flex;justify-content:flex-end}
+.hold__price i,.hold__val i,.hold__avg i,.hold__ret i{display:block;font-style:normal;
+  font-size:var(--text-micro);font-family:var(--font-sans);color:var(--ink-3);
+  line-height:1.4;font-weight:400}
+.hold__price{color:var(--ink-1)}
+
+.hold__val em{display:block;font-style:normal;font-size:var(--text-micro);
+  color:var(--ink-3);font-family:var(--font-mono)}
+.fx{display:flex;gap:var(--s4);flex-wrap:wrap;align-items:baseline;padding:10px var(--s5);
+  border-top:1px dashed var(--line-0);font-size:var(--text-caption);color:var(--ink-2)}
+.fx b{font-weight:600;color:var(--ink-0)}
+
+/* 손익 추이 — 우측 시트 */
+.chart-scrim{position:fixed;inset:0;background:rgba(31,29,26,.32);opacity:0;
+  pointer-events:none;transition:opacity var(--dur-2) var(--ease-calm);z-index:60}
+.chart-scrim.is-open{opacity:1;pointer-events:auto}
+.chart-sheet{position:absolute;top:0;right:0;height:100%;width:min(520px,92vw);
+  background:var(--paper-0);border-left:1px solid var(--line-1);box-shadow:var(--shadow-2);
+  padding:var(--s5);overflow-y:auto;transform:translateX(24px);opacity:0;
+  transition:transform var(--dur-2) var(--ease-calm),opacity var(--dur-2) var(--ease-calm)}
+.chart-scrim.is-open .chart-sheet{transform:none;opacity:1}
+
+/* 매매 기록 목록 */
+.tr{border:1px solid var(--line-0);border-radius:var(--r3);background:var(--paper-0)}
+.tr__row{display:flex;gap:var(--s3);align-items:baseline;flex-wrap:wrap;
+  padding:10px var(--s5);border-bottom:1px solid var(--line-0);font-size:var(--text-sm)}
+.tr__row[hidden]{display:none}
+.tr__row:last-child{border-bottom:none}
+.tr__d{font-family:var(--font-mono);font-size:var(--text-caption);color:var(--ink-2);
+  width:44px;flex:0 0 auto}
+.tr__side{flex:0 0 auto;font-size:var(--text-micro);padding:1px 8px;border-radius:var(--r-pill)}
+.tr__side--buy{background:var(--rise-soft);color:var(--rise)}
+.tr__side--sell{background:var(--fall-soft);color:var(--fall)}
+.tr__side--fx{background:var(--countdown-soft);color:var(--countdown)}
+.tr__side--div{background:var(--ai-soft);color:var(--ai)}
+.tr__t{font-weight:600}
+.tr__c{margin-left:auto;color:var(--ink-2);font-size:var(--text-caption)}
+.hold__addnote{position:relative}
+.hold__addnote::after{content:attr(data-tip);position:absolute;right:0;bottom:calc(100% + 8px);
+  width:max-content;max-width:260px;padding:8px 12px;background:var(--ink-0);color:var(--paper-0);
+  font-size:var(--text-caption);line-height:1.5;border-radius:var(--r2);box-shadow:var(--shadow-2);
+  opacity:0;pointer-events:none;transition:opacity var(--dur-1) var(--ease-calm);
+  z-index:5;text-align:left;white-space:normal}
+.hold__addnote:hover::after,.hold__addnote:focus-visible::after{opacity:1}
+.hold__foot{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;
+  margin-top:var(--s3);font-size:var(--text-caption);color:var(--ink-2)}
+.hold__foot .btn{margin-left:auto}
+.hold__add{display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s5)}
+.hold__add input{min-height:40px;padding:0 12px;border:1px solid var(--line-1);
+  border-radius:var(--r2);background:var(--paper-0);color:var(--ink-0);
+  font-family:inherit;font-size:var(--text-sm)}
+
 /* ── 노트 상세 ────────────────────────────────────── */
 .thesis{background:var(--paper-2);border-left:3px solid var(--line-1);border-radius:var(--r-fixed);
   padding:var(--s4) var(--s5);line-height:var(--lh-long);font-size:var(--text-sm)}
@@ -304,6 +378,7 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .pile__row[aria-expanded="true"] .pile__chev{transform:rotate(180deg)}
 .pile--none .pile__i{color:var(--ink-2);font-size:var(--text-caption)}
 .pile__detail{display:grid;gap:2px;padding-top:8px}
+.pile__detail[hidden]{display:none}
 .pile__src{display:flex;justify-content:space-between;gap:var(--s3);width:100%;
   padding:6px 8px;background:var(--paper-2);border:none;border-radius:var(--r1);
   font:inherit;font-size:var(--text-caption);color:var(--ink-1);text-align:left;
@@ -345,7 +420,7 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .how--comp{background:transparent;color:var(--ink-2);border:1px dashed var(--line-1)}
 .branch__h{align-items:center}
 
-/* 수치 한 줄 — MVP는 차트 없이 목표 대비 현재값 */
+/* 수치 한 줄 — 목표 대비 현재값. 바로 아래에 축약 추이 그림이 붙는다 (ux-design §7) */
 .ind{display:flex;flex-direction:column}
 .ind__row{display:grid;grid-template-columns:1fr auto auto;gap:var(--s3) var(--s4);
   align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line-0)}
@@ -360,6 +435,93 @@ button{font-family:inherit;font-size:inherit;cursor:pointer}
 .ind__row.is-hit .ind__s{color:var(--fall)}
 .ind__row.is-hit .ind__v{color:var(--ink-0)}
 .ind__row.is-miss .ind__s{color:var(--countdown)}
+
+/* 수치 추이 — ux-design §7. 캔들·이동평균·보조지표 없이
+   기록선(점선)·목표선(실선)·그 사이 띠·추이선만 그린다 */
+/* 축약형 — 수치 한 줄 아래에 놓는 작은 그림. 노트 상세·다시 보기.
+   작아도 세 질문(기록은 어디, 목표는 어디, 얼마나 지나왔나)에는 답해야 한다 —
+   기록선·목표선 값 라벨과 시작·끝 날짜는 축약형에도 남긴다 */
+.spark{grid-column:1/-1;margin-top:6px}
+.spark__plot{position:relative}
+.spark svg{display:block;width:100%;height:72px;overflow:visible}
+.spark__foot{display:flex;justify-content:space-between;gap:var(--s3);margin-top:4px;
+  font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2)}
+/* 전체형 — 결과 확인. 어떻게 넘었는지가 남도록 */
+.ichart{position:relative;background:var(--paper-0);border:1px solid var(--line-0);
+  border-radius:var(--r3);padding:var(--s4) var(--s4) var(--s3)}
+.ichart__h{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:baseline;
+  justify-content:space-between;margin-bottom:var(--s3)}
+.ichart__t{font-size:var(--text-sm);font-weight:600}
+.ichart__t small{display:block;font-weight:400;font-size:var(--text-caption);
+  color:var(--ink-2);margin-top:2px}
+.ichart__now{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-subhead);color:var(--ink-0);text-align:right}
+.ichart__now span{display:block;font-size:var(--text-micro);color:var(--ink-2);margin-top:2px}
+.ichart__plot{position:relative}
+.ichart svg{display:block;width:100%;height:150px;overflow:visible}
+.ilab{position:absolute;font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-micro);color:var(--ink-2);background:var(--paper-0);
+  padding:0 5px;transform:translateY(-50%);white-space:nowrap;pointer-events:none}
+.ilab--cross{transform:translate(-50%,-100%);background:none;padding:0;color:var(--ink-1)}
+.ichart__foot{display:flex;justify-content:space-between;gap:var(--s3);margin-top:6px;
+  font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2)}
+.ichart__legend{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:var(--s3);
+  padding-top:var(--s3);border-top:1px solid var(--line-0);
+  font-size:var(--text-caption);color:var(--ink-2)}
+.ichart__legend span{display:flex;align-items:center;gap:7px}
+.ichart__legend i{width:16px;height:0;flex:0 0 auto}
+.tip{position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-100%);
+  background:var(--ink-0);color:var(--paper-0);padding:6px 9px;border-radius:var(--r2);
+  font-family:var(--font-mono);font-size:var(--text-micro);white-space:nowrap;z-index:2;
+  transition:opacity var(--dur-1) var(--ease-calm)}
+.ichart.is-hot .tip{opacity:1}
+.ichart table{width:100%;border-collapse:collapse;margin-top:var(--s3);
+  font-size:var(--text-caption)}
+.ichart table th,.ichart table td{text-align:left;padding:5px 8px;
+  border-bottom:1px solid var(--line-0)}
+.ichart table td:last-child,.ichart table th:last-child{text-align:right;
+  font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.ichart details{margin-top:var(--s3)}
+.ichart summary{font-size:var(--text-caption);color:var(--ink-2);cursor:pointer;
+  min-height:32px;display:flex;align-items:center}
+.ichart summary:hover{color:var(--ink-0)}
+
+/* ── 노트 상세: 새 정보 서랍 ─────────────────────── */
+/* 나의 관점은 전체 폭, AI가 모은 새 정보는 책갈피로 여닫는 서랍 —
+   내 관점과 새 정보가 한 화면에 섞이지 않게 분리한다 */
+.split{position:relative;overflow:hidden;--drawer-w:340px}
+.split__l{padding:var(--s5);max-width:860px}
+.bookmark{position:absolute;top:var(--s5);right:0;z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  min-width:38px;padding:14px 10px 12px;
+  background:var(--paper-1);color:var(--ink-1);
+  border:1px solid var(--line-1);border-right:none;
+  border-radius:var(--r2) 0 0 var(--r2);
+  box-shadow:var(--shadow-1);cursor:pointer;
+  transition:background var(--dur-1) var(--ease-calm),transform var(--dur-2) var(--ease-calm)}
+.bookmark:hover{background:var(--paper-2)}
+.bookmark__n{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-subhead);font-weight:600;line-height:1}
+.bookmark__l{writing-mode:vertical-rl;font-size:var(--text-micro);letter-spacing:.16em;
+  color:var(--ink-2)}
+.bookmark__c{font-size:var(--text-caption);color:var(--ink-2);line-height:1}
+.bookmark[aria-expanded="true"]{transform:translateX(calc(var(--drawer-w) * -1))}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:var(--drawer-w);
+  background:var(--paper-1);border-left:1px solid var(--line-1);
+  padding:var(--s5);overflow-y:auto;z-index:2;
+  transform:translateX(100%);visibility:hidden;
+  transition:transform var(--dur-2) var(--ease-calm),visibility var(--dur-2)}
+.drawer[data-open="true"]{transform:none;visibility:visible}
+.info{background:var(--paper-0);border:1px dashed var(--ai);border-radius:var(--r2);padding:var(--s3)}
+.info__m{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ai);margin-top:6px}
+.info--user{border:1px solid var(--line-0)}
+.info--user .info__m{color:var(--ink-2)}
+.rel{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-caption);margin-top:8px}
+.swatch{width:14px;height:14px;flex:0 0 auto;border-radius:2px}
+.sw--rise{border:1px solid var(--rise);
+  background-image:repeating-linear-gradient(45deg,var(--rise) 0 2px,transparent 2px 5px)}
+.sw--fall{border:1px solid var(--fall);
+  background-image:radial-gradient(var(--fall) 1px,transparent 1.3px);background-size:5px 5px}
 
 /* 다음에 살펴볼 것 — AI가 언제 무엇을 다시 볼지. 약속이 아니라 예정이라 "확인합니다"까지만 쓴다 */
 .watchlist{display:grid}
@@ -443,23 +605,12 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   text-decoration:underline;padding:0;min-height:auto}
 .empty{color:var(--ink-2);font-size:var(--text-caption)}
 
-/* ── 범위 표 ─────────────────────────────────────── */
-.scope{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5)}
-.scope ul{list-style:none;display:flex;flex-direction:column}
-.scope li{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-0);
-  font-size:var(--text-sm);line-height:1.55}
-.scope li:last-child{border-bottom:none}
-.scope li i{font-style:normal;flex:0 0 auto;width:15px;text-align:center;margin-top:1px}
-.scope li small{display:block;color:var(--ink-2);font-size:var(--text-caption);margin-top:2px}
-.scope .out li{color:var(--ink-2)}
-
 /* ── 반응형: 세로 긴 화면 ─────────────────────────── */
 /* 컨테이너 쿼리 앞에 둔다 — 뒤에 두면 같은 명시도라 나중 것이 이겨서 영영 안 보인다 */
 .mob-only{display:none}
 @container (max-width: 767px){
   .pad{padding:var(--s4)}
   .two{grid-template-columns:1fr}
-  .scope{grid-template-columns:1fr;gap:var(--s5)}
   .pick{grid-template-columns:1fr}
   .fcard{flex-wrap:wrap;align-items:flex-start}
   .fcard__act{width:100%}
@@ -474,6 +625,19 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   .desk-only{display:none!important}
   .mob-only{display:block}
   .ind__row{grid-template-columns:1fr auto}
+  .ichart svg{height:124px}
+  .spark svg{height:56px}
+  .split{--drawer-w:100%}
+  .split__l{padding:var(--s4)}
+  .drawer{padding:var(--s4)}
+  .drawer[data-open="true"]{padding-right:58px}
+  .bookmark{top:var(--s4)}
+  /* 좁은 화면에서는 책갈피가 그 자리에서 닫기 역할을 한다 */
+  .bookmark[aria-expanded="true"]{transform:none}
+  .ichart__h{flex-direction:column;align-items:flex-start;gap:4px}
+  .ichart__now{text-align:left}
+  .ilab--cross{transform:translate(-100%,-100%)}
+  .ichart__legend{flex-direction:column;gap:8px}
   .split-row{grid-template-columns:1fr 54px;row-gap:6px}
   .split-row .slider{grid-column:1/-1}
   .pile__row{grid-template-columns:1fr;row-gap:2px}
@@ -558,6 +722,14 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
               </div>
               <div class="fcard__act"><button class="btn btn--sm" data-go="m-note">열어보기</button></div>
             </div>
+            <div class="fcard">
+              <div class="fcard__ico">✎</div>
+              <div class="fcard__body">
+                <div class="fcard__why">보유 중인데 판단 기록이 없습니다</div>
+                <div class="fcard__t"><b>한화오션</b> · 12주 보유 — 어떤 생각으로 들고 계신지 남겨두시겠어요</div>
+              </div>
+              <div class="fcard__act"><button class="btn btn--sm" data-go="m-port">열어보기</button></div>
+            </div>
           </div>
 
           <div class="sec-label" style="margin-top:var(--s7)">다가오는 판단 시점</div>
@@ -631,6 +803,161 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             </section>
 
           </div>
+        </div>
+      </section>
+
+      <!-- ══ 1b. 보유 종목 ══════════════════════════ -->
+      <section class="screen" id="m-port" aria-label="보유 종목">
+        <div class="appbar">
+          <button class="btn btn--quiet btn--sm" data-go="m-home">← 홈</button>
+          <div>
+            <h2>보유 종목</h2>
+            <div class="sub">매매를 기록하면 잔고와 수익률이 따라옵니다</div>
+          </div>
+          <span class="spacer"></span>
+          <button class="btn btn--sm" id="addOpen">+ 매매 기록</button>
+        </div>
+        <div class="pad">
+
+          <div class="sec-label">보유 종목 3</div>
+          <div style="display:flex;gap:var(--s4);flex-wrap:wrap;align-items:baseline;
+            justify-content:flex-end;font-size:var(--text-sm);color:var(--ink-2);
+            margin-bottom:var(--s3)">
+            <span>전체 수익률(XIRR) <b class="num" style="color:var(--rise);font-size:var(--text-heading)">연 +12.4%</b></span>
+          </div>
+          <div class="htabs" role="tablist" aria-label="시장">
+            <button role="tab" aria-selected="true" data-htab="hold-kr">국내 2</button>
+            <button role="tab" aria-selected="false" data-htab="hold-us">미국 1</button>
+            <button role="tab" aria-selected="false" data-htab="hold-fx">환전</button>
+          </div>
+          <div class="hold" id="hold-kr" role="tabpanel" aria-label="국내 주식">
+            <div class="fx" style="border-top:none;border-bottom:1px dashed var(--line-0)">
+              <span>국내 수익률(XIRR) <b class="num" style="color:var(--rise)">연 +16.2%</b></span>
+              <span>평가손익 <b class="num" style="color:var(--rise)">+412,200원</b></span>
+              <span>실현 <b class="num" style="color:var(--fall)">−7,500원</b></span>
+              <button class="btn btn--quiet btn--sm" data-chart="kr" style="margin-left:auto">과거 수익률 차트 보기</button>
+            </div>
+            <div class="hold__row">
+              <div class="hold__name"><b>한화오션</b><span class="hold__code">042660</span></div>
+              <div class="hold__qty num">12주</div>
+              <div class="hold__avg num"><i>평단</i>71,200원</div>
+              <div class="hold__price num"><i>현재가</i>68,300원</div>
+              <div class="hold__val num"><i>평가금액</i>819,600원</div>
+              <div class="hold__ret hold__ret--down num"><i>수익률</i>-4.1%</div>
+              <div class="hold__link">
+                <button class="btn btn--sm hold__addnote" data-go="m-write"
+                  data-tip="아직 기록된 판단이 없습니다 — 어떤 생각으로 들고 계신가요?">+ 노트 추가</button>
+              </div>
+            </div>
+            <div class="hold__row">
+              <div class="hold__name"><b>삼성전자</b><span class="hold__code">005930</span></div>
+              <div class="hold__qty num">30주</div>
+              <div class="hold__avg num"><i>평단</i>82,500원</div>
+              <div class="hold__price num"><i>현재가</i>97,400원</div>
+              <div class="hold__val num"><i>평가금액</i>2,922,000원</div>
+              <div class="hold__ret hold__ret--up num"><i>수익률</i>+18.1%</div>
+              <div class="hold__link"><button class="btn btn--quiet btn--sm" data-go="m-note">노트 2개 →</button></div>
+            </div>
+          </div>
+          <div class="hold" id="hold-us" role="tabpanel" aria-label="미국 주식" hidden>
+            <div class="fx" style="border-top:none;border-bottom:1px dashed var(--line-0)">
+              <span>미국 수익률(XIRR·달러) <b class="num" style="color:var(--rise)">연 +9.8%</b></span>
+              <span>평가손익 <b class="num" style="color:var(--rise)">+$194.40</b></span>
+              <button class="btn btn--quiet btn--sm" data-chart="us" style="margin-left:auto">과거 수익률 차트 보기</button>
+            </div>
+            <div class="hold__row">
+              <div class="hold__name"><b>엔비디아</b><span class="hold__code">NVDA</span></div>
+              <div class="hold__qty num">8주</div>
+              <div class="hold__avg num"><i>평단</i>$148.10</div>
+              <div class="hold__price num"><i>현재가</i>$172.40</div>
+              <div class="hold__val num"><i>평가금액</i>$1,379.20<em>≈ 196.0만원</em></div>
+              <div class="hold__ret hold__ret--up num"><i>수익률</i>+16.4%</div>
+              <div class="hold__link"><button class="btn btn--quiet btn--sm" data-go="m-note">노트 1개 →</button></div>
+            </div>
+          </div>
+          <div class="hold" id="hold-fx" role="tabpanel" aria-label="환전" hidden>
+            <div class="fx" style="border-top:none">
+              <span>달러 예수금 <b class="num">$315.20</b></span>
+              <span>환전 원금 잔량 <b class="num">$1,500.00</b></span>
+            </div>
+            <div class="fx" style="border-top:none;padding-top:0">
+              <span>평균 취득 환율 <b class="num">1,338원</b></span>
+              <span>현재 환율 <b class="num">1,421원</b> <span class="num">(12.26 15:32)</span></span>
+              <span>취득 대비 <b class="num" style="color:var(--rise)">+6.2%</b></span>
+            </div>
+            <div class="fx">
+              <span>환차손익 평가 <b class="num" style="color:var(--rise)">+124,500원</b> <span>(원금 잔량 기준)</span></span>
+              <span>실현 <b class="num" style="color:var(--rise)">+47,250원</b></span>
+              <button class="btn btn--quiet btn--sm" data-chart="fx" style="margin-left:auto">과거 수익률 차트 보기</button>
+            </div>
+          </div>
+
+          <div class="hold__foot">
+            <span class="num">현재가 12.26 15:32 조회 기준</span>
+            <button class="btn btn--quiet btn--sm">↺ 새로 조회</button>
+          </div>
+
+          <div class="sec-label" style="margin-top:var(--s7)">매매 기록</div>
+          <div class="tr">
+            <div class="tr__row" data-mkt="fx" hidden>
+              <span class="tr__d">12.15</span>
+              <span class="tr__side tr__side--fx">환전 $→₩</span>
+              <span class="num">1,432.50원 × $500</span>
+              <span class="num" style="color:var(--rise)">실현 +47,250원</span>
+              <span class="tr__c">“일부만 원화로 회수”</span>
+            </div>
+            <div class="tr__row" data-mkt="kr">
+              <span class="tr__d">12.10</span>
+              <span class="tr__side tr__side--buy">매수</span>
+              <span class="tr__t">삼성전자</span>
+              <span class="num">84,000원 × 15</span>
+              <span class="tr__c">“실적 발표 보고 추가 매수”</span>
+            </div>
+            <div class="tr__row" data-mkt="kr">
+              <span class="tr__d">11.20</span>
+              <span class="tr__side tr__side--div">배당</span>
+              <span class="tr__t">삼성전자</span>
+              <span class="num">361원 × 30</span>
+            </div>
+            <div class="tr__row" data-mkt="kr">
+              <span class="tr__d">11.02</span>
+              <span class="tr__side tr__side--buy">매수</span>
+              <span class="tr__t">한화오션</span>
+              <span class="num">71,200원 × 12</span>
+              <span class="tr__c">“미 해군 MRO 수주 기대”</span>
+            </div>
+            <div class="tr__row" data-mkt="kr">
+              <span class="tr__d">10.21</span>
+              <span class="tr__side tr__side--sell">매도</span>
+              <span class="tr__t">삼성전자</span>
+              <span class="num">79,500원 × 5</span>
+              <span class="num" style="color:var(--fall)">실현 −7,500원</span>
+              <span class="tr__c">“비중 조절”</span>
+            </div>
+            <div class="tr__row" data-mkt="kr">
+              <span class="tr__d">09.15</span>
+              <span class="tr__side tr__side--buy">매수</span>
+              <span class="tr__t">삼성전자</span>
+              <span class="num">81,000원 × 20</span>
+              <span class="tr__c">“HBM 가설로 진입”</span>
+            </div>
+            <div class="tr__row" data-mkt="us" hidden>
+              <span class="tr__d">08.20</span>
+              <span class="tr__side tr__side--buy">매수</span>
+              <span class="tr__t">엔비디아</span>
+              <span class="num">$148.10 × 8</span>
+            </div>
+            <div class="tr__row" data-mkt="fx" hidden>
+              <span class="tr__d">07.02</span>
+              <span class="tr__side tr__side--fx">환전 ₩→$</span>
+              <span class="num">1,338.00원 × $2,000</span>
+              <span class="tr__c">“달러가 쌀 때 미리 환전”</span>
+            </div>
+          </div>
+
+          <div class="disclaimer">합산 금액과 자산 곡선은 보여주지 않습니다 —
+            포트폴리오 단위는 수익률 %(XIRR)만 둡니다. 이 화면의 질문은 “얼마가
+            됐나”가 아니라 “그 판단이 맞았나”입니다.</div>
         </div>
       </section>
 
@@ -979,7 +1306,14 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <span class="spacer"></span>
           <button class="btn btn--sm desk-only">원본 대화 보기</button>
         </div>
-        <div class="pad" style="max-width:860px">
+        <div class="split">
+          <button class="bookmark" id="bm" aria-expanded="false" aria-controls="drawer">
+            <span class="bookmark__n">3</span>
+            <span class="bookmark__l">새 정보</span>
+            <span class="bookmark__c" aria-hidden="true">›</span>
+          </button>
+
+          <div class="split__l">
 
           <div class="sec-label">나의 가설</div>
           <div class="thesis">
@@ -1144,7 +1478,30 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <div class="ind__n">삼성전자 · 한국투자증권
                       <small>이상 · 장중 한 번이라도 닿으면 달성</small></div>
                     <div class="ind__v">97,400 / 95,000원</div>
-                    <div class="ind__s">달성 · 11.23</div>
+                    <div class="ind__s">달성 · 11.02</div>
+                    <div class="spark">
+                      <div class="spark__plot">
+                        <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                          <rect x="0" y="37.3" width="640"
+                                height="81.7" fill="var(--paper-2)" opacity=".55"></rect>
+                          <line x1="0" y1="37.3" x2="640" y2="37.3"
+                                stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                          <line x1="0" y1="119.0" x2="640" y2="119.0"
+                                stroke="var(--line-1)" stroke-width="1" stroke-dasharray="3 4"
+                                vector-effect="non-scaling-stroke"></line>
+                          <path d="M0.0,121.6 L14.7,113.3 L29.5,119.7 L44.2,119.5 L58.9,124.2 L73.7,115.9 L88.4,101.7 L103.2,106.8 L117.9,99.5 L132.6,105.3 L147.4,102.2 L162.1,102.3 L176.8,117.3 L191.6,92.6 L206.3,93.8 L221.1,91.9 L235.8,109.0 L250.5,107.2 L265.3,97.6 L280.0,91.7 L294.7,82.9 L309.5,83.6 L324.2,76.6 L338.9,83.8 L353.7,73.7 L368.4,70.6 L383.2,76.5 L397.9,55.3 L412.6,61.9 L427.4,54.5 L442.1,65.8 L456.8,64.1 L471.6,58.4 L486.3,54.0 L501.1,45.9 L515.8,45.9 L530.5,48.2 L545.3,48.9 L560.0,32.0 L574.7,28.1 L589.5,33.6 L604.2,29.1 L629.5,25.8" fill="none" stroke="var(--ink-2)" stroke-width="2"
+                                stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                          <circle cx="629.5" cy="25.8" r="6" fill="var(--rise)"
+                                  stroke="var(--paper-0)" stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                        </svg>
+                        <span class="ilab" style="left:0;top:24.9%">목표 95,000</span>
+                        <span class="ilab" style="left:0;top:79.3%">기록 78,000</span>
+                      </div>
+                      <div class="spark__foot">
+                        <span>2026.03.02 · 기록</span>
+                        <span>2026.12.31 · 판단 시점</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -1196,6 +1553,23 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                   <small>분기 공시 기준</small></div>
                 <div class="ind__v">9.8 → 14.2%</div>
                 <div class="ind__s">추이만</div>
+                <div class="spark">
+                  <div class="spark__plot">
+                    <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                      <path d="M0,116 L60,110 L120,118 L180,99 L240,104 L300,88 L360,92 L420,74 L480,66 L540,58 L600,46 L629,44"
+                            fill="none" stroke="var(--ink-2)" stroke-width="2"
+                            stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      <circle cx="629" cy="44" r="6" fill="var(--paper-0)" stroke="var(--ink-2)"
+                              stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                    </svg>
+                    <span class="ilab" style="left:0;top:77.3%">기록 9.8%</span>
+                    <span class="ilab" style="right:0;top:29.3%;transform:translate(0,-150%)">지금 14.2%</span>
+                  </div>
+                  <div class="spark__foot">
+                    <span>2026.03.02 · 기록</span>
+                    <span>오늘</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="hint" style="margin-top:var(--s3)">
@@ -1229,6 +1603,34 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             <button class="btn mob-only" style="width:100%">원본 대화 보기</button>
           </div>
           <p class="disclaimer">최종 투자 판단과 그 책임은 사용자 본인에게 있습니다.</p>
+          </div>
+
+          <div class="drawer" id="drawer" data-open="false" aria-label="새로 들어온 정보">
+            <div class="sec-label">새로 들어온 정보</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="info">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-body)">
+                  SK하이닉스, HBM4 양산 일정 앞당겨</div>
+                <div class="rel"><span class="swatch sw--fall"></span>시나리오 01과 어긋남</div>
+                <div class="info__m">AI가 붙임 · 2일 전 · 출처 2곳</div>
+              </div>
+              <div class="info">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-body)">
+                  엔비디아, 공급사 다변화 검토 착수</div>
+                <div class="rel"><span class="swatch sw--rise"></span>시나리오 01을 뒷받침</div>
+                <div class="info__m">AI가 붙임 · 5일 전 · 출처 3곳</div>
+              </div>
+              <div class="info info--user">
+                <div style="font-size:var(--text-sm);line-height:var(--lh-body)">
+                  거래처 담당자가 4월부터 발주 문의가 늘었다고 함</div>
+                <div class="info__m"><span class="tag-user">[사용자]</span>내가 적음 · 2주 전</div>
+              </div>
+            </div>
+            <button class="btn btn--sm" style="width:100%;margin-top:var(--s4)">지금 다시 조사하기</button>
+            <p class="hint" style="margin-top:var(--s3)">
+              조사는 이 버튼을 눌렀을 때만 합니다. 자동 수집은 다음 단계입니다.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -1282,13 +1684,53 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
                     <div class="ind__n">갈래 2 · 95,000원을 넘는가
                       <small>자동 확인 · 기록 당시 77,463원</small></div>
                     <div class="ind__v">97,400 / 95,000원</div>
-                    <div class="ind__s">넘음 · 11.23</div>
+                    <div class="ind__s">넘음 · 11.02</div>
+                    <div class="spark">
+                      <div class="spark__plot">
+                        <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                          <rect x="0" y="37.3" width="640"
+                                height="81.7" fill="var(--paper-2)" opacity=".55"></rect>
+                          <line x1="0" y1="37.3" x2="640" y2="37.3"
+                                stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                          <line x1="0" y1="119.0" x2="640" y2="119.0"
+                                stroke="var(--line-1)" stroke-width="1" stroke-dasharray="3 4"
+                                vector-effect="non-scaling-stroke"></line>
+                          <path d="M0.0,121.6 L14.7,113.3 L29.5,119.7 L44.2,119.5 L58.9,124.2 L73.7,115.9 L88.4,101.7 L103.2,106.8 L117.9,99.5 L132.6,105.3 L147.4,102.2 L162.1,102.3 L176.8,117.3 L191.6,92.6 L206.3,93.8 L221.1,91.9 L235.8,109.0 L250.5,107.2 L265.3,97.6 L280.0,91.7 L294.7,82.9 L309.5,83.6 L324.2,76.6 L338.9,83.8 L353.7,73.7 L368.4,70.6 L383.2,76.5 L397.9,55.3 L412.6,61.9 L427.4,54.5 L442.1,65.8 L456.8,64.1 L471.6,58.4 L486.3,54.0 L501.1,45.9 L515.8,45.9 L530.5,48.2 L545.3,48.9 L560.0,32.0 L574.7,28.1 L589.5,33.6 L604.2,29.1 L629.5,25.8" fill="none" stroke="var(--ink-2)" stroke-width="2"
+                                stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                          <circle cx="629.5" cy="25.8" r="6" fill="var(--rise)"
+                                  stroke="var(--paper-0)" stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                        </svg>
+                        <span class="ilab" style="left:0;top:24.9%">목표 95,000</span>
+                        <span class="ilab" style="left:0;top:79.3%">기록 78,000</span>
+                      </div>
+                      <div class="spark__foot">
+                        <span>2026.03.02 · 기록</span>
+                        <span>2026.12.31 · 판단 시점</span>
+                      </div>
+                    </div>
                   </div>
                   <div class="ind__row">
                     <div class="ind__n">HBM 매출 비중
                       <small>지켜보는 수치 · 기록 당시 9.8%</small></div>
                     <div class="ind__v">9.8 → 14.2%</div>
                     <div class="ind__s">추이만</div>
+                    <div class="spark">
+                      <div class="spark__plot">
+                        <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                          <path d="M0,116 L60,110 L120,118 L180,99 L240,104 L300,88 L360,92 L420,74 L480,66 L540,58 L600,46 L629,44"
+                                fill="none" stroke="var(--ink-2)" stroke-width="2"
+                                stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                          <circle cx="629" cy="44" r="6" fill="var(--paper-0)" stroke="var(--ink-2)"
+                                  stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                        </svg>
+                        <span class="ilab" style="left:0;top:77.3%">기록 9.8%</span>
+                        <span class="ilab" style="right:0;top:29.3%;transform:translate(0,-150%)">지금 14.2%</span>
+                      </div>
+                      <div class="spark__foot">
+                        <span>2026.03.02 · 기록</span>
+                        <span>오늘</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1341,18 +1783,128 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
             <div class="hint" style="margin-bottom:var(--s4)">
               수치로 확인할 수 없는 질문입니다. 직접 표시해 주세요.
             </div>
-            <div class="ind" style="margin-bottom:var(--s4)">
-              <div class="ind__row is-hit">
-                <div class="ind__n">같은 날 답이 난 갈래 2 · 95,000원을 넘는가
-                  <small>자동 확인 · 넘었습니다</small></div>
-                <div class="ind__v">97,400 / 95,000원</div>
-                <div class="ind__s">넘음</div>
+            <div class="sec-label">같은 날 답이 난 갈래 2 · 95,000원을 넘는가
+              <span class="how how--auto" style="margin-left:6px">자동 확인</span></div>
+            <div class="ichart" id="ic1" style="margin-bottom:var(--s4)">
+              <div class="ichart__h">
+                <div class="ichart__t">삼성전자 · 95,000원 이상
+                  <small>한 번이라도 닿으면 달성 · 장중 포함</small></div>
+                <div class="ichart__now">97,400<span>12.26 종가 · 11.02 달성</span></div>
               </div>
+
+              <div class="ichart__plot">
+              <svg viewBox="0 0 640 150" preserveAspectRatio="none"
+                   role="img" aria-label="삼성전자 종가 추이. 기록 시점 78,000원에서 마지막 종가 97,400원. 11월 2일 장중 고가가 96,000원까지 닿아 목표 95,000원을 달성. 종가는 11월 18일부터 목표 위. 상세 값은 아래 표 참조.">
+                <!-- 기록선과 목표선 사이 = 가야 했던 거리 -->
+                <rect x="0" y="37.3" width="640" height="81.7"
+                      fill="var(--paper-2)" opacity=".55"></rect>
+                <!-- 오늘 이후 = 남은 기간 -->
+                <rect x="629.5" y="0" width="10.5" height="150"
+                      fill="url(#future)"></rect>
+                <defs>
+                  <pattern id="future" width="6" height="6" patternUnits="userSpaceOnUse"
+                           patternTransform="rotate(45)">
+                    <line x1="0" y1="0" x2="0" y2="6" stroke="var(--line-0)" stroke-width="2"></line>
+                  </pattern>
+                </defs>
+
+                <!-- 목표선 (실선) / 기록선 (점선 = 과거의 기준) -->
+                <line x1="0" y1="37.3" x2="640" y2="37.3"
+                      stroke="var(--line-1)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                <line x1="0" y1="119.0" x2="640" y2="119.0"
+                      stroke="var(--line-1)" stroke-width="1" stroke-dasharray="3 4"
+                      vector-effect="non-scaling-stroke"></line>
+
+                <!-- 그날의 고가~저가 -->
+                <polygon points="0.0,117.3 14.7,109.0 29.5,116.6 44.2,115.7 58.9,120.9 73.7,112.4 88.4,96.2 103.2,104.2 117.9,96.8 132.6,101.1 147.4,97.2 162.1,97.4 176.8,108.9 191.6,87.9 206.3,91.2 221.1,86.6 235.8,101.3 250.5,102.9 265.3,91.7 280.0,85.6 294.7,80.3 309.5,79.5 324.2,74.5 338.9,80.3 353.7,69.5 368.4,66.7 383.2,73.6 397.9,49.9 412.6,58.5 427.4,50.5 442.1,62.8 456.8,60.5 471.6,55.0 486.3,49.0 501.1,38.8 515.8,32.5 530.5,39.6 545.3,44.5 560.0,26.8 574.7,22.7 589.5,29.4 604.2,24.0 629.5,20.8 629.5,30.3 604.2,37.0 589.5,36.2 574.7,32.4 560.0,37.1 545.3,53.9 530.5,53.9 515.8,51.1 501.1,53.5 486.3,59.3 471.6,61.1 456.8,67.0 442.1,70.4 427.4,62.3 412.6,66.7 397.9,63.5 383.2,81.5 368.4,75.8 353.7,76.3 338.9,87.2 324.2,80.5 309.5,88.4 294.7,87.1 280.0,96.1 265.3,102.1 250.5,110.6 235.8,113.0 221.1,95.8 206.3,98.3 191.6,97.0 176.8,125.1 162.1,106.7 147.4,106.8 132.6,110.7 117.9,101.7 103.2,108.6 88.4,105.6 73.7,119.5 58.9,127.4 44.2,124.2 29.5,123.2 14.7,117.9 0.0,127.0" fill="var(--ink-3)" opacity=".38"></polygon>
+
+                <!-- 종가 추이 -->
+                <path d="M0.0,121.6 L14.7,113.3 L29.5,119.7 L44.2,119.5 L58.9,124.2 L73.7,115.9 L88.4,101.7 L103.2,106.8 L117.9,99.5 L132.6,105.3 L147.4,102.2 L162.1,102.3 L176.8,117.3 L191.6,92.6 L206.3,93.8 L221.1,91.9 L235.8,109.0 L250.5,107.2 L265.3,97.6 L280.0,91.7 L294.7,82.9 L309.5,83.6 L324.2,76.6 L338.9,83.8 L353.7,73.7 L368.4,70.6 L383.2,76.5 L397.9,55.3 L412.6,61.9 L427.4,54.5 L442.1,65.8 L456.8,64.1 L471.6,58.4 L486.3,54.0 L501.1,45.9 L515.8,45.9 L530.5,48.2 L545.3,48.9 L560.0,32.0 L574.7,28.1 L589.5,33.6 L604.2,29.1 L629.5,25.8" fill="none" stroke="var(--ink-2)" stroke-width="2"
+                      stroke-linejoin="round" stroke-linecap="round"
+                      vector-effect="non-scaling-stroke"></path>
+
+                <!-- 장중에만 닿은 날 -->
+                <line x1="515.8" y1="32.5" x2="515.8" y2="55.0" stroke="var(--ink-2)"
+                      stroke-width="2" vector-effect="non-scaling-stroke" opacity=".7"></line>
+
+                <!-- 종가가 목표를 넘어선 지점 -->
+                <circle cx="515.8" cy="32.5" r="5"
+                        fill="var(--rise)" stroke="var(--paper-0)" stroke-width="2"
+                        vector-effect="non-scaling-stroke"></circle>
+                <!-- 오늘 -->
+                <circle cx="629.5" cy="25.8" r="4.5"
+                        fill="var(--paper-0)" stroke="var(--ink-1)" stroke-width="2"
+                        vector-effect="non-scaling-stroke"></circle>
+
+                <line class="cross" x1="0" y1="0" x2="0" y2="150" stroke="var(--line-1)"
+                      stroke-width="1" vector-effect="non-scaling-stroke" opacity="0"></line>
+              </svg>
+                <span class="ilab" style="left:0;top:24.9%">목표 95,000</span>
+                <span class="ilab" style="left:0;top:79.3%">기록 78,000</span>
+                <span class="ilab ilab--cross" style="left:80.6%;top:11%">11.02 달성</span>
+              </div>
+
+              <div class="ichart__foot">
+                <span>2026.03.02 · 기록</span>
+                <span>2026.12.31 · 판단 시점</span>
+              </div>
+
+              <div class="ichart__legend">
+                <span><i style="background:var(--ink-2);height:2px"></i>종가</span>
+                <span><i style="background:var(--rise);width:10px;height:10px;border-radius:50%"></i>목표에 처음 닿은 날</span>
+                <span><i style="background:var(--ink-3);opacity:.4;height:10px;border-radius:2px"></i>그날의 고가~저가</span>
+                <span><i style="background:var(--paper-2);height:10px;border-radius:2px"></i>가야 했던 거리</span>
+                <span><i style="background:repeating-linear-gradient(45deg,var(--line-0) 0 2px,transparent 2px 5px);height:10px;border-radius:2px"></i>남은 기간</span>
+              </div>
+
+              <p style="margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line-0);
+                        font-size:var(--text-caption);color:var(--ink-1);max-width:70ch">
+                <b style="font-weight:600">11.02</b>에 장중 고가가 96,000까지 닿아 그날을 달성일로
+                기록했습니다. 그날 종가는 93,198이었지만, <b style="font-weight:600">한 번이라도
+                닿으면 달성</b>이 기준입니다. 종가가 목표 위로 자리 잡은 것은 11.18부터입니다.
+              </p>
+
+              <details>
+                <summary>값으로 보기</summary>
+                <table>
+                  <thead><tr><th>시점</th><th>고가</th><th>종가</th></tr></thead>
+                  <tbody>
+                    <tr><td>2026.03.02 · 기록</td><td>78,900</td><td>78,000</td></tr>
+                    <tr><td>2026.06.15</td><td>84,700</td><td>83,642</td></tr>
+                    <tr><td>2026.09.07</td><td>92,100</td><td>91,253</td></tr>
+                    <tr><td>2026.11.02 · <b>달성</b></td><td>96,000</td><td>93,198</td></tr>
+                    <tr><td>2026.11.18 · 종가도 넘김</td><td>96,800</td><td>96,099</td></tr>
+                    <tr><td>2026.12.26 · 마지막 종가</td><td>97,900</td><td>97,400</td></tr>
+                  </tbody>
+                </table>
+              </details>
+
+              <div class="tip" id="tip1"></div>
+            </div>
+
+            <div class="ind" style="margin-bottom:var(--s4)">
               <div class="ind__row">
                 <div class="ind__n">HBM 매출 비중
                   <small>지켜보는 수치 · 판정에 쓰지 않습니다</small></div>
                 <div class="ind__v">9.8 → 17.1%</div>
                 <div class="ind__s">추이만</div>
+                <div class="spark">
+                  <div class="spark__plot">
+                    <svg viewBox="0 0 640 150" preserveAspectRatio="none" aria-hidden="true">
+                      <path d="M0,116 L60,110 L120,118 L180,99 L240,104 L300,88 L360,92 L420,74 L480,66 L540,58 L600,40 L629,32"
+                            fill="none" stroke="var(--ink-2)" stroke-width="2"
+                            stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                      <circle cx="629" cy="32" r="6" fill="var(--paper-0)" stroke="var(--ink-2)"
+                              stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+                    </svg>
+                    <span class="ilab" style="left:0;top:77.3%">기록 9.8%</span>
+                    <span class="ilab" style="right:0;top:21.3%;transform:translate(0,-150%)">마지막 17.1%</span>
+                  </div>
+                  <div class="spark__foot">
+                    <span>2026.03.02 · 기록</span>
+                    <span>2026.12.31 · 판단 시점</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="pick">
@@ -1403,66 +1955,82 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
           <p class="disclaimer">최종 투자 판단과 그 책임은 사용자 본인에게 있습니다.</p>
         </div>
       </section>
-
-      <!-- ══ 7. 이번 MVP의 범위 ═════════════════════ -->
-      <section class="screen" id="m-scope" aria-label="MVP 범위">
-        <div class="appbar">
-          <h2>이번 MVP의 범위</h2>
-          <div class="sub">제품 화면이 아닙니다 · 무엇을 넣고 뺐는지 적어둔 쪽지</div>
-        </div>
-        <div class="pad">
-          <div class="scope">
-            <div>
-              <div class="sec-label">들어간 것 — 핵심 루프</div>
-              <ul>
-                <li><i class="ok">✓</i><div>대화로 노트 쓰기
-                  <small>가설 · 갈래의 질문 · 답들 · 판단 시점 · 근거 항목</small></div></li>
-                <li><i class="ok">✓</i><div>초안 확인 후 저장
-                  <small>정해진 칸만 채우고, 없는 건 비워 둡니다</small></div></li>
-                <li><i class="ok">✓</i><div>갈래마다 확률 배분
-                  <small>합 100% · “그 외”가 항상 붙습니다 · 하나를 올리면 나머지가 줄어듭니다</small></div></li>
-                <li><i class="ok">✓</i><div>확률 판단 자료
-                  <small>답마다 뒷받침 자료를 갈라 모아 드립니다 · 숫자는 제안하지 않습니다</small></div></li>
-                <li><i class="ok">✓</i><div>시나리오의 판정 방법
-                  <small>자동 확인 / 사람이 확인 / 나머지 — 지표는 별도 개념이 아닙니다</small></div></li>
-                <li><i class="ok">✓</i><div>자동 확인 수집
-                  <small>일 1회 · 장중 터치 인정 · 기한은 갈래의 판단 시점 하나</small></div></li>
-                <li><i class="ok">✓</i><div>지켜보는 수치
-                  <small>판정하지 않고 추이만 — 답이 아닌 수치가 판정에 섞이지 않게</small></div></li>
-                <li><i class="ok">✓</i><div>판단 시점 리마인드
-                  <small>과거의 나를 먼저 읽고 그다음에 지금을 봅니다</small></div></li>
-                <li><i class="ok">✓</i><div>결과 확인과 회고
-                  <small>결과 축과 논리 축을 따로 묻습니다</small></div></li>
-              </ul>
-            </div>
-            <div class="out">
-              <div class="sec-label">뺀 것 — 다음 단계로</div>
-              <ul>
-                <li><i>·</i><div>AI 리서치와 새 정보 서랍
-                  <small>수집·관련성 판단 파이프라인이 통째로 필요합니다</small></div></li>
-                <li><i>·</i><div>AI 어드바이저 (매수·홀드·매도 의견)
-                  <small>루프가 도는 것을 먼저 확인한 뒤에 붙입니다</small></div></li>
-                <li><i>·</i><div>추이 차트
-                  <small>MVP는 현재값과 목표값 한 줄로 갈음합니다</small></div></li>
-                <li><i>·</i><div>벤치마크 대비 비교
-                  <small>회고는 사용자 서술만으로 시작합니다</small></div></li>
-                <li><i>·</i><div>확률 변경 이력 화면, 노트 목록·검색
-                  <small>노트 10개 안쪽에서는 홈만으로 됩니다</small></div></li>
-                <li><i>·</i><div>원본 대화 열람 화면
-                  <small>버튼 자리만 두었습니다</small></div></li>
-                <li><i>·</i><div>저장 전 되묻기 화면
-                  <small>규칙은 정해져 있고, 화면은 다음에 붙입니다</small></div></li>
-              </ul>
-            </div>
-          </div>
-          <div class="hint" style="margin-top:var(--s5)">
-            전체 화면이 필요하면 <b style="margin:0 4px">docs/prototype.html</b>을 보세요. 그쪽은 그대로 둡니다.
-          </div>
-        </div>
-      </section>
-
     </div>
   </main>
+</div>
+
+<div class="chart-scrim" id="chartModal">
+  <div class="chart-sheet" role="dialog" aria-modal="true" aria-labelledby="chartModalTitle">
+    <div class="row" style="justify-content:space-between;margin-bottom:var(--s3)">
+      <h3 id="chartModalTitle" style="font-size:var(--text-subhead);font-weight:600">국내 손익 추이</h3>
+      <button class="btn btn--quiet btn--sm" id="chartModalClose">닫기</button>
+    </div>
+    <div class="sec-label" style="margin-bottom:var(--s4)">종가 기준 · 기록 시작일부터</div>
+    <div id="chart-kr">
+      <svg viewBox="0 0 640 130" style="width:100%;height:auto;display:block" role="img" aria-label="국내 누적 손익 추이">
+        <line x1="0" y1="78" x2="640" y2="78" stroke="var(--line-1)" stroke-dasharray="4 4"/>
+        <polyline points="10,78 100,102 190,90 280,58 370,66 460,38 550,18 630,12"
+          fill="none" stroke="var(--ink-1)" stroke-width="1.5"/>
+        <text x="10" y="122" font-size="10" fill="var(--ink-3)">9월</text>
+        <text x="220" y="122" font-size="10" fill="var(--ink-3)">10월</text>
+        <text x="420" y="122" font-size="10" fill="var(--ink-3)">11월</text>
+        <text x="600" y="122" font-size="10" fill="var(--ink-3)" text-anchor="end">12월</text>
+        <text x="628" y="10" font-size="11" fill="var(--ink-0)" text-anchor="end" class="num">+412,200원</text>
+      </svg>
+    </div>
+    <div id="chart-us" hidden>
+      <svg viewBox="0 0 640 130" style="width:100%;height:auto;display:block" role="img" aria-label="미국 누적 손익 추이">
+        <line x1="0" y1="80" x2="640" y2="80" stroke="var(--line-1)" stroke-dasharray="4 4"/>
+        <polyline points="10,80 110,92 210,62 310,72 410,48 510,32 630,20"
+          fill="none" stroke="var(--ink-1)" stroke-width="1.5"/>
+        <text x="10" y="122" font-size="10" fill="var(--ink-3)">8월</text>
+        <text x="200" y="122" font-size="10" fill="var(--ink-3)">10월</text>
+        <text x="600" y="122" font-size="10" fill="var(--ink-3)" text-anchor="end">12월</text>
+        <text x="628" y="10" font-size="11" fill="var(--ink-0)" text-anchor="end" class="num">+$194.40</text>
+      </svg>
+    </div>
+    <div id="chart-fx" hidden>
+      <svg viewBox="0 0 640 130" style="width:100%;height:auto;display:block" role="img" aria-label="환차손익 추이">
+        <line x1="0" y1="86" x2="640" y2="86" stroke="var(--line-1)" stroke-dasharray="4 4"/>
+        <polyline points="10,86 120,82 230,90 340,62 450,52 550,38 630,24"
+          fill="none" stroke="var(--ink-1)" stroke-width="1.5"/>
+        <text x="10" y="122" font-size="10" fill="var(--ink-3)">7월</text>
+        <text x="230" y="122" font-size="10" fill="var(--ink-3)">9월</text>
+        <text x="450" y="122" font-size="10" fill="var(--ink-3)">11월</text>
+        <text x="600" y="122" font-size="10" fill="var(--ink-3)" text-anchor="end">12월</text>
+        <text x="628" y="10" font-size="11" fill="var(--ink-0)" text-anchor="end" class="num">+171,750원</text>
+      </svg>
+    </div>
+    <div class="hint" style="margin-top:var(--s4)">수익 스냅샷을 찍지 않으셔도 됩니다 —
+      장부와 일별 종가·환율로 전 구간이 재구성됩니다. 과거 매매를 나중에 넣으면 그 구간이
+      소급 재계산됩니다.</div>
+  </div>
+</div>
+
+<div class="src-modal-scrim" id="addModal">
+  <div class="src-modal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <div class="src-modal__handle" aria-hidden="true"></div>
+    <button class="btn btn--quiet btn--sm src-modal__close" id="addModalClose">닫기</button>
+    <h3 class="src-modal__h" id="addModalTitle">매매 기록</h3>
+    <div class="pick" style="margin-top:var(--s4)">
+      <button aria-pressed="true">매수</button>
+      <button aria-pressed="false">매도</button>
+      <button aria-pressed="false">환전</button>
+      <button aria-pressed="false">배당</button>
+    </div>
+    <div class="hold__add" style="margin-top:var(--s3)">
+      <input type="text" placeholder="종목명 또는 티커" aria-label="종목명 또는 티커" style="flex:1 1 100%">
+      <input type="text" placeholder="날짜 · 2026-12-26" aria-label="날짜" style="flex:1 1 130px">
+      <input type="text" inputmode="numeric" placeholder="단가" aria-label="단가" style="flex:1 1 90px">
+      <input type="text" inputmode="numeric" placeholder="수량" aria-label="수량" style="flex:1 1 70px">
+      <input type="text" placeholder="코멘트 — 왜 사고/파는지 한 줄 (선택)" aria-label="코멘트" style="flex:1 1 100%">
+    </div>
+    <div class="hint" style="margin-top:var(--s3)">국내·미국 구분은 티커에서 자동으로 정해집니다.
+      예전부터 보유하던 종목은 과거 날짜의 매수로 등록하세요 — 당시 단가를 모르면 비워 두시면 됩니다(수익률만 계산되지 않습니다).</div>
+    <div class="row" style="margin-top:var(--s4);justify-content:flex-end">
+      <button class="btn btn--primary" id="addModalSubmit">기록하기</button>
+    </div>
+  </div>
 </div>
 
 <div class="src-modal-scrim" id="srcModal">
@@ -1480,14 +2048,14 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
 <script>
 (function(){
   var screens=[
-    ['m-home','홈','다시 볼 시점 하나와 세로 타임라인. MVP에서는 날짜로 도착하는 리마인드만 띄웁니다 — “가설을 흔드는 낌새”는 백그라운드 리서치가 있어야 하는 카드라 뺐습니다.'],
+    ['m-home','홈','다시 볼 시점 하나와 세로 타임라인. MVP에서는 날짜로 도착하는 리마인드만 띄웁니다 — “가설을 흔드는 낌새”는 백그라운드 리서치가 있어야 하는 카드라 뺐습니다. “보유 중인데 판단 기록이 없는 종목” 넛지는 자동 수집 없이도 만들 수 있어 여기 얹되, 리마인드 카드보다 항상 아래에 둡니다.'],
+    ['m-port','보유 종목','원본은 매매 기록입니다 — 날짜·매수/매도·단가·수량·코멘트를 받고, 잔고·평단·수익률은 전부 여기서 파생됩니다. 수량을 따로 입력받지 않아 기록과 잔고가 어긋날 길이 없습니다. 예전부터 보유하던 종목은 과거 날짜의 매수로 등록하되 당시 단가를 모르면 비워 둡니다 — 지어낸 단가로 계산한 수익률은 하지도 않은 판단이라서요. 탭은 국내 | 미국 | 환전 셋입니다 — 국내·미국은 통화와 거래 시간대가 달라서, 환전은 환전에만 집중해서 보고 싶을 때가 있어서요. 환전 탭에는 종목 행 대신 달러 요약(예수금·환전 원금 잔량·환율·환차손익)이 삽니다. 매매 기록 목록도 탭을 따라 국내/미국/환전 각자 자기 기록만 보여줍니다. 종목이 어느 탭인지는 티커에서 자동으로 정해집니다. 현재가는 화면을 열 때 조회해 조회 시점과 함께 보여줍니다(실시간 아님). 수익률은 종목까지만 — 계좌 총액·자산 곡선·일별 손익은 만들지 않습니다. “얼마가 됐나”는 증권사 앱이 잘하는 일이고, 이 앱의 질문은 “그 판단이 맞았나”입니다. 매매 코멘트 한 줄은 최소 단위의 판단 기록이고, 판단 기록이 아예 없는 종목에는 “+ 노트 추가”가 서 있습니다(문장은 툴팁으로만). 매매 기록이 있으면 회고에서 실제 내 매매 성적이 벤치마크와 나란히 놓입니다 — “논리는 맞았는데 나는 못 벌었다”가 처음으로 드러나는 자리입니다. 외화는 손익의 통화를 섞지 않습니다 — 미국 주식 손익은 달러로만 계산하고(매매 시점 환율로 원화 환산하는 증권사 방식은 세금 장부의 문법입니다), 환전은 달러의 매매로 기록해 재환전할 때 환차손익이 실현 확정됩니다. 배당금 수령도 장부의 한 줄이고 수수료는 무시합니다 — 그래서 달러 예수금이 장부에서 파생됩니다(직접 입력 없음, 음수가 되면 막는 대신 기록 누락 안내만). 미실현 환차손익은 환전 원금 잔량 기준으로만 계산합니다 — 주식으로 번 달러에는 취득 환율이 없으므로 환차손익을 주장하지 않습니다. 원화 환산 평가금액은 참고로만 작게 붙입니다. 포트폴리오 수익률은 XIRR로 풉니다 — 장부의 현금흐름(매수 −, 매도·배당 +, 현재 평가금 +)만으로 계산되는 수익률이라 원화 예수금을 추적하지 않아도 됩니다. 전체 XIRR(원화 기준, 환차손익 포함)은 탭 위에 두고, 탭별 성적은 각 탭 하단에 둡니다 — 국내는 원화 XIRR과 평가·실현 손익 합, 미국은 달러 XIRR과 평가손익 합, 환전은 환차손익 평가·실현과 취득 대비 %. “미국장에서 얼마 벌었나”, “환전으로 얼마 벌었나”를 각자 자리에서 바로 답하는 구조입니다. 탭 안은 단일 통화라 손익 금액 합산이 성립하고, 통화를 섞는 총자산 합산만 하지 않습니다. 손익 추이는 상시 노출하지 않습니다 — 각 탭 수익률 요약 줄의 “과거 수익률 차트 보기”를 누르면 우측 시트가 열립니다. 이 차트는 사용자가 수익 스냅샷을 찍어서 만드는 게 아닙니다 — 장부는 어느 과거 날짜의 잔고든 재구성할 수 있으므로, 일별 종가·환율과 곱해 시스템이 전 구간을 계산해 그립니다. 과거 날짜의 매매를 나중에 넣으면 그 구간이 소급 재계산됩니다.'],
     ['m-write','새 노트 · 대화','논리는 대화로 받습니다. 반대 시나리오와 판단 시점은 대화 중에 묻습니다. 사용자가 목표 가격을 말하면 그것을 진입 여부에 붙이지 않고 별개의 갈래로 세웁니다 — 다른 질문이기 때문입니다. 말하지 않았으면 묻지 않습니다. 확률은 대화에 안 나오면 비워 둡니다.'],
     ['m-preview','초안 확인','AI는 자유 형식으로 쓰지 않고 정해진 칸만 채웁니다. “올해 안”을 날짜로 옮긴 부분은 감추지 않고 드러내 확인받습니다.'],
     ['m-setup','확률 · 확인 방법 · 2단계','AI는 확률을 제안하지 않습니다. 대신 각 답을 뒷받침하는 자료를 갈라 모아주고, 사용자가 양쪽 더미의 무게를 재서 스스로 나눕니다. — 남의 견해를 확률로 환산하지 않는 것이 핵심입니다. “증권사 12곳 중 7곳이 연내 진입 가능”은 사실이지만 그걸 58%로 바꾸면 사실이 아닙니다. 애널리스트는 확률을 말한 적이 없고, 서로 베껴서 상관돼 있고, 표본은 12입니다. 그런 값을 사용자의 확률 옆에 세우면 셋이 같은 종류처럼 읽히는데 실제로 확률인 것은 하나뿐입니다. 기저율도 43%가 아니라 “7건 중 3건”으로 적습니다. 한쪽 더미가 비면 “찾은 자료가 없습니다”라고 적습니다 — 한쪽에만 쌓이는 것 자체가 정보이고, 개수를 세어 보여주면 그게 곧 숫자 제안이 됩니다.'],
-    ['m-note','노트 상세','검증할 수 있는 명제는 전부 시나리오입니다. 지표라는 별도 개념이 없고, 시나리오가 자기 판정 방법을 갖습니다 — 자동 확인 / 사람이 확인 / 나머지. 그래서 “95,000원을 넘는가”는 “진입하는가”의 판정 근거가 아니라 그 자체로 갈래입니다. 주가가 올랐다고 수주를 받은 것이 아니니까요. 둘을 나눠 두면 회고에서 “진입은 못 했는데 주가는 넘었다”가 그대로 남습니다. 답이 아닌 수치는 “지켜보는 수치”로 내려가 판정에 관여하지 않습니다. 맨 아래 “다음에 살펴볼 것”은 AI가 언제 무엇을 다시 보는지 미리 적어 둔 목록입니다 — 발표 캘린더가 있는 CPI든, 캘린더 없이 그냥 재확인 주기로 도는 WTI든 화면에서는 구분하지 않고 “다음에 언제”만 보여줍니다. “확인합니다”까지만 쓰고 “알려드립니다”라고 쓰지 않는 것도 일부러입니다 — 이건 약속이 아니라 예정이라, 특이사항이 없으면 그냥 조용히 다음 예정일로 넘어갑니다.'],
+    ['m-note','노트 상세','검증할 수 있는 명제는 전부 시나리오입니다. 지표라는 별도 개념이 없고, 시나리오가 자기 판정 방법을 갖습니다 — 자동 확인 / 사람이 확인 / 나머지. 그래서 “95,000원을 넘는가”는 “진입하는가”의 판정 근거가 아니라 그 자체로 갈래입니다. 주가가 올랐다고 수주를 받은 것이 아니니까요. 둘을 나눠 두면 회고에서 “진입은 못 했는데 주가는 넘었다”가 그대로 남습니다. 답이 아닌 수치는 “지켜보는 수치”로 내려가 판정에 관여하지 않습니다. 맨 아래 “다음에 살펴볼 것”은 AI가 언제 무엇을 다시 보는지 미리 적어 둔 목록입니다 — 발표 캘린더가 있는 CPI든, 캘린더 없이 그냥 재확인 주기로 도는 WTI든 화면에서는 구분하지 않고 “다음에 언제”만 보여줍니다. “확인합니다”까지만 쓰고 “알려드립니다”라고 쓰지 않는 것도 일부러입니다 — 이건 약속이 아니라 예정이라, 특이사항이 없으면 그냥 조용히 다음 예정일로 넘어갑니다. 오른쪽 가장자리의 책갈피는 새 정보 서랍입니다 — AI가 “지금 다시 조사하기”로 모은 정보에 뒷받침/어긋남 표시를 붙여 쌓아 두되, 내 관점과 한 화면에 섞이지 않게 서랍으로 분리했습니다.'],
     ['m-remind','다시 보기','메멘토의 핵심 화면. 과거의 나를 먼저 읽고 그다음에 지금을 봅니다. 2단은 AI 조사 결과가 아니라 수치가 어떻게 움직였는지입니다 — 자동 수집만으로 채울 수 있는 정보라서요. 주가 갈래는 이미 답이 나왔지만 그것이 진입 여부의 답은 아니라고 화면이 분명히 말합니다.'],
-    ['m-judge','결과 확인 · 회고','MVP에서는 판정과 회고를 한 화면에 둡니다. 이 갈래는 수치로 확인할 수 없어 앱이 제안을 하지 않습니다 — 같은 날 답이 난 주가 갈래를 옆에 놓아 대조만 시킵니다. 묻는 것은 두 가지: 예상한 일이 일어났는가, 그리고 그게 논리가 맞아서였는가.'],
-    ['m-scope','MVP 범위','제품 화면이 아니라 범위를 적어둔 쪽지입니다. 무엇을 넣고 무엇을 왜 뺐는지.']
+    ['m-judge','결과 확인 · 회고','MVP에서는 판정과 회고를 한 화면에 둡니다. 이 갈래는 수치로 확인할 수 없어 앱이 제안을 하지 않습니다 — 같은 날 답이 난 주가 갈래를 옆에 놓아 대조만 시킵니다. 묻는 것은 두 가지: 예상한 일이 일어났는가, 그리고 그게 논리가 맞아서였는가.']
   ];
   var nav=document.getElementById('nav'), vp=document.getElementById('vp'),
       cap=document.getElementById('caption');
@@ -1515,6 +2083,42 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   document.addEventListener('click',function(e){
     var go=e.target.closest('[data-go]');
     if(go){ show(go.dataset.go); return; }
+
+    var bm=e.target.closest('.bookmark');
+    if(bm){
+      var dr=document.getElementById(bm.getAttribute('aria-controls'));
+      var open = dr.dataset.open!=='true';
+      dr.dataset.open = open ? 'true':'false';
+      bm.setAttribute('aria-expanded', open ? 'true':'false');
+      bm.querySelector('.bookmark__c').textContent = open ? '‹' : '›';
+      return;
+    }
+
+    var ht=e.target.closest('[data-htab]');
+    if(ht){
+      ht.parentNode.querySelectorAll('[data-htab]').forEach(function(b){
+        b.setAttribute('aria-selected', b===ht ? 'true':'false');
+        var panel=document.getElementById(b.dataset.htab);
+        if(panel) panel.hidden = b!==ht;
+      });
+      // 매매 기록도 탭을 따른다 — 국내/미국/환전 각자 자기 기록만
+      var mkts={'hold-kr':{kr:1},'hold-us':{us:1},'hold-fx':{fx:1}}[ht.dataset.htab]||{};
+      document.querySelectorAll('.tr__row[data-mkt]').forEach(function(r){
+        r.hidden = !mkts[r.dataset.mkt];
+      });
+      return;
+    }
+
+    var ch=e.target.closest('[data-chart]');
+    if(ch){
+      ['kr','us','fx'].forEach(function(k){
+        document.getElementById('chart-'+k).hidden = k!==ch.dataset.chart;
+      });
+      document.getElementById('chartModalTitle').textContent =
+        {kr:'국내 손익 추이', us:'미국 손익 추이 (달러)', fx:'환차손익 추이'}[ch.dataset.chart];
+      document.getElementById('chartModal').classList.add('is-open');
+      return;
+    }
 
     var row=e.target.closest('.pile__row[data-sources]');
     if(row){
@@ -1569,7 +2173,22 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   function closeSrcModal(){ srcModal.classList.remove('is-open'); }
   document.getElementById('srcModalClose').addEventListener('click',closeSrcModal);
   srcModal.addEventListener('click',function(e){ if(e.target===srcModal) closeSrcModal(); });
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeSrcModal(); });
+
+  // 매매 기록 — 목록 아래 인라인 폼이 아니라 모달. 기록이 늘어도 진입점이 밀리지 않는다
+  var addModal=document.getElementById('addModal');
+  function closeAddModal(){ addModal.classList.remove('is-open'); }
+  document.getElementById('addOpen').addEventListener('click',function(){ addModal.classList.add('is-open'); });
+  document.getElementById('addModalClose').addEventListener('click',closeAddModal);
+  document.getElementById('addModalSubmit').addEventListener('click',closeAddModal);
+  addModal.addEventListener('click',function(e){ if(e.target===addModal) closeAddModal(); });
+
+  // 손익 추이 — 요약 줄의 버튼으로 여는 우측 시트
+  var chartModal=document.getElementById('chartModal');
+  function closeChartModal(){ chartModal.classList.remove('is-open'); }
+  document.getElementById('chartModalClose').addEventListener('click',closeChartModal);
+  chartModal.addEventListener('click',function(e){ if(e.target===chartModal) closeChartModal(); });
+
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeSrcModal(); closeAddModal(); closeChartModal(); } });
 
   // 확률 배분 — 하나를 올리면 나머지가 줄어든다. 그 외는 5%로 잠긴다
   function wire(slider,a,b,mirror){
@@ -1584,6 +2203,32 @@ label{font-size:var(--text-caption);color:var(--ink-2)}
   }
   wire('mp1','mv1','mv2');
   wire('mp2','mt1','mt2');
+
+  // 수치 추이 — 크로스헤어 + 툴팁 (결과 확인 전체형)
+  var SERIES=[[0.0, 121.6, "2026-03-02", 77463], [14.7, 113.3, "2026-03-09", 79187], [29.5, 119.7, "2026-03-16", 77844], [44.2, 119.5, "2026-03-23", 77892], [58.9, 124.2, "2026-03-30", 76904], [73.7, 115.9, "2026-04-06", 78642], [88.4, 101.7, "2026-04-13", 81591], [103.2, 106.8, "2026-04-20", 80528], [117.9, 99.5, "2026-04-27", 82056], [132.6, 105.3, "2026-05-04", 80854], [147.4, 102.2, "2026-05-11", 81493], [162.1, 102.3, "2026-05-18", 81462], [176.8, 117.3, "2026-05-25", 78340], [191.6, 92.6, "2026-06-01", 83498], [206.3, 93.8, "2026-06-08", 83245], [221.1, 91.9, "2026-06-15", 83642], [235.8, 109.0, "2026-06-22", 80067], [250.5, 107.2, "2026-06-29", 80441], [265.3, 97.6, "2026-07-06", 82449], [280.0, 91.7, "2026-07-13", 83669], [294.7, 82.9, "2026-07-20", 85501], [309.5, 83.6, "2026-07-27", 85359], [324.2, 76.6, "2026-08-03", 86818], [338.9, 83.8, "2026-08-10", 85317], [353.7, 73.7, "2026-08-17", 87429], [368.4, 70.6, "2026-08-24", 88072], [383.2, 76.5, "2026-08-31", 86833], [397.9, 55.3, "2026-09-07", 91253], [412.6, 61.9, "2026-09-14", 89870], [427.4, 54.5, "2026-09-21", 91418], [442.1, 65.8, "2026-09-28", 89058], [456.8, 64.1, "2026-10-05", 89427], [471.6, 58.4, "2026-10-12", 90603], [486.3, 54.0, "2026-10-19", 91531], [501.1, 45.9, "2026-10-26", 93214], [515.8, 45.9, "2026-11-02", 93198], [530.5, 48.2, "2026-11-09", 92738], [545.3, 48.9, "2026-11-16", 92581], [560.0, 32.0, "2026-11-23", 96099], [574.7, 28.1, "2026-11-30", 96903], [589.5, 33.6, "2026-12-07", 95767], [604.2, 29.1, "2026-12-14", 96698], [629.5, 25.8, "2026-12-26", 97400]];
+  (function(){
+    var box=document.getElementById('ic1'); if(!box) return;
+    var svg=box.querySelector('svg'), tip=document.getElementById('tip1'),
+        cross=svg.querySelector('.cross'), VW=640;
+    function move(e){
+      var r=svg.getBoundingClientRect();
+      var vx=(e.clientX-r.left)/r.width*VW;
+      var best=SERIES[0],bd=1e9;
+      for(var i=0;i<SERIES.length;i++){var d=Math.abs(SERIES[i][0]-vx);if(d<bd){bd=d;best=SERIES[i];}}
+      cross.setAttribute('x1',best[0]); cross.setAttribute('x2',best[0]);
+      cross.setAttribute('opacity','1');
+      var px=best[0]/VW*r.width;
+      tip.style.left=px+'px';
+      tip.style.top=(best[1]/150*r.height + (r.top-box.getBoundingClientRect().top) - 10)+'px';
+      var d=best[2].slice(5).replace('-','.');
+      tip.textContent=d+'  '+best[3].toLocaleString()+'원';
+      box.classList.add('is-hot');
+    }
+    svg.addEventListener('mousemove',move);
+    svg.addEventListener('mouseleave',function(){
+      box.classList.remove('is-hot'); cross.setAttribute('opacity','0');
+    });
+  })();
 
   // 폭 토글
   var wtog=document.getElementById('wtog');

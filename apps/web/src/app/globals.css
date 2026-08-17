@@ -1,0 +1,173 @@
+/* 디자인 토큰 — docs/prototype-mvp.html :root 블록 이관 (docs/dev/03-frontend.md §3).
+   이름과 값을 바꾸지 않는다 — 프로토타입이 비주얼 정본이므로 이름이 같아야 대조가 된다. */
+:root{
+  --paper-0:#FAF8F4; --paper-1:#F3F0E9; --paper-2:#E9E5DB; --paper-3:#DFDACE;
+  --ink-0:#1F1D1A; --ink-1:#4A4640; --ink-2:#777167; --ink-3:#A8A296;
+  --line-0:#DDD8CC; --line-1:#C6C0B1;
+  --rise:#A03A2C; --rise-soft:#EFDDD7;
+  --fall:#2E5A87; --fall-soft:#D9E3ED;
+  --pruned:#8C8981; --pruned-soft:#E7E5E0;
+  --countdown:#8A5A14; --countdown-soft:#F6E8CC;
+  --ai:#5A4A7A; --ai-soft:#E5DFEE;
+  --focus:#2E5A87;
+  --shadow-1:0 1px 1px rgba(31,29,26,.04);
+  --shadow-2:0 2px 6px rgba(31,29,26,.06);
+  --font-sans:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+  --font-mono:"SFMono-Regular",Menlo,Consolas,"D2Coding",monospace;
+  --text-display:32px; --text-title:24px; --text-heading:20px; --text-subhead:17px;
+  --text-body:16px; --text-sm:14px; --text-caption:13px; --text-micro:11px;
+  --lh-tight:1.35; --lh-heading:1.45; --lh-body:1.75; --lh-long:1.9;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --r-fixed:0px; --r1:3px; --r2:6px; --r3:10px; --r-pill:999px;
+  --dur-1:160ms; --dur-2:280ms; --dur-3:520ms; --dur-4:900ms;
+  --ease-calm:cubic-bezier(.22,.61,.36,1);
+  --w1:color-mix(in oklab,var(--rise) 55%,var(--paper-2));
+  --w2:color-mix(in oklab,var(--fall) 55%,var(--paper-2));
+  --w3:var(--paper-3);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper-0:#171614; --paper-1:#1F1E1B; --paper-2:#282621; --paper-3:#33302A;
+    --ink-0:#E9E5DB; --ink-1:#C5C0B5; --ink-2:#9E998D; --ink-3:#6E6A62;
+    --line-0:#302E29; --line-1:#443F38;
+    --rise:#DE8271; --rise-soft:#3A2621;
+    --fall:#7FA8CE; --fall-soft:#1C2A36;
+    --pruned:#807C74; --pruned-soft:#232220;
+    --countdown:#DCA047; --countdown-soft:#382C16;
+    --ai:#B7A6DA; --ai-soft:#262137;
+    --focus:#7FA8CE;
+    --shadow-1:0 1px 1px rgba(0,0,0,.3);
+    --shadow-2:0 2px 6px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper-0:#171614; --paper-1:#1F1E1B; --paper-2:#282621; --paper-3:#33302A;
+  --ink-0:#E9E5DB; --ink-1:#C5C0B5; --ink-2:#9E998D; --ink-3:#6E6A62;
+  --line-0:#302E29; --line-1:#443F38;
+  --rise:#DE8271; --rise-soft:#3A2621;
+  --fall:#7FA8CE; --fall-soft:#1C2A36;
+  --pruned:#807C74; --pruned-soft:#232220;
+  --countdown:#DCA047; --countdown-soft:#382C16;
+  --ai:#B7A6DA; --ai-soft:#262137;
+  --focus:#7FA8CE;
+  --shadow-1:0 1px 1px rgba(0,0,0,.3);
+  --shadow-2:0 2px 6px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+
+/* ── 베이스 ─────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper-0);color:var(--ink-0);font-family:var(--font-sans);
+  font-size:var(--text-body);line-height:var(--lh-body);-webkit-font-smoothing:antialiased}
+p{text-wrap:pretty}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:2px}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.mono{font-family:var(--font-mono)}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+}
+
+/* ── 공통 제품 요소 (프로토타입 클래스 이관) ─────────── */
+.appbar{display:flex;align-items:center;gap:var(--s3);padding:var(--s4) var(--s5);
+  border-bottom:1px solid var(--line-0);background:var(--paper-1)}
+.appbar h2{font-size:var(--text-subhead);font-weight:600;letter-spacing:-.02em}
+.appbar .sub{font-size:var(--text-caption);color:var(--ink-2)}
+.appbar .spacer{margin-left:auto}
+.pad{padding:var(--s5);max-width:860px}
+.sec-label{font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.12em;
+  color:var(--ink-2);margin-bottom:var(--s3)}
+.disclaimer{margin-top:var(--s5);padding-top:var(--s3);border-top:1px solid var(--line-0);
+  font-size:var(--text-caption);color:var(--ink-2)}
+
+.btn{white-space:nowrap;min-height:44px;padding:0 18px;border-radius:var(--r-pill);
+  border:1px solid var(--line-1);background:transparent;color:var(--ink-1);font-size:var(--text-sm);
+  transition:background var(--dur-1) var(--ease-calm)}
+.btn:hover{background:var(--paper-1)}
+.btn--primary{background:var(--ink-0);color:var(--paper-0);border-color:var(--ink-0)}
+.btn--primary:hover{opacity:.85;background:var(--ink-0)}
+.btn--quiet{border-color:transparent;color:var(--ink-2)}
+.btn--quiet:hover{color:var(--ink-0)}
+.btn--sm{min-height:34px;padding:0 12px;font-size:var(--text-caption)}
+a.btn{display:inline-flex;align-items:center}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.card{background:var(--paper-0);border:1px solid var(--line-0);border-radius:var(--r3);padding:var(--s4)}
+.hint{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px var(--s3);
+  border:1px dashed var(--line-1);border-radius:var(--r2);font-size:var(--text-caption);
+  color:var(--ink-2);background:var(--paper-1)}
+.empty{color:var(--ink-2);font-size:var(--text-caption)}
+
+/* ── 노트 상세 ────────────────────────────────────── */
+.thesis{background:var(--paper-2);border-left:3px solid var(--line-1);border-radius:var(--r-fixed);
+  padding:var(--s4) var(--s5);line-height:var(--lh-long);font-size:var(--text-sm)}
+.thesis__detail{margin-top:10px;color:var(--ink-1);font-size:var(--text-caption)}
+.quote{margin-top:10px;padding-left:10px;border-left:2px solid var(--line-1);color:var(--ink-1)}
+.tag-user{display:inline-block;font-family:var(--font-mono);font-size:var(--text-micro);
+  letter-spacing:.06em;color:var(--ink-2);margin-right:6px}
+
+.premise{counter-reset:p}
+.premise li{list-style:none;display:flex;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--line-0);font-size:var(--text-sm);line-height:var(--lh-body)}
+.premise li:last-child{border-bottom:none}
+.premise li::before{counter-increment:p;content:counter(p);font-family:var(--font-mono);
+  font-size:var(--text-micro);color:var(--ink-2);flex:0 0 auto;margin-top:5px}
+
+.galae{border:1px solid var(--line-1);border-radius:var(--r3);padding:var(--s3);
+  background:color-mix(in oklab,var(--paper-1) 60%,transparent)}
+/* 갈래 머리 — 질문과 답이 나오는 날. 둘 다 갈래에 하나씩만 있다 */
+.galae__q{padding:var(--s2) 4px var(--s3);border-bottom:1px solid var(--line-0);
+  margin-bottom:var(--s3)}
+.galae__q h3{font-size:var(--text-subhead);font-weight:600;line-height:var(--lh-heading);
+  letter-spacing:-.01em}
+.galae__when{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s2) var(--s4);
+  margin-top:5px;font-size:var(--text-caption);color:var(--ink-2)}
+.galae__body{display:flex;flex-direction:column;gap:10px}
+
+.branch{background:var(--paper-0);border:1px solid var(--line-0);border-radius:var(--r3);
+  padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)}
+.branch--far{filter:saturate(.5);opacity:.78}
+.branch__h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.branch__no{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ink-2);
+  letter-spacing:.08em}
+.branch__t{font-size:var(--text-subhead);font-weight:600;line-height:var(--lh-heading);margin-top:3px}
+.branch__d{font-size:var(--text-sm);color:var(--ink-1)}
+.prob{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s3) var(--s4)}
+.prob__v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:var(--text-title);line-height:1.1;letter-spacing:-.01em}
+.prob__v small{font-family:var(--font-sans);font-size:var(--text-caption);
+  color:var(--ink-2);margin-left:6px;letter-spacing:0}
+.branch__meta{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding-top:var(--s3);border-top:1px solid var(--line-0);font-size:var(--text-caption);
+  color:var(--ink-2)}
+
+/* 판정 방법 — 시나리오가 자기 확인 방법을 갖는다 */
+.how{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px;
+  border-radius:var(--r-pill);font-family:var(--font-mono);font-size:var(--text-micro);
+  letter-spacing:.06em;white-space:nowrap;flex:0 0 auto}
+.how--auto{background:var(--fall-soft);color:var(--fall);border:1px solid var(--fall)}
+.how--manual{background:var(--paper-2);color:var(--ink-1);border:1px solid var(--line-1)}
+.how--comp{background:transparent;color:var(--ink-2);border:1px dashed var(--line-1)}
+
+/* ── 노트 목록 (ux §3.6 — 프로토타입에 전용 화면 없음, 토큰으로 조립) ── */
+.nlist{border:1px solid var(--line-0);border-radius:var(--r3);background:var(--paper-0);
+  overflow:hidden}
+.nrow{display:block;min-height:44px;padding:var(--s4) var(--s5);
+  border-bottom:1px solid var(--line-0);
+  transition:background var(--dur-1) var(--ease-calm)}
+.nrow:last-child{border-bottom:none}
+.nrow:hover{background:var(--paper-1)}
+.nrow__h{display:flex;align-items:baseline;gap:10px}
+.nrow__dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto;align-self:center}
+.nrow__t{font-size:var(--text-subhead);font-weight:600;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nrow__due{font-size:var(--text-caption);color:var(--ink-2);flex:0 0 auto}
+.nrow__due--soon{color:var(--countdown)}
+.nrow__s{margin-top:4px;padding-left:20px;font-size:var(--text-sm);color:var(--ink-1);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nrow__m{margin-top:4px;padding-left:20px;font-size:var(--text-caption);color:var(--ink-2)}
