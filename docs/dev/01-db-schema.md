@@ -136,7 +136,7 @@ create table notes (
 create table conversations (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references auth.users on delete cascade,
-  note_id     uuid unique references notes on delete restrict,
+  note_id     uuid unique references notes on delete set null,   -- 노트가 지워져도 대화는 남는다
   status      text not null default 'draft'
               check (status in ('draft','attached','abandoned')),
   draft_note  jsonb,                        -- 작성 중 실시간 패널의 진행 상태 (UX §3.2)
@@ -146,14 +146,15 @@ create table conversations (
 
 create table conversation_messages (
   id              uuid primary key default gen_random_uuid(),
-  conversation_id uuid not null references conversations on delete restrict,
+  conversation_id uuid not null references conversations on delete cascade,
   seq             int  not null,            -- 대화 내 순서
   role            text not null check (role in ('user','assistant')),
   content         text not null,
   created_at      timestamptz not null default now(),
   unique (conversation_id, seq)
 );
--- 불변: §4.2의 트리거로 UPDATE/DELETE 차단. 노트가 지워져도 대화는 남는다(restrict).
+-- 불변: §4.2의 트리거가 UPDATE를 항상 차단하고, DELETE는 계정 삭제 등 전체 퍼지
+-- 트랜잭션에서 세션 GUC(app.allow_conversation_purge='on')를 켠 경우에만 허용한다.
 ```
 
 노트 본문 블록. `quoted_from`이 있는 블록과 `premises.statement`가 "사용자가 한 말"
@@ -594,15 +595,26 @@ create constraint trigger galae_probability_sum
 ### 4.2 원본 대화 불변 (P2)
 
 ```sql
-create or replace function forbid_mutation() returns trigger as $$
+create or replace function conversation_messages_guard() returns trigger as $$
 begin
-  raise exception '% is immutable', tg_table_name;
+  if tg_op = 'UPDATE' then
+    raise exception 'conversation_messages is immutable';
+  end if;
+  -- DELETE는 계정 삭제 같은 전체 퍼지에서만: 호출측이 GUC를 명시적으로 켠다
+  if coalesce(current_setting('app.allow_conversation_purge', true), '') <> 'on' then
+    raise exception 'conversation_messages delete requires app.allow_conversation_purge=on';
+  end if;
+  return old;
 end $$ language plpgsql;
 
 create trigger conversation_messages_immutable
   before update or delete on conversation_messages
-  for each row execute function forbid_mutation();
+  for each row execute function conversation_messages_guard();
 ```
+
+수정 불가는 예외 없이 절대적이다. 삭제만은 "사용자가 자기 데이터 전체를 지울 권리"와
+충돌하므로, 트랜잭션 단위의 명시적 선언(GUC)이라는 좁은 문 하나만 열어 둔다 —
+일상 코드 경로에서는 이 문이 존재하지 않는 것과 같다.
 
 ### 4.3 `그 외 예상 못한 전개` 보호
 
@@ -694,8 +706,14 @@ create index on scenarios (series_provider, series_code)
 
 ## 8. 마이그레이션 운영
 
-- `supabase/migrations/<timestamp>_<name>.sql` 순차 적용. 로컬은 `supabase start`
-  (Docker) + `supabase db reset`으로 재현하고, 원격은 CI에서 `supabase db push`.
+- `supabase/migrations/NNN_<name>.sql` **번호순 파일이 정본**이고, 적용은 사용자가
+  대시보드 SQL editor에 번호 순서대로 붙여넣어 실행한다(사용자 선택 워크플로).
+  각 파일은 `begin; … commit;`으로 감싸 부분 적용이 남지 않게 한다.
+  스키마를 고칠 때는 적용된 파일을 수정하지 않고 **항상 다음 번호의 새 파일**을
+  만든다 — DB에 실행된 이력과 리포의 파일이 1:1이어야 재현이 가능하다.
+  대시보드 SQL editor의 임의 실험은 자유이되, 확정된 스키마 변경은 반드시 파일로
+  남긴다. 이후 CLI(`supabase db push`) 방식으로 전환하려면 그 시점에
+  `supabase migration repair`로 이력을 동기화하면 된다.
 - 마이그레이션 파일은 **수정하지 않고 항상 새 파일을 추가**한다(적용된 이력 불변).
 - 시드: `supabase/seed.sql`에 `series_catalog` 초기 항목(주요 지수·FRED/ECOS 대표
   계열)과 개발용 픽스처를 둔다. 운영 시드와 개발 픽스처를 파일로 분리한다.

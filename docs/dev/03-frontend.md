@@ -68,7 +68,7 @@ apps/web/
     terms.ts     # 내부 식별자 → 화면 표기 대응표 (§9)
     supabase.ts  # @supabase/ssr 클라이언트 (로그인 전용)
   fixtures/
-    redistribute.json                       # 골든 테스트 벡터 — 서버와 동일 파일
+    probability.json                       # 골든 테스트 벡터 — 서버와 동일 파일
 ```
 
 - 서버 컴포넌트는 셸(레이아웃·정적 안내문)까지만 쓴다. 데이터가 붙는 부분은 전부
@@ -200,7 +200,7 @@ redistribute(
 // 단계: 5스냅 → 상한 절단 → 기존 비율 배분 → 최대 잔여법 보정 → residual 5 확보
 ```
 
-- **골든 테스트 벡터 `fixtures/redistribute.json`을 서버와 같은 파일로 공유**하고,
+- **골든 테스트 벡터 `fixtures/probability.json`을 서버와 같은 파일로 공유**하고,
   CI가 양쪽 구현을 같은 벡터로 돌린다. dev-plan §3.1의 검증 케이스(A→80, A→95,
   A→100 절단, A→0 비율 유지, A→63 스냅, 잠금)가 초기 벡터다. 미러가 어긋나면
   드래그 중 보이던 숫자와 저장된 숫자가 달라진다 — 이 앱에서 가장 나쁜 종류의 버그다.

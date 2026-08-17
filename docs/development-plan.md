@@ -1335,7 +1335,7 @@ auto 판정 계열과 지켜보는 수치는 같은 서비스가 같은 캐시�
 | AI/LLM | Claude API (구조화 출력은 tool use, 리서치는 web search server tool) |
 | 시세·계열 | FRED + 한국은행 ECOS + 한국투자증권 Open API |
 | 알림 | 이메일 (Resend) |
-| 배포 | Vercel(웹) + Docker 기반 백엔드 호스팅. 상세는 [`dev/06-infra.md`](./dev/06-infra.md) |
+| 배포 | Vercel(웹) + Google Cloud Run(백엔드 Docker 이미지, 서울 리전). 상세는 [`dev/06-infra.md`](./dev/06-infra.md) |
 
 > 스택 확정에 따른 실행 계획은 §13 구현 마스터플랜 참조. 검증 규칙을 클라이언트·서버가
 > 공유하는 방식(§3.1)은 Python 백엔드 선택에 맞게 §13.3에서 조정했다.

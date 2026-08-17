@@ -6,8 +6,20 @@
 
 ## 현재 상태
 
-설계 단계다. 아직 애플리케이션 코드는 없고, 설계 문서와 HTML 프로토타입이 산출물의 전부다.
-프로젝트를 이해하려면 아래 문서 순서로 읽으면 된다.
+구현 진행 중이다. 스택은 **Next.js(웹) + FastAPI(API) + Supabase(Postgres·Auth) +
+Claude API**, 처음부터 멀티유저다. 지금 동작하는 것:
+
+- **인증** — 웹에서 Google 로그인(Supabase Auth) 후 모든 API 요청에 access token을
+  Bearer로 첨부하고, 서버는 JWT를 로컬 검증한다(JWKS 또는 HS256 시크릿).
+- **DB 스키마** — 설계 문서의 전체 데이터 모델이 Supabase 마이그레이션 9개로 적용되어
+  있다(`supabase/migrations/`). 스키마의 정본은 이 마이그레이션 파일들이다.
+- **노트 도메인 코어** — 확률 재분배 순수 함수(5% 단위·잔여 슬롯 최소 5%·합 100
+  불변식을 코드로 강제), 결정론적 노트 검증기, 노트 CRUD + 갈래 확률 원자적 갱신
+  API, 노트 목록/상세 화면.
+- **CI** — GitHub Actions에서 웹 lint/typecheck, API ruff/mypy/pytest.
+
+남은 마일스톤(대화형 작성, 수치 수집, 리마인드 등)은 `development-plan.md` §13.5에
+정의되어 있다. 설계 배경을 이해하려면 아래 문서 순서로 읽으면 된다.
 
 | 문서 | 내용 |
 |---|---|
@@ -16,9 +28,48 @@
 | [`docs/prototype-mvp.html`](docs/prototype-mvp.html) | MVP 화면 프로토타입 — 브라우저에서 바로 열어 확인하는 정적 목업. 각 화면의 수용 기준 |
 | [`docs/dev/`](docs/dev/) | 분야별 구현 계획 — DB 스키마, 백엔드, 프론트엔드, AI 에이전트, 수치 수집, 인프라 (마스터플랜 §13에서 참조) |
 
-확정된 구현 스택: **Next.js(웹) + FastAPI(API·워커) + Supabase(Postgres·Auth) +
-Claude API**, 처음부터 멀티유저. 마일스톤은 M0(부트스트랩)부터 M9(베타 마감)까지
-`development-plan.md` §13.5에 정의되어 있다.
+## 리포 구조
+
+pnpm 워크스페이스 모노레포다.
+
+```
+apps/web/                 Next.js 앱 (개발 포트 3003)
+  src/app/                화면 라우트 — 로그인, OAuth 콜백, 노트 목록/상세
+  src/lib/api.ts          FastAPI 클라이언트 — Supabase 세션 토큰을 실어 보내는 fetch 래퍼
+  src/lib/supabase/       Supabase 브라우저 클라이언트
+apps/api/                 FastAPI 앱 (개발 포트 8003)
+  app/auth.py             Supabase JWT 검증 (RequireUser 의존성)
+  app/domain/             순수 도메인 로직 — 확률 재분배, 노트 검증기
+  app/routers/notes.py    노트 API — 응답 스키마의 정본 (웹 api.ts가 이를 미러)
+  app/db/                 SQLAlchemy 모델·세션
+  tests/                  pytest
+supabase/migrations/      DB 스키마 정본 — 번호순으로 대시보드 SQL editor에 붙여넣어 적용
+fixtures/                 골든 테스트 벡터 — 확률 재분배의 Python 정본과 TS 미러가
+                          같은 JSON을 둘 다 통과해야 한다
+docs/                     설계 문서 (위 표)
+```
+
+## 개발 실행
+
+Node 22 + pnpm, Python 3.12 + [uv](https://docs.astral.sh/uv/), Supabase 프로젝트가 필요하다.
+
+```bash
+# 웹 — http://localhost:3003
+cp apps/web/.env.example apps/web/.env.local   # Supabase URL·anon key 채우기
+pnpm install
+pnpm dev:web
+
+# API — http://127.0.0.1:8003 (의존성은 uv가 자동 동기화)
+cp apps/api/.env.example apps/api/.env         # SUPABASE_URL·DATABASE_URL 채우기
+pnpm dev:api
+
+# DB 스키마 적용: supabase/migrations/*.sql을 번호 순서대로
+# Supabase 대시보드 SQL editor에 붙여넣어 실행 (docs/dev/01-db-schema.md §8)
+
+# 테스트·린트 (CI와 동일)
+pnpm test:api && pnpm lint:api
+pnpm lint:web && pnpm typecheck:web
+```
 
 ## 핵심 컨셉
 
