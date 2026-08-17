@@ -6,8 +6,10 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "anthropic>=0.122.0",
+    "apscheduler>=3.11.3",
     "asyncpg>=0.31.0",
     "fastapi>=0.141.1",
+    "httpx>=0.28.1",
     "pydantic-settings>=2.15.0",
     "pyjwt[crypto]>=2.13.0",
     "sqlalchemy[asyncio]>=2.0.52",
@@ -21,6 +23,7 @@ dev = [
     "mypy>=2.3.1",
     "pytest>=9.1.1",
     "ruff>=0.16.3",
+    "yfinance>=1.6.0",
 ]
 
 [tool.ruff]
@@ -37,6 +40,11 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.mypy]
 strict = true
 packages = ["app"]
+
+[[tool.mypy.overrides]]
+# 타입 정보가 없는 라이브러리 — apscheduler 3.x, yfinance(개발 전용 어댑터)
+module = ["apscheduler.*", "yfinance", "yfinance.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

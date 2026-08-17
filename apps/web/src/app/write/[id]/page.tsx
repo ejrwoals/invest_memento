@@ -30,7 +30,7 @@ import {
 // 대화 이력의 정본은 서버다 — 사용자 발화는 스트리밍 전에 커밋되므로
 // 스트리밍이 끊겨도 대화는 보존된다. 화면은 그 사실을 문장으로 알린다.
 
-type Mode = "chat" | "preview" | "ask";
+type Mode = "chat" | "preview" | "ask" | "saved";
 
 interface ChatMessage {
   key: string;
@@ -80,6 +80,7 @@ export default function WriteConversationPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [symbolFallback, setSymbolFallback] = useState(false);
+  const [savedNoteId, setSavedNoteId] = useState<string | null>(null);
 
   const chatRef = useRef<HTMLDivElement>(null);
   const hasUserTurn = messages.some((m) => m.role === "user");
@@ -245,7 +246,9 @@ export default function WriteConversationPage() {
     };
     try {
       const saved = await api<NoteDetail>("/notes", { method: "POST", body: JSON.stringify(body) });
-      router.push(`/notes/${saved.id}`);
+      // 저장 직후 2단계로 이어지는 갈림길 — `나중에 하기`가 같은 크기의 1급 선택지다 (P6)
+      setSavedNoteId(saved.id);
+      setMode("saved");
     } catch (e: unknown) {
       const detail = apiErrorDetail(e);
       if (detail?.code === "UNKNOWN_SYMBOL") {
@@ -313,6 +316,35 @@ export default function WriteConversationPage() {
         </div>
         <div className="pad">
           <p className="empty">{loadError}</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (mode === "saved" && savedNoteId !== null) {
+    return (
+      <main>
+        <div className="appbar">
+          <div>
+            <h2>노트가 저장되었습니다</h2>
+            <div className="sub">이어서 확인 방법을 정하시겠어요?</div>
+          </div>
+        </div>
+        <div className="pad" style={{ maxWidth: 640 }}>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--ink-1)", maxWidth: "60ch" }}>
+            확률을 나누고, 수치로 확인할 수 있는 답에는 조건을 걸어 둘 수 있습니다.
+            지금 안 하셔도 됩니다 — 나중에 노트에서 정하실 수 있습니다.
+          </p>
+          <div className="row" style={{ marginTop: "var(--s5)" }}>
+            {/* `나중에 하기`는 같은 크기 — 흐리게 처리하지 않는다 (ux §3.3) */}
+            <Link href={`/notes/${savedNoteId}/setup`} className="btn btn--primary">
+              확인 방법 정하기
+            </Link>
+            <Link href={`/notes/${savedNoteId}`} className="btn">
+              나중에 하기
+            </Link>
+          </div>
+          <p className="disclaimer">{DISCLAIMER}</p>
         </div>
       </main>
     );

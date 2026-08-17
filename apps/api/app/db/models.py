@@ -1,10 +1,13 @@
 """SQLAlchemy 2.0 매핑 — 마이그레이션 DDL의 반영일 뿐, 스키마를 생성하지 않는다.
 
-정본은 supabase/migrations/002~005 이고, 필드명·타입은 그 DDL과 1:1 이다
+정본은 supabase/migrations/002~008 이고, 필드명·타입은 그 DDL과 1:1 이다
 (01-db-schema §8). CHECK·트리거·RLS 는 DB에만 있다 — 여기 반복하지 않는다.
 M2 범위: instruments, notes, galae, scenarios, probability_entries, premises, watches.
 M3 추가: conversations, conversation_messages, content_blocks (003 DDL).
 conversation_messages 는 DB 트리거로 불변이다 — 코드는 INSERT 만 한다.
+M4 추가: series_catalog (002), series_snapshots (008), notifications (006),
+auto_condition_edits (004 — 2단계 폼의 조건 수정 이력).
+M5 추가: reminder_rules (006 — 정기 리마인드 규칙).
 """
 
 import uuid as uuid_pkg
@@ -16,6 +19,7 @@ from sqlalchemy import (
     JSON,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Integer,
     Numeric,
     SmallInteger,
@@ -24,8 +28,12 @@ from sqlalchemy import (
     Uuid,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+# 'date' 라는 이름의 칼럼(series_snapshots.date)이 있는 클래스에서는 어노테이션의
+# `date` 가 칼럼 속성에 가려지므로 모듈 수준 별칭으로 참조한다.
+DateOnly = date
 
 
 class Base(DeclarativeBase):
@@ -47,6 +55,88 @@ class Instrument(Base):
     currency: Mapped[str]
     kis_code: Mapped[str | None]
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class SeriesCatalogEntry(Base):
+    """002_catalog.sql — 계열 사전 (전역). 여기 없는 계열은 조건으로 설정할 수 없다."""
+
+    __tablename__ = "series_catalog"
+
+    provider: Mapped[str] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(primary_key=True)
+    label: Mapped[str]
+    kind: Mapped[str]
+    unit: Mapped[str | None]
+    has_intraday: Mapped[bool] = mapped_column(default=False)
+    # text[] — sqlite 테스트에서는 JSON 배열로 저장된다
+    search_keywords: Mapped[list[str] | None] = mapped_column(
+        JSON().with_variant(ARRAY(Text()), "postgresql")
+    )
+
+
+class SeriesSnapshot(Base):
+    """008_series_ops.sql — 수치 스냅샷 (전역 캐시). 미마감 당일은 절대 없다."""
+
+    __tablename__ = "series_snapshots"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["provider", "code"], ["series_catalog.provider", "series_catalog.code"]
+        ),
+    )
+
+    provider: Mapped[str] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(primary_key=True)
+    date: Mapped[DateOnly] = mapped_column(primary_key=True)
+    close: Mapped[Decimal] = mapped_column(Numeric(18, 4))
+    high: Mapped[Decimal | None] = mapped_column(Numeric(18, 4))  # 거시 계열은 null
+    low: Mapped[Decimal | None] = mapped_column(Numeric(18, 4))
+    fetched_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class Notification(Base):
+    """006 + 011_in_app_channel.sql — 알림 행. Redis 없는 이벤트 큐이기도 하다 (05 §5.4).
+
+    채널은 in_app 뿐이다 — 이메일 발송은 없다 (M5 범위 결정)."""
+
+    __tablename__ = "notifications"
+
+    id: Mapped[uuid_pkg.UUID] = mapped_column(primary_key=True, default=uuid_pkg.uuid4)
+    user_id: Mapped[uuid_pkg.UUID]
+    note_id: Mapped[uuid_pkg.UUID | None] = mapped_column(
+        ForeignKey("notes.id", ondelete="CASCADE")
+    )
+    kind: Mapped[str]  # 'auto_condition_met' | 'judgment_due' | 'reminder_digest' ...
+    payload: Mapped[dict[str, Any]] = mapped_column(
+        JSON().with_variant(JSONB(), "postgresql"), default=dict
+    )
+    channel: Mapped[str] = mapped_column(default="in_app")
+    scheduled_for: Mapped[datetime]
+    sent_at: Mapped[datetime | None]
+    opened_at: Mapped[datetime | None]
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class ReminderRule(Base):
+    """006_research_reminders.sql — 리마인드 규칙. MVP 는 노트당 interval 1개.
+
+    갈래 시점 기반(임박·도래)은 규칙 행이 없다 — 일일 다이제스트 잡이
+    galae.judge_end 를 직접 스캔한다. consecutive_unopened 와 감쇠 상태는
+    화면에 절대 노출하지 않는다 (P5).
+    """
+
+    __tablename__ = "reminder_rules"
+
+    id: Mapped[uuid_pkg.UUID] = mapped_column(primary_key=True, default=uuid_pkg.uuid4)
+    note_id: Mapped[uuid_pkg.UUID] = mapped_column(ForeignKey("notes.id", ondelete="CASCADE"))
+    type: Mapped[str]  # 'interval' | 'galae_deadline' | 'pending_judgment' | 'event_triggered'
+    config: Mapped[dict[str, Any]] = mapped_column(
+        JSON().with_variant(JSONB(), "postgresql"), default=dict
+    )
+    next_trigger_at: Mapped[datetime | None]
+    consecutive_unopened: Mapped[int] = mapped_column(Integer, default=0)
+    current_interval_weeks: Mapped[int] = mapped_column(Integer, default=2)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
 class Note(Base):
@@ -137,6 +227,22 @@ class Scenario(Base):
     probability_entries: Mapped[list["ProbabilityEntry"]] = relationship(
         back_populates="scenario", cascade="all, delete-orphan"
     )
+
+
+class AutoConditionEdit(Base):
+    """004_galae_scenarios.sql — auto 조건 사후 수정 이력. 값은 text 로 평탄화한다."""
+
+    __tablename__ = "auto_condition_edits"
+
+    id: Mapped[uuid_pkg.UUID] = mapped_column(primary_key=True, default=uuid_pkg.uuid4)
+    scenario_id: Mapped[uuid_pkg.UUID] = mapped_column(
+        ForeignKey("scenarios.id", ondelete="CASCADE")
+    )
+    field: Mapped[str]
+    from_value: Mapped[str | None]
+    to_value: Mapped[str | None]
+    reason: Mapped[str | None]
+    edited_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
 class ProbabilityEntry(Base):

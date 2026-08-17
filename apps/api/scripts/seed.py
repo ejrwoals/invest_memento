@@ -8,7 +8,7 @@
 
 import asyncio
 import sys
-from datetime import date
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from uuid import UUID
@@ -20,8 +20,18 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_sessionmaker
-from app.db.models import Galae, Instrument, Note, Premise, ProbabilityEntry, Scenario
+from app.db.models import (
+    Galae,
+    Instrument,
+    Note,
+    Premise,
+    ProbabilityEntry,
+    ReminderRule,
+    Scenario,
+)
 from app.domain.probability import ScenarioProb, redistribute
+from app.reminders.digest import DEFAULT_INTERVAL_WEEKS
+from app.series.catalog import ensure_equity_series
 
 SYMBOL = "005930"
 JUDGE_END = date(2026, 12, 31)
@@ -88,6 +98,9 @@ async def main() -> None:
             .values(symbol=SYMBOL, name="삼성전자", market="kr", currency="KRW")
             .on_conflict_do_nothing(index_elements=["symbol"])
         )
+        # auto 조건이 참조할 계열을 카탈로그에 등록 — 없으면 수집 배치의
+        # series_snapshots insert 가 FK 로 실패한다 (05 §3.1 동적 equity 등록)
+        await ensure_equity_series(session, "kis", SYMBOL)
         wiped = await _wipe_previous(session, user_id)
 
         note = Note(
@@ -139,7 +152,8 @@ async def main() -> None:
                 target_value=Decimal("95000"),
                 position=0,
             ),
-            Scenario(name="95,000원에 못 미친다", resolution_type="manual", position=1),
+            # 여집합 답 — auto 조건 미달이면 이 답이 자동 제안된다 (§2.3: 여집합은 complement)
+            Scenario(name="95,000원에 못 미친다", resolution_type="complement", position=1),
             Scenario(
                 name="그 외 예상 못한 전개",
                 resolution_type="complement",
@@ -156,6 +170,15 @@ async def main() -> None:
         ]
         session.add(note)
         await session.flush()  # id 확정 — 이후 확률 이력이 scenario_id 를 쓴다
+
+        # POST /notes 와 같은 경로 — 노트마다 interval 리마인드 규칙 1개 (기본 2주)
+        session.add(
+            ReminderRule(
+                note_id=note.id,
+                type="interval",
+                next_trigger_at=datetime.now(UTC) + timedelta(weeks=DEFAULT_INTERVAL_WEEKS),
+            )
+        )
 
         # 확률은 갈래 1만 배분한다 — 빈 배분에서 60을 주고, 두 번째 답을 30으로 조정.
         # 결과 55/30/15: 전부 5의 배수, 합 100, 65/30/5 가 아니다.

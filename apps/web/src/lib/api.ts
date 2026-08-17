@@ -59,6 +59,14 @@ export interface PremiseOut {
   linked_watch_id: string | null;
 }
 
+export interface WatchOut {
+  id: string;
+  provider: string;
+  code: string;
+  label: string;
+  created_at: string;
+}
+
 export interface NoteDetail {
   id: string;
   target_type: string;
@@ -73,6 +81,51 @@ export interface NoteDetail {
   is_complete: boolean;
   galae: GalaeOut[];
   premises: PremiseOut[];
+  watches: WatchOut[];
+}
+
+// ── 2단계 폼·차트 (series.py · notes.py 2단계 엔드포인트 미러) ────────────
+
+export interface CatalogEntryOut {
+  provider: string;
+  code: string;
+  label: string;
+  kind: string; // stock | index | macro …
+  unit: string | null;
+  has_intraday: boolean;
+  unregistered?: boolean; // 카탈로그 미등록 후보 — 선택하면 참조 시 자동 등록된다
+}
+
+export interface SnapshotOut {
+  date: string; // YYYY-MM-DD
+  close: string; // Decimal → 문자열
+  high: string | null;
+  low: string | null;
+}
+
+export type Comparator = "gte" | "lte" | "between" | "change_pct";
+
+export interface ResolutionPatchBody {
+  series_provider: string;
+  series_code: string;
+  series_label: string;
+  comparator: Comparator;
+  target_value: string | null;
+  target_low: string | null;
+  target_high: string | null;
+  baseline_date: string | null;
+  reason: string | null;
+}
+
+export interface ProbabilitiesPatchBody {
+  changed: { scenario_id: string; value: number };
+  locked_ids: string[];
+  reason: string | null;
+}
+
+export interface GalaeProbabilitiesOut {
+  galae_id: string;
+  probabilities: { scenario_id: string; value: number }[];
 }
 
 // ── 대화형 노트 작성 (conversations.py · thesis_builder.assemble 미러) ───
@@ -176,6 +229,104 @@ export interface DraftPayload {
 export interface BuildOut {
   draft_note: DraftPayload;
   issues: IssueOut[];
+}
+
+// ── 홈·리마인드 (home.py 스키마 미러) ─────────────────────────────────────
+
+export interface FeedCardOut {
+  kind: string; // pending_judgment | auto_condition_met | deadline | interval
+  note_id: string;
+  galae_id: string | null;
+  title: string;
+  reason: string; // 왜 지금 이 카드가 떴는지 — 서버가 완성 문장으로 준다
+  date: string | null; // YYYY-MM-DD
+}
+
+export interface TimelineEntryOut {
+  judge_end: string; // YYYY-MM-DD — 오늘 이후만 온다 (지나간 것은 피드가 다룬다)
+  note_id: string;
+  galae_id: string;
+  note_title: string;
+  color: string;
+  question: string;
+}
+
+export interface HomeOut {
+  feed: FeedCardOut[]; // 우선순위 순 정렬 완료 — 클라이언트는 자르기만 한다
+  timeline: TimelineEntryOut[]; // judge_end 오름차순
+  draft_conversation_id: string | null;
+}
+
+export interface ThenScenarioOut {
+  id: string;
+  name: string;
+  probability: number | null;
+  is_residual: boolean;
+}
+
+export interface ThenGalaeOut {
+  id: string;
+  question: string;
+  judge_end: string | null;
+  scenarios: ThenScenarioOut[];
+}
+
+/** ① 당시의 나 — 원본 그대로, 재요약하지 않는다 (P2) */
+export interface ThenOut {
+  thesis_summary: string;
+  quote: string | null;
+  quote_authorship: string | null; // user | ai — user 일 때만 [사용자] 표기 (P3)
+  recorded_at: string;
+  galae: ThenGalaeOut[];
+}
+
+export interface AutoNowOut {
+  scenario_id: string;
+  scenario_name: string;
+  series_label: string | null;
+  comparator: string | null;
+  target_value: string | null; // Decimal → 문자열
+  target_low: string | null;
+  target_high: string | null;
+  current_value: string | null;
+  current_date: string | null;
+  progress: number | null;
+  met: boolean;
+  met_at: string | null;
+}
+
+export interface WatchNowOut {
+  watch_id: string;
+  label: string;
+  current_value: string | null;
+  current_date: string | null;
+}
+
+/** ② 그동안의 일 — 수치만. 뉴스 리서치는 M8 에서 붙는다 */
+export interface SinceOut {
+  auto: AutoNowOut[];
+  watches: WatchNowOut[];
+}
+
+export interface ActionOut {
+  note_id: string;
+  note_url: string;
+  keep_url: string;
+}
+
+export interface ReminderDetailOut {
+  id: string;
+  kind: string;
+  note_id: string;
+  opened_at: string;
+  then: ThenOut;
+  since: SinceOut;
+  action: ActionOut;
+}
+
+export interface KeepOut {
+  note_id: string;
+  next_trigger_at: string;
 }
 
 // ── fetch 래퍼 ───────────────────────────────────────────────────────────

@@ -8,8 +8,9 @@
 
 import zlib
 from collections.abc import Sequence
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
@@ -21,6 +22,7 @@ from sqlalchemy.orm import selectinload
 from app.auth import RequireUser
 from app.db import SessionDep
 from app.db.models import (
+    AutoConditionEdit,
     ContentBlock,
     Conversation,
     ConversationMessage,
@@ -29,10 +31,15 @@ from app.db.models import (
     Note,
     Premise,
     ProbabilityEntry,
+    ReminderRule,
     Scenario,
+    SeriesCatalogEntry,
+    Watch,
 )
 from app.domain.probability import ScenarioProb, redistribute
 from app.domain.validation import Issue, NoteDraft, ScenarioDraft, Severity, validate_note
+from app.reminders.digest import DEFAULT_INTERVAL_WEEKS
+from app.series.catalog import ensure_equity_series
 
 router = APIRouter()
 
@@ -128,6 +135,16 @@ class PremiseOut(BaseModel):
     linked_watch_id: UUID | None
 
 
+class WatchOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    provider: str
+    code: str
+    label: str
+    created_at: datetime
+
+
 class NoteDetail(BaseModel):
     id: UUID
     target_type: str
@@ -142,6 +159,7 @@ class NoteDetail(BaseModel):
     is_complete: bool
     galae: list[GalaeOut]
     premises: list[PremiseOut]
+    watches: list[WatchOut]
 
 
 class QuoteIn(BaseModel):
@@ -209,9 +227,25 @@ def _error(status: int, code: str, message: str) -> HTTPException:
     return HTTPException(status_code=status, detail={"code": code, "message": message})
 
 
+def targets_complete(
+    comparator: str | None,
+    target_value: Decimal | None,
+    target_low: Decimal | None,
+    target_high: Decimal | None,
+    baseline_date: date | None,
+) -> bool:
+    """comparator 별 목표값 완비 — gte/lte 는 목표값, between 은 상·하한,
+    change_pct 는 기준일과 변화율까지 요구한다(없으면 판정 불능)."""
+    if comparator == "between":
+        return target_low is not None and target_high is not None
+    if comparator == "change_pct":
+        return baseline_date is not None and target_value is not None
+    return target_value is not None
+
+
 def check_auto_conditions(draft: NoteDraft) -> None:
     """auto 시나리오의 조건 완비 검사 — DB CHECK(01-db-schema §3.4)에 걸리기 전에
-    완성된 문장으로 알려준다. gte/lte 는 목표값까지 요구한다(없으면 판정 불능)."""
+    완성된 문장으로 알려준다."""
     for s in (s for g in draft.galae for s in g.scenarios):
         if s.resolution_type != "auto":
             continue
@@ -219,13 +253,10 @@ def check_auto_conditions(draft: NoteDraft) -> None:
             s.series_provider is not None
             and s.series_code is not None
             and s.comparator is not None
+            and targets_complete(
+                s.comparator, s.target_value, s.target_low, s.target_high, s.baseline_date
+            )
         )
-        if s.comparator == "between":
-            ok = ok and s.target_low is not None and s.target_high is not None
-        elif s.comparator == "change_pct":
-            ok = ok and s.baseline_date is not None and s.target_value is not None
-        else:
-            ok = ok and s.target_value is not None
         if not ok:
             raise _error(
                 422,
@@ -271,6 +302,7 @@ def _note_detail(note: Note) -> NoteDetail:
             for g in note.galae
         ],
         premises=[PremiseOut.model_validate(p) for p in note.premises],
+        watches=[WatchOut.model_validate(w) for w in note.watches],
     )
 
 
@@ -315,6 +347,11 @@ async def create_note(draft: NoteCreateBody, user: RequireUser, session: Session
             detail=[IssueOut.from_issue(i).model_dump() for i in blocking],
         )
     check_auto_conditions(draft)
+    # 대화에서 이미 auto 조건이 올 수 있다(2단계 폼 전) — kis 종목이면 계열을 등록해
+    # 수집 배치의 series_snapshots FK 가 성립하게 한다 (05 §3.1)
+    for s in (s for g in draft.galae for s in g.scenarios):
+        if s.resolution_type == "auto" and s.series_provider and s.series_code:
+            await ensure_equity_series(session, s.series_provider, s.series_code)
     if draft.target_type is None:
         raise _error(
             422, "NO_TARGET_TYPE", "대상 유형(ticker·asset·theme)이 비어 있어 저장할 수 없습니다."
@@ -394,6 +431,16 @@ async def create_note(draft: NoteCreateBody, user: RequireUser, session: Session
     session.add(note)
     await session.flush()  # note.id 확보 — conversation 연결·content_blocks 에 필요
 
+    # 정기 리마인드 규칙 — 노트당 interval 1개, 기본 2주 (01-db-schema §3.8).
+    # 갈래 시점 기반(임박·도래)은 규칙 행이 없다 — 일일 잡이 judge_end 를 직접 스캔한다.
+    session.add(
+        ReminderRule(
+            note_id=note.id,
+            type="interval",
+            next_trigger_at=datetime.now(UTC) + timedelta(weeks=DEFAULT_INTERVAL_WEEKS),
+        )
+    )
+
     if conversation is not None:
         conversation.note_id = note.id
         conversation.status = "attached"
@@ -462,6 +509,7 @@ async def _load_note(session: AsyncSession, user_id: UUID, note_id: UUID) -> Not
         .options(
             selectinload(Note.galae).selectinload(Galae.scenarios),
             selectinload(Note.premises),
+            selectinload(Note.watches),
         )
     )
     return result.first()
@@ -550,3 +598,153 @@ async def patch_probabilities(
             for s in galae.scenarios
         ],
     )
+
+
+# ── 2단계 폼 — auto 조건 설정·수정과 지켜보는 수치 (ux §3.3) ─────────────────
+
+
+class ResolutionPatch(BaseModel):
+    """auto 조건 전체를 한 번에 받는다 — 한 답의 auto 조건은 하나뿐이다 (ux §3.3)."""
+
+    series_provider: str
+    series_code: str
+    series_label: str
+    comparator: Literal["gte", "lte", "between", "change_pct"]
+    target_value: Decimal | None = None
+    target_low: Decimal | None = None
+    target_high: Decimal | None = None
+    baseline_date: date | None = None
+    reason: str | None = None  # 왜 조건을 바꿨는지 (선택) — 수정 이력에만 남긴다
+
+
+# 조건을 이루는 칼럼들 — 수정 이력은 이 필드 단위로 남는다 (01-db-schema, 004 DDL)
+_CONDITION_FIELDS = (
+    "series_provider",
+    "series_code",
+    "series_label",
+    "comparator",
+    "target_value",
+    "target_low",
+    "target_high",
+    "baseline_date",
+)
+
+
+def _condition_text(value: str | Decimal | date | None) -> str | None:
+    """auto_condition_edits 는 값을 text 로 평탄화해 담는다.
+
+    Numeric(18,4) 칼럼은 95000.0000 으로 돌아오므로 Decimal 은 뒤 0을 걷어낸다 —
+    이력은 사람이 읽는 값이다."""
+    if value is None:
+        return None
+    if isinstance(value, Decimal):
+        return format(value.normalize(), "f")
+    return str(value)
+
+
+async def _require_known_series(session: AsyncSession, provider: str, code: str) -> None:
+    # 개별 주식(kis)은 시드되지 않는다 — 처음 참조되는 순간 kind='equity' 로 등록한다
+    await ensure_equity_series(session, provider, code)
+    known = await session.scalar(
+        select(SeriesCatalogEntry.code).where(
+            SeriesCatalogEntry.provider == provider, SeriesCatalogEntry.code == code
+        )
+    )
+    if known is None:
+        raise _error(
+            422,
+            "UNKNOWN_SERIES",
+            f"등록되지 않은 계열입니다: {provider}/{code}. 검색에서 고른 계열만 담을 수 있습니다.",
+        )
+
+
+@router.patch("/scenarios/{scenario_id}/resolution")
+async def patch_resolution(
+    scenario_id: UUID, body: ResolutionPatch, user: RequireUser, session: SessionDep
+) -> ScenarioOut:
+    scenario = await session.scalar(
+        select(Scenario)
+        .join(Galae)
+        .join(Note)
+        .where(Scenario.id == scenario_id, Note.user_id == UUID(user.id))
+    )
+    if scenario is None:
+        raise HTTPException(status_code=404, detail="scenario not found")
+    if scenario.resolution_type != "auto":
+        # complement·residual 은 조건을 가질 수 없고(ux §3.3), manual 은 수치 질문이 아니다
+        raise _error(
+            409,
+            "RESOLUTION_NOT_AUTO",
+            "자동 확인으로 저장된 답이 아니라 조건을 둘 수 없습니다. "
+            "판단 시점이 오면 직접 표시하는 답입니다.",
+        )
+    if not targets_complete(
+        body.comparator, body.target_value, body.target_low, body.target_high, body.baseline_date
+    ):
+        raise _error(
+            422,
+            "AUTO_CONDITION_INCOMPLETE",
+            "비교 방식에 맞는 목표값이 비어 있어 저장할 수 없습니다.",
+        )
+    await _require_known_series(session, body.series_provider, body.series_code)
+
+    # 기존 조건이 있으면 수정이다 — 달라진 필드마다 이력을 남긴다 (02-backend §4)
+    is_edit = scenario.series_provider is not None
+    changed = False
+    for field in _CONDITION_FIELDS:
+        old = getattr(scenario, field)
+        new = getattr(body, field)
+        if old == new:
+            continue
+        changed = True
+        if is_edit:
+            session.add(
+                AutoConditionEdit(
+                    scenario_id=scenario.id,
+                    field=field,
+                    from_value=_condition_text(old),
+                    to_value=_condition_text(new),
+                    reason=body.reason,
+                )
+            )
+        setattr(scenario, field, new)
+    if changed:
+        # 조건이 달라졌으니 평가 캐시는 낡았다 — 다음 배치가 다시 계산한다 (05 §5)
+        scenario.auto_status = None
+        scenario.met_at = None
+        scenario.progress = None
+    await session.commit()
+    return ScenarioOut.model_validate(scenario)
+
+
+class WatchCreate(BaseModel):
+    provider: str
+    code: str
+    label: str
+
+
+@router.post("/notes/{note_id}/watches", status_code=201)
+async def create_watch(
+    note_id: UUID, body: WatchCreate, user: RequireUser, session: SessionDep
+) -> WatchOut:
+    owned = await session.scalar(
+        select(Note.id).where(Note.id == note_id, Note.user_id == UUID(user.id))
+    )
+    if owned is None:
+        raise HTTPException(status_code=404, detail="note not found")
+    await _require_known_series(session, body.provider, body.code)
+    watch = Watch(note_id=note_id, provider=body.provider, code=body.code, label=body.label)
+    session.add(watch)
+    await session.commit()
+    return WatchOut.model_validate(watch)
+
+
+@router.delete("/watches/{watch_id}", status_code=204)
+async def delete_watch(watch_id: UUID, user: RequireUser, session: SessionDep) -> None:
+    watch = await session.scalar(
+        select(Watch).join(Note).where(Watch.id == watch_id, Note.user_id == UUID(user.id))
+    )
+    if watch is None:
+        raise HTTPException(status_code=404, detail="watch not found")
+    await session.delete(watch)
+    await session.commit()

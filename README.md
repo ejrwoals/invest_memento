@@ -11,7 +11,7 @@ Claude API**, 처음부터 멀티유저다. 지금 동작하는 것:
 
 - **인증** — 웹에서 Google 로그인(Supabase Auth) 후 모든 API 요청에 access token을
   Bearer로 첨부하고, 서버는 JWT를 로컬 검증한다(JWKS 또는 HS256 시크릿).
-- **DB 스키마** — 설계 문서의 전체 데이터 모델이 Supabase 마이그레이션 9개로 적용되어
+- **DB 스키마** — 설계 문서의 전체 데이터 모델이 Supabase 마이그레이션 11개로 적용되어
   있다(`supabase/migrations/`). 스키마의 정본은 이 마이그레이션 파일들이다.
 - **노트 도메인 코어** — 확률 재분배 순수 함수(5% 단위·잔여 슬롯 최소 5%·합 100
   불변식을 코드로 강제), 결정론적 노트 검증기, 노트 CRUD + 갈래 확률 원자적 갱신
@@ -23,9 +23,25 @@ Claude API**, 처음부터 멀티유저다. 지금 동작하는 것:
   저장 전에 결정론적 코드가 원본 대화와 대조하고, 못 찾으면 `[사용자]` 표기를 떼고
   AI 저작으로 강등한다. 원본 대화는 DB 트리거로 수정·삭제가 막힌 채 노트에 영구
   보존된다.
-- **CI** — GitHub Actions에서 웹 lint/typecheck, API ruff/mypy/pytest.
+- **수치 축** — 갈래의 `auto` 시나리오를 공개 수치로 자동 판정하는 축 전체.
+  provider 계층(`app/series/providers/` — FRED·ECOS, 국내외 주식은 KIS 자리에
+  개발용 yfinance 어댑터를 플래그로 끼움)이 계열 시계열을 수집하고, 배치 워커
+  (`app/worker.py`, APScheduler 크론 — Redis 없이 Postgres만으로 큐·락을 대신함)가
+  일일 수집 → auto 조건 평가 → 판정 시점 도래 시 전이를 돌린다. 웹에는 계열
+  카탈로그 검색 API, 노트 2단계 설정 폼(`/notes/[id]/setup` — 시나리오 확률
+  슬라이더 + auto 조건 편집), 추이 차트(`TrendChart`)가 있다. 확률 재분배는
+  Python 정본의 TS 미러(`lib/probability.ts`)가 같은 골든 벡터(`fixtures/`)를
+  vitest로 통과해야 한다.
+- **리마인드** — **인앱 전용**이다(이메일 발송은 만들지 않기로 결정).
+  배치 잡(`app/reminders/digest.py`)이 사용자별로 하루 1건 다이제스트를 만들고
+  (우선순위: 결과 확인 필요 → 판단 시점 임박 → 정기 → auto 조건 달성), 정기
+  리마인드는 미열람 시 주기가 2배로 늘고 열람하면 리셋되는 감쇠를 따른다 —
+  개수·스트릭으로 압박하지 않는다. 홈 화면이 이 다이제스트 피드 + 노트 세로
+  타임라인이고, 각 항목은 3단 리마인드 상세(`/reminders/[id]`)로 이어진다.
+- **CI** — GitHub Actions에서 웹 lint/typecheck/vitest(골든 벡터), API
+  ruff/mypy/pytest.
 
-남은 마일스톤(수치 수집, 리마인드 등)은 `development-plan.md` §13.5에
+남은 마일스톤(판정·회고, 장부, 리서치 등)은 `development-plan.md` §13.5에
 정의되어 있다. 설계 배경을 이해하려면 아래 문서 순서로 읽으면 된다.
 
 | 문서 | 내용 |
@@ -41,16 +57,24 @@ pnpm 워크스페이스 모노레포다.
 
 ```
 apps/web/                 Next.js 앱 (개발 포트 3003)
-  src/app/                화면 라우트 — 로그인, OAuth 콜백, 노트 목록/상세,
-                          대화형 작성(/write — 대화·초안 확인이 한 라우트의 상태 전환)
+  src/app/                화면 라우트 — 로그인, OAuth 콜백, 홈(다이제스트 피드+타임라인),
+                          노트 상세, 대화형 작성(/write), 2단계 설정(/notes/[id]/setup),
+                          리마인드 상세(/reminders/[id])
+  src/components/         TrendChart — 계열 추이 차트 (축약형·전체형)
   src/lib/api.ts          FastAPI 클라이언트 — Supabase 세션 토큰을 실어 보내는 fetch 래퍼
+  src/lib/probability.ts  확률 재분배의 TS 미러 — 골든 벡터를 vitest로 검증
   src/lib/supabase/       Supabase 브라우저 클라이언트
 apps/api/                 FastAPI 앱 (개발 포트 8003)
   app/auth.py             Supabase JWT 검증 (RequireUser 의존성)
   app/agents/             Claude 호출 계층 — Thesis Builder (대화 진행 프롬프트 +
                           tool 강제 초안 조립), 클라이언트 설정·사용량 로깅
   app/domain/             순수 도메인 로직 — 확률 재분배, 노트 검증기, 인용 원문 대조
-  app/routers/            노트·대화 API — 응답 스키마의 정본 (웹 api.ts가 이를 미러)
+  app/series/             수치 축 — provider(fred·ecos·kis 자리의 yfinance 어댑터),
+                          수집·auto 평가·전이, 계열 카탈로그
+  app/reminders/          일일 다이제스트 생성 (인앱 전용, 미열람 감쇠)
+  app/worker.py           배치 워커 — APScheduler 크론, Postgres만으로 큐·락
+  app/routers/            노트·대화·계열·홈/리마인드 API — 응답 스키마의 정본
+                          (웹 api.ts가 이를 미러)
   app/db/                 SQLAlchemy 모델·세션
   tests/                  pytest
 supabase/migrations/      DB 스키마 정본 — 번호순으로 대시보드 SQL editor에 붙여넣어 적용
@@ -73,12 +97,21 @@ pnpm dev:web
 cp apps/api/.env.example apps/api/.env         # SUPABASE_URL·DATABASE_URL·ANTHROPIC_API_KEY 채우기
 pnpm dev:api
 
+# 수치 축 환경변수 (apps/api/.env)
+#   FRED_API_KEY / ECOS_API_KEY — 비어 있으면 해당 provider는 수집에서 스킵
+#   SERIES_DEV_PROVIDER=yfinance — 개발용: KIS 자리에 yfinance 어댑터를 끼움 (출시 전 제거)
+
+# 배치 워커 — 수집·평가·전이·다이제스트 크론 (API 서버와 별개 프로세스)
+cd apps/api && uv run python -m app.worker
+# 잡 하나만 즉시 1회 실행:
+#   uv run python -m app.worker --once <collect_kr|collect_us|collect_macro|evaluate|transition|digest>
+
 # DB 스키마 적용: supabase/migrations/*.sql을 번호 순서대로
 # Supabase 대시보드 SQL editor에 붙여넣어 실행 (docs/dev/01-db-schema.md §8)
 
 # 테스트·린트 (CI와 동일)
 pnpm test:api && pnpm lint:api
-pnpm lint:web && pnpm typecheck:web
+pnpm lint:web && pnpm typecheck:web && pnpm test:web   # test:web = 골든 벡터 vitest
 ```
 
 ## 핵심 컨셉

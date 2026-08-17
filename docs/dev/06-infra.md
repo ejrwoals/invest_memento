@@ -25,8 +25,10 @@
 | DB/Auth/Storage | **호스티드 Supabase를 그대로 쓴다** (아래) | Supabase 관리형 (서울 `ap-northeast-2`) |
 | api + worker | `uv run` 2개 프로세스 | Cloud Run 서비스 2개 — 같은 이미지 (§3) |
 | web | `next dev` | Vercel |
-| 이메일 | Resend 테스트 키 (샌드박스) | Resend |
 | LLM | Claude API (개발용 키) | Claude API (운영용 키) |
+
+이메일 발송은 없다 — 리마인드는 인앱(홈 피드 + `notifications` 행) 전용이다.
+(PWA 푸시는 Phase 2에서 검토)
 
 - **개발 DB도 호스티드 Supabase다.** 대시보드(테이블 브라우저·SQL editor·Auth 설정)를
   보면서 개발하는 워크플로가 기본이고, Docker 로컬 스택(`supabase start`)은 오프라인
@@ -70,13 +72,12 @@
       ▼ (api·worker가 호출)
 [외부 API]
    ├─ FRED / ECOS / 한국투자증권  — 수치 배치 수집 (worker, 일 1회)
-   ├─ Claude API                 — Thesis Builder·리서치·회고 초안 (api·worker)
-   └─ Resend                     — 리마인드 이메일 (worker)
+   └─ Claude API                 — Thesis Builder·리서치·회고 초안 (api·worker)
 ```
 
 - 웹 클라이언트는 Supabase Auth로 로그인하고, **데이터는 FastAPI를 통해서만** 읽고 쓴다
   (01-db-schema §1). PostgREST 직접 접근 경로는 만들지 않는다.
-- worker는 APScheduler로 일 1회 수치 수집·평가, 리마인드 발송을 돈다. 온디맨드 비동기
+- worker는 APScheduler로 일 1회 수치 수집·평가, 리마인드 다이제스트 적재(인앱)를 돈다. 온디맨드 비동기
   작업(AI 리서치·회고 초안)은 **Postgres `jobs` 테이블**을 api가 적재하고 worker가
   폴링해 처리한다. Redis는 두지 않는다 — 이 규모에서 폴링 지연(수 초)은 문제가 아니다.
 
@@ -119,7 +120,6 @@ Docker 이미지를 Cloud Run에 올려 배포한다(사용자 결정). 리전�
 | `ANTHROPIC_API_KEY` | api·worker | GCP Secret Manager |
 | `FRED_API_KEY` / `ECOS_API_KEY` | worker | GCP Secret Manager |
 | `KIS_APP_KEY` / `KIS_APP_SECRET` | api·worker | GCP Secret Manager. 접근 토큰은 만료가 있어 DB에 캐시(01-db-schema §3.12 `kis_tokens`) |
-| `RESEND_API_KEY` | worker | GCP Secret Manager |
 | `SENTRY_DSN` (web용 / api용 각각) | web·api·worker | Vercel / Secret Manager |
 | `SUPABASE_ACCESS_TOKEN` / `SUPABASE_DB_PASSWORD` | CI 전용 (db push) | GitHub Actions Secrets |
 
@@ -169,7 +169,7 @@ Docker 이미지를 Cloud Run에 올려 배포한다(사용자 결정). 리전�
   않는다**(§8 프라이버시). stdout JSON은 Cloud Logging이 자동 수집한다(기본 30일 보존
   — 무료 한도 내).
 - **Sentry**: web(브라우저)·api·worker 세 곳에 무료 티어로 붙인다. 배치 실패 알림은
-  **Sentry Cron Monitoring**으로 처리한다 — 일 1회 수치 수집, 리마인드 발송 잡이 체크인을
+  **Sentry Cron Monitoring**으로 처리한다 — 일 1회 수치 수집, 리마인드 다이제스트 잡이 체크인을
   보내고, 제시간에 안 오면 Sentry가 이메일로 알린다. 별도 알림 인프라를 만들지 않는다.
 - **LLM 토큰 사용량 로깅**: Claude API 호출마다 응답의 `usage`(입출력 토큰)를
   에이전트 종류(thesis_builder / research / review / advisor)·`user_id`·`note_id`와 함께
@@ -215,7 +215,6 @@ Docker 이미지를 Cloud Run에 올려 배포한다(사용자 결정). 리전�
 | Vercel | Hobby | $0 | Hobby는 비상업 용도 한정. 유료화 시 Pro $20 |
 | Cloud Run | 종량제 | **$5~25** | api는 스케일-투-제로라 무료 한도 내(≈$0). 비용의 대부분은 worker 상시 1대(min-instances=1, CPU always-allocated, 0.5vCPU/512MB 추정) — 착수 시 가격 계산기로 재확인. 부담되면 Scheduler+Jobs 대안(§3) |
 | Claude API | 종량제 | **$5~30** | 노트 작성 대화 5~8턴 + 온디맨드 리서치·회고. 사용자 수에 비례 — `llm_usage_log`(§6)로 실측 후 상한 정책 결정 |
-| Resend | Free | $0 | 월 3,000통 — 리마인드 이메일 규모로 충분 |
 | FRED / ECOS / 한국투자증권 | 무료 | $0 | 일 1회 배치·전역 캐시로 쿼터 내 (§6 아키텍처) |
 | Cloudflare R2 (백업) | Free | $0 | 10GB까지 무료 |
 | **합계** | | **약 $10~35** | Supabase Pro 전환 후 $35~60 |

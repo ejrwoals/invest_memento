@@ -26,6 +26,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm exec next typegen
       - run: pnpm exec tsc --noEmit
+      # 골든 벡터(fixtures/probability.json) — pytest 와 같은 파일을 vitest 가 읽는다
+      - run: pnpm test
 
   api:
     runs-on: ubuntu-latest
@@ -40,5 +42,4 @@ jobs:
       - run: uv run mypy
       - run: uv run pytest
 
-  # 골든 벡터(fixtures/)의 Python·TS 양쪽 검증 잡은 M2에서 확률 재분배 구현과 함께 추가한다.
   # supabase 마이그레이션 dry-run 잡은 M1에서 첫 마이그레이션과 함께 추가한다.
