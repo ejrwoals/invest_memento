@@ -20,7 +20,17 @@ from sqlalchemy.orm import selectinload
 
 from app.auth import RequireUser
 from app.db import SessionDep
-from app.db.models import Galae, Instrument, Note, Premise, ProbabilityEntry, Scenario
+from app.db.models import (
+    ContentBlock,
+    Conversation,
+    ConversationMessage,
+    Galae,
+    Instrument,
+    Note,
+    Premise,
+    ProbabilityEntry,
+    Scenario,
+)
 from app.domain.probability import ScenarioProb, redistribute
 from app.domain.validation import Issue, NoteDraft, ScenarioDraft, Severity, validate_note
 
@@ -132,6 +142,25 @@ class NoteDetail(BaseModel):
     is_complete: bool
     galae: list[GalaeOut]
     premises: list[PremiseOut]
+
+
+class QuoteIn(BaseModel):
+    """대표 인용 — 대화에서 온 사용자 발화. quoted_from 이 없으면 AI 저작으로 저장한다."""
+
+    text: str
+    quoted_from: UUID | None = None
+    derived: bool = False
+
+
+class NoteCreateBody(NoteDraft):
+    """POST /notes 본문 — NoteDraft + 대화 연결(선택).
+
+    conversation_id 가 있으면 같은 트랜잭션에서 conversation 을 노트에 붙이고
+    (note_id 연결 + status='attached'), 대표 인용·가설을 content_blocks 로 저장한다.
+    """
+
+    conversation_id: UUID | None = None
+    quote: QuoteIn | None = None
 
 
 class ProbabilityChange(BaseModel):
@@ -276,7 +305,7 @@ def validate(draft: NoteDraft, user: RequireUser) -> list[IssueOut]:
 
 
 @router.post("/notes", status_code=201)
-async def create_note(draft: NoteDraft, user: RequireUser, session: SessionDep) -> NoteDetail:
+async def create_note(draft: NoteCreateBody, user: RequireUser, session: SessionDep) -> NoteDetail:
     issues = validate_note(draft)
     blocking = [i for i in issues if i.severity == "blocking"]
     if blocking:
@@ -301,6 +330,37 @@ async def create_note(draft: NoteDraft, user: RequireUser, session: SessionDep) 
                 f"등록되지 않은 심볼입니다: {draft.target_symbol}. "
                 "instruments 카탈로그에 먼저 추가해야 합니다.",
             )
+
+    # 대화 연결(선택) — 같은 트랜잭션에서 attach 한다. 남의 대화는 404.
+    conversation: Conversation | None = None
+    valid_message_ids: set[UUID] = set()
+    if draft.conversation_id is not None:
+        conversation = await session.scalar(
+            select(Conversation).where(
+                Conversation.id == draft.conversation_id,
+                Conversation.user_id == UUID(user.id),
+            )
+        )
+        if conversation is None:
+            raise HTTPException(status_code=404, detail="conversation not found")
+        if conversation.status != "draft" or conversation.note_id is not None:
+            raise _error(409, "CONVERSATION_NOT_DRAFT", "이미 노트로 저장된 대화입니다.")
+        valid_message_ids = set(
+            (
+                await session.scalars(
+                    select(ConversationMessage.id).where(
+                        ConversationMessage.conversation_id == conversation.id
+                    )
+                )
+            ).all()
+        )
+
+    def _quoted_from(raw: str | UUID | None) -> UUID | None:
+        # 인용 출처는 연결된 대화의 실제 메시지여야 한다 — 아니면 강등(None)
+        if raw is None:
+            return None
+        value = raw if isinstance(raw, UUID) else UUID(raw)
+        return value if value in valid_message_ids else None
 
     note = Note(
         user_id=UUID(user.id),
@@ -327,11 +387,44 @@ async def create_note(draft: NoteDraft, user: RequireUser, session: SessionDep) 
         Premise(
             statement=p.statement,
             position=ppos,
-            quoted_from=UUID(p.quoted_from) if p.quoted_from else None,
+            quoted_from=_quoted_from(p.quoted_from),
         )
         for ppos, p in enumerate(draft.premises)
     ]
     session.add(note)
+    await session.flush()  # note.id 확보 — conversation 연결·content_blocks 에 필요
+
+    if conversation is not None:
+        conversation.note_id = note.id
+        conversation.status = "attached"
+
+    # 가설·대표 인용을 본문 블록으로 — 대조 실패(quoted_from 무효)면 AI 저작으로 강등
+    position = 0
+    if draft.thesis_detail and draft.thesis_detail.strip():
+        session.add(
+            ContentBlock(
+                note_id=note.id,
+                section="thesis",
+                position=position,
+                content=draft.thesis_detail,
+                authorship="ai",
+            )
+        )
+        position += 1
+    if draft.quote is not None and draft.quote.text.strip():
+        quoted_from = _quoted_from(draft.quote.quoted_from)
+        session.add(
+            ContentBlock(
+                note_id=note.id,
+                section="thesis_quote",
+                position=position,
+                content=draft.quote.text,
+                authorship="user" if quoted_from else "ai",
+                quoted_from=quoted_from,
+                derived=draft.quote.derived,
+            )
+        )
+
     await session.commit()  # 단일 트랜잭션 — 부분 저장은 없다 (02-backend §9)
     saved = await _load_note(session, UUID(user.id), note.id)
     assert saved is not None

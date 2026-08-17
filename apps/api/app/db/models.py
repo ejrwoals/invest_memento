@@ -3,13 +3,28 @@
 정본은 supabase/migrations/002~005 이고, 필드명·타입은 그 DDL과 1:1 이다
 (01-db-schema §8). CHECK·트리거·RLS 는 DB에만 있다 — 여기 반복하지 않는다.
 M2 범위: instruments, notes, galae, scenarios, probability_entries, premises, watches.
+M3 추가: conversations, conversation_messages, content_blocks (003 DDL).
+conversation_messages 는 DB 트리거로 불변이다 — 코드는 INSERT 만 한다.
 """
 
 import uuid as uuid_pkg
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Numeric, SmallInteger, Text, Uuid, func
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    SmallInteger,
+    Text,
+    UniqueConstraint,
+    Uuid,
+    func,
+)
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -155,6 +170,67 @@ class Watch(Base):
     note: Mapped[Note] = relationship(back_populates="watches")
 
 
+class Conversation(Base):
+    """003_notes_conversations.sql — 대화는 노트보다 먼저 태어난다(draft 재개)."""
+
+    __tablename__ = "conversations"
+
+    id: Mapped[uuid_pkg.UUID] = mapped_column(primary_key=True, default=uuid_pkg.uuid4)
+    user_id: Mapped[uuid_pkg.UUID]
+    note_id: Mapped[uuid_pkg.UUID | None] = mapped_column(
+        ForeignKey("notes.id", ondelete="SET NULL"), unique=True
+    )
+    status: Mapped[str] = mapped_column(default="draft")  # draft | attached | abandoned
+    # 작성 중 실시간 패널 상태 (UX §3.2) — jsonb. sqlite 테스트에서는 JSON 으로 동작한다.
+    draft_note: Mapped[dict[str, Any] | None] = mapped_column(
+        JSON().with_variant(JSONB(), "postgresql")
+    )
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+    messages: Mapped[list["ConversationMessage"]] = relationship(
+        back_populates="conversation",
+        order_by="ConversationMessage.seq",
+        cascade="all, delete-orphan",
+    )
+
+
+class ConversationMessage(Base):
+    """003_notes_conversations.sql — 원본 대화 불변(P2). UPDATE 불가, DELETE 는 GUC 필요."""
+
+    __tablename__ = "conversation_messages"
+    __table_args__ = (UniqueConstraint("conversation_id", "seq"),)
+
+    id: Mapped[uuid_pkg.UUID] = mapped_column(primary_key=True, default=uuid_pkg.uuid4)
+    conversation_id: Mapped[uuid_pkg.UUID] = mapped_column(
+        ForeignKey("conversations.id", ondelete="CASCADE")
+    )
+    seq: Mapped[int] = mapped_column(Integer)
+    role: Mapped[str]  # user | assistant
+    content: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+    conversation: Mapped[Conversation] = relationship(back_populates="messages")
+
+
+class ContentBlock(Base):
+    """003_notes_conversations.sql — 노트 본문 블록. user 저작만 [사용자] 표기."""
+
+    __tablename__ = "content_blocks"
+
+    id: Mapped[uuid_pkg.UUID] = mapped_column(primary_key=True, default=uuid_pkg.uuid4)
+    note_id: Mapped[uuid_pkg.UUID] = mapped_column(ForeignKey("notes.id", ondelete="CASCADE"))
+    section: Mapped[str]  # thesis | thesis_quote | scenario | premise_intro | free
+    position: Mapped[int] = mapped_column(default=0)
+    content: Mapped[str]
+    authorship: Mapped[str]  # ai | user
+    quoted_from: Mapped[uuid_pkg.UUID | None] = mapped_column(
+        ForeignKey("conversation_messages.id")
+    )
+    derived: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
 class Premise(Base):
     """005_premises_reviews.sql — 근거 항목. 노트에 붙는다 — 갈래가 아니다."""
 
@@ -164,7 +240,9 @@ class Premise(Base):
     note_id: Mapped[uuid_pkg.UUID] = mapped_column(ForeignKey("notes.id", ondelete="CASCADE"))
     statement: Mapped[str]
     position: Mapped[int] = mapped_column(default=0)
-    quoted_from: Mapped[uuid_pkg.UUID | None]  # conversation_messages 참조 — M2에선 매핑 안 함
+    quoted_from: Mapped[uuid_pkg.UUID | None] = mapped_column(
+        ForeignKey("conversation_messages.id")
+    )
     linked_watch_id: Mapped[uuid_pkg.UUID | None] = mapped_column(
         ForeignKey("watches.id", ondelete="SET NULL")
     )

@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     # Supabase Supavisor transaction pooler 접속 문자열 (대시보드 Connect → Transaction pooler)
     database_url: str = ""
     cors_origins: list[str] = ["http://localhost:3003", "http://127.0.0.1:3003"]
+    # Claude API — 비어 있으면 SDK 기본 해석(ANTHROPIC_API_KEY env)을 따른다
+    anthropic_api_key: str = ""
 
 
 settings = Settings()

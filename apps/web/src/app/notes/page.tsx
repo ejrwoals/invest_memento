@@ -34,6 +34,10 @@ export default function NotesPage() {
           ← 홈
         </Link>
         <h2>노트</h2>
+        <span className="spacer" />
+        <Link href="/write" className="btn btn--sm">
+          + 새 노트
+        </Link>
       </div>
       <div className="pad">
         {error && <p className="empty">{error}</p>}

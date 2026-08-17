@@ -16,9 +16,16 @@ Claude API**, 처음부터 멀티유저다. 지금 동작하는 것:
 - **노트 도메인 코어** — 확률 재분배 순수 함수(5% 단위·잔여 슬롯 최소 5%·합 100
   불변식을 코드로 강제), 결정론적 노트 검증기, 노트 CRUD + 갈래 확률 원자적 갱신
   API, 노트 목록/상세 화면.
+- **대화형 노트 작성** — `/write`에서 AI(Claude)와 대화하며 가설을 끌어내고,
+  대화가 무르익으면 노트 초안을 조립해 확인 화면에서 저장한다. 대화 턴은 SSE
+  스트리밍이고(사용자 발화는 스트리밍 전에 먼저 저장되어 끊겨도 유실되지 않음),
+  초안 조립은 tool 강제 구조화 출력이다. AI가 "사용자의 말"이라고 표기하는 인용은
+  저장 전에 결정론적 코드가 원본 대화와 대조하고, 못 찾으면 `[사용자]` 표기를 떼고
+  AI 저작으로 강등한다. 원본 대화는 DB 트리거로 수정·삭제가 막힌 채 노트에 영구
+  보존된다.
 - **CI** — GitHub Actions에서 웹 lint/typecheck, API ruff/mypy/pytest.
 
-남은 마일스톤(대화형 작성, 수치 수집, 리마인드 등)은 `development-plan.md` §13.5에
+남은 마일스톤(수치 수집, 리마인드 등)은 `development-plan.md` §13.5에
 정의되어 있다. 설계 배경을 이해하려면 아래 문서 순서로 읽으면 된다.
 
 | 문서 | 내용 |
@@ -34,13 +41,16 @@ pnpm 워크스페이스 모노레포다.
 
 ```
 apps/web/                 Next.js 앱 (개발 포트 3003)
-  src/app/                화면 라우트 — 로그인, OAuth 콜백, 노트 목록/상세
+  src/app/                화면 라우트 — 로그인, OAuth 콜백, 노트 목록/상세,
+                          대화형 작성(/write — 대화·초안 확인이 한 라우트의 상태 전환)
   src/lib/api.ts          FastAPI 클라이언트 — Supabase 세션 토큰을 실어 보내는 fetch 래퍼
   src/lib/supabase/       Supabase 브라우저 클라이언트
 apps/api/                 FastAPI 앱 (개발 포트 8003)
   app/auth.py             Supabase JWT 검증 (RequireUser 의존성)
-  app/domain/             순수 도메인 로직 — 확률 재분배, 노트 검증기
-  app/routers/notes.py    노트 API — 응답 스키마의 정본 (웹 api.ts가 이를 미러)
+  app/agents/             Claude 호출 계층 — Thesis Builder (대화 진행 프롬프트 +
+                          tool 강제 초안 조립), 클라이언트 설정·사용량 로깅
+  app/domain/             순수 도메인 로직 — 확률 재분배, 노트 검증기, 인용 원문 대조
+  app/routers/            노트·대화 API — 응답 스키마의 정본 (웹 api.ts가 이를 미러)
   app/db/                 SQLAlchemy 모델·세션
   tests/                  pytest
 supabase/migrations/      DB 스키마 정본 — 번호순으로 대시보드 SQL editor에 붙여넣어 적용
@@ -60,7 +70,7 @@ pnpm install
 pnpm dev:web
 
 # API — http://127.0.0.1:8003 (의존성은 uv가 자동 동기화)
-cp apps/api/.env.example apps/api/.env         # SUPABASE_URL·DATABASE_URL 채우기
+cp apps/api/.env.example apps/api/.env         # SUPABASE_URL·DATABASE_URL·ANTHROPIC_API_KEY 채우기
 pnpm dev:api
 
 # DB 스키마 적용: supabase/migrations/*.sql을 번호 순서대로
@@ -117,6 +127,11 @@ AI는 리서치·요약·리마인드 큐레이션·회고 초안·소크라테�
 배분은 사용자가 한다(앵커링이 걸리면 노트에 남는 것이 내 판단이 아니게 된다).
 매수/매도 의견 자체는 프롬프트 단에서 제한하지 않되, 면책 고지는 UI 레벨에서 상시
 노출한다.
+
+이 경계는 프롬프트만으로 지키지 않는다. "사용자가 한 말"이라고 주장하는 모든 AI
+출력은 저장 전에 결정론적 코드(`app/domain/quotes.py`)가 원본 대화의 사용자 발화와
+대조하고, 실제로 찾지 못하면 `[사용자]` 표기를 떼어 AI 저작으로 강등한다 — 차단이
+아니라 강등이므로 내용은 남되 저작만 정직해진다.
 
 ## 설계 원칙 (요약)
 

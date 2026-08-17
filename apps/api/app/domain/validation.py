@@ -231,8 +231,9 @@ def validate_note(draft: NoteDraft, today: date | None = None) -> list[Issue]:
 def check_quoted_sources(draft: NoteDraft, conversation_texts: Sequence[str]) -> list[Issue]:
     """2층 — 출처 대조. 인용이라고 주장한 문장이 실제 대화에 있는지 찾는다.
 
-    이번 마일스톤(M2) 범위 밖 — 대화 저장소가 붙는 시점에 구현한다.
-    공백 정규화 후 부분 문자열 일치로 원본 대화에서 검색하고, 못 찾으면
-    인용 표시를 떼어 authorship='ai' 로 강등한다 (02-backend §5).
+    실제 대조는 M3 에서 domain/quotes.py(find_quoted_from)와
+    agents/thesis_builder.assemble 이 수행한다 — 조립 시점에 못 찾으면 인용 표시를
+    떼어 authorship='ai' 로 강등하므로(02-backend §5), 저장 시점 검증기에서는
+    Issue 를 만들지 않는다.
     """
     return []

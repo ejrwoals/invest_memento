@@ -10,6 +10,7 @@ export default function Home() {
   const [email, setEmail] = useState<string | null>(null);
   const [me, setMe] = useState<string>("(대기)");
   const [loading, setLoading] = useState(true);
+  const [draftId, setDraftId] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -17,13 +18,24 @@ export default function Home() {
       setLoading(false);
       if (!session) return;
       setEmail(session.user.email ?? null);
+      const headers = { Authorization: `Bearer ${session.access_token}` };
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, { headers });
         setMe(`${res.status} ${JSON.stringify(await res.json())}`);
       } catch {
         setMe("API 연결 실패 — apps/api가 떠 있는지 확인");
+      }
+      // 작성하다 만 대화 — 있으면 조용히 재개 링크만 띄운다 (ux §3.2 이탈과 재개)
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/conversations?status=draft`, {
+          headers,
+        });
+        if (res.ok) {
+          const drafts = (await res.json()) as { id: string }[];
+          if (drafts.length > 0) setDraftId(drafts[0].id);
+        }
+      } catch {
+        // 홈은 재개 링크 없이도 성립한다 — 실패를 알리지 않는다
       }
     });
   }, []);
@@ -49,6 +61,18 @@ export default function Home() {
               노트 목록 →
             </Link>
           </p>
+          <p>
+            <Link href="/write" style={{ textDecoration: "underline" }}>
+              + 새 노트
+            </Link>
+          </p>
+          {draftId && (
+            <p>
+              <Link href={`/write?resume=${draftId}`} style={{ textDecoration: "underline" }}>
+                작성하던 노트 이어가기 →
+              </Link>
+            </p>
+          )}
           <button onClick={signOut}>로그아웃</button>
         </>
       ) : (

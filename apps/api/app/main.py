@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.auth import RequireUser
 from app.config import settings
-from app.routers import notes
+from app.routers import conversations, notes
 
 app = FastAPI(title="Investment Memento API")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(notes.router)
+app.include_router(conversations.router)
 
 
 @app.get("/health")

@@ -171,3 +171,52 @@ a.btn{display:inline-flex;align-items:center}
 .nrow__s{margin-top:4px;padding-left:20px;font-size:var(--text-sm);color:var(--ink-1);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nrow__m{margin-top:4px;padding-left:20px;font-size:var(--text-caption);color:var(--ink-2)}
+
+/* ── 새 노트 · 대화 (프로토타입 .chat/.msg/.composer/.build 이관) ──── */
+.wshell{display:flex;flex-direction:column;height:100dvh}
+.wshell>.wsplit{flex:1;min-height:0}
+.wsplit{display:grid;grid-template-columns:1fr 300px}
+.chatcol{display:flex;flex-direction:column;min-height:0}
+.chat{display:flex;flex-direction:column;gap:var(--s4);padding:var(--s5);flex:1;overflow-y:auto}
+.msg{max-width:80%;font-size:var(--text-sm);line-height:var(--lh-body);white-space:pre-wrap}
+.msg--ai{align-self:flex-start;display:flex;gap:10px}
+.msg--ai>b{font-family:var(--font-mono);font-size:var(--text-micro);color:var(--ai);
+  flex:0 0 auto;margin-top:4px;letter-spacing:.08em}
+.msg--me{align-self:flex-end;background:var(--paper-2);border-radius:var(--r3);
+  padding:10px var(--s4);color:var(--ink-1)}
+.composer{display:flex;gap:10px;padding:var(--s4) var(--s5);border-top:1px solid var(--line-0);
+  background:var(--paper-1)}
+.composer input{flex:1;min-width:0;min-height:44px;padding:0 var(--s4);
+  border:1px solid var(--line-1);border-radius:var(--r-pill);background:var(--paper-0);
+  color:var(--ink-0);font-family:inherit;font-size:var(--text-sm)}
+.build{padding:var(--s5);background:var(--paper-1);border-left:1px solid var(--line-0);
+  overflow-y:auto}
+.build__row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;
+  border-bottom:1px solid var(--line-0);font-size:var(--text-caption)}
+.build__row:last-child{border-bottom:none}
+.build__row i{font-style:normal;flex:0 0 auto;width:14px;text-align:center;margin-top:2px;
+  color:var(--ink-3)}
+
+/* ── 노트 초안 확인 (프로토타입 .slot/.derived 이관) ─────────────────── */
+.slot{display:grid;grid-template-columns:104px 1fr;gap:var(--s4);padding:var(--s4) 0;
+  border-bottom:1px solid var(--line-0);align-items:start}
+.slot:last-child{border-bottom:none}
+.slot__k{font-family:var(--font-mono);font-size:var(--text-micro);letter-spacing:.1em;
+  color:var(--ink-2);padding-top:3px}
+.slot__v{font-size:var(--text-sm);line-height:var(--lh-body);min-width:0}
+.slot__v em{font-style:normal;font-weight:600}
+.derived{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-top:5px;
+  padding:6px 10px;background:var(--paper-2);border-radius:var(--r2);
+  font-size:var(--text-caption);color:var(--ink-2)}
+.derived b{font-family:var(--font-mono);color:var(--ink-0);font-weight:600}
+.derived input[type="date"],.slot__v select{min-height:34px;padding:0 10px;
+  border:1px solid var(--line-1);border-radius:var(--r2);background:var(--paper-0);
+  color:var(--ink-0);font-family:inherit;font-size:var(--text-caption)}
+
+@media (max-width:840px){
+  .wsplit{grid-template-columns:1fr}
+  .build{display:none}
+  .chat{padding:var(--s4)}
+  .msg{max-width:92%}
+  .slot{grid-template-columns:1fr;gap:5px;padding:var(--s3) 0}
+}

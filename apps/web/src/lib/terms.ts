@@ -36,3 +36,20 @@ export const EMPTY_NOTES = "아직 기록한 노트가 없습니다. 첫 노트�
 
 /** 면책 고지 한 줄 */
 export const DISCLAIMER = "최종 투자 판단과 그 책임은 사용자 본인에게 있습니다.";
+
+/** target_type → 화면 표기 (초안 확인의 종류 고르기) */
+export const TARGET_TYPE_LABEL: Record<string, string> = {
+  ticker: "종목",
+  asset: "자산",
+  theme: "테마",
+};
+
+/** residual 시나리오 이름 — notes.py RESIDUAL_NAME 과 동일해야 한다 */
+export const RESIDUAL_NAME = "그 외 예상 못한 전개";
+
+/** 사용자 저작 표기 — 원문 그대로 옮긴 블록에 붙는다 */
+export const TAG_USER = "[사용자]";
+
+/** 스트리밍 실패 시 재시도 안내 — 사용자 발화는 서버가 먼저 저장하므로 유실되지 않는다 */
+export const STREAM_RETRY_NOTICE =
+  "응답을 받지 못했습니다. 말씀하신 내용은 저장되어 있으니, 이어서 입력하시면 대화가 계속됩니다.";
