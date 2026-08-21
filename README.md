@@ -87,6 +87,17 @@ docs/                     설계 문서 (위 표)
 
 Node 22 + pnpm, Python 3.12 + [uv](https://docs.astral.sh/uv/), Supabase 프로젝트가 필요하다.
 
+**Windows 는 `dev.bat` 한 줄이면 된다.** 도구 확인 → pnpm 설치 → 의존성 동기화 →
+`.env` 생성·검증 → 웹·API 동시 기동을 순서대로 하고, 몇 번을 돌려도 없는 것만 채운다.
+Supabase 값이 비어 있으면 무엇을 어디서 가져와 채워야 하는지 알려주고 멈춘다.
+
+```bat
+dev.bat            :: 웹 + API
+dev.bat --worker   :: 웹 + API + 배치 워커
+```
+
+아래는 그 스크립트가 하는 일을 손으로 하는 경우다.
+
 ```bash
 # 웹 — http://localhost:3003
 cp apps/web/.env.example apps/web/.env.local   # Supabase URL·anon key 채우기
@@ -102,7 +113,7 @@ pnpm dev:api
 #   SERIES_DEV_PROVIDER=yfinance — 개발용: KIS 자리에 yfinance 어댑터를 끼움 (출시 전 제거)
 
 # 배치 워커 — 수집·평가·전이·다이제스트 크론 (API 서버와 별개 프로세스)
-cd apps/api && uv run python -m app.worker
+pnpm dev:worker   # = cd apps/api && uv run python -m app.worker
 # 잡 하나만 즉시 1회 실행:
 #   uv run python -m app.worker --once <collect_kr|collect_us|collect_macro|evaluate|transition|digest>
 

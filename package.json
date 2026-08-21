@@ -1,13 +1,20 @@
 {
   "name": "invest-memento",
   "private": true,
+  "packageManager": "pnpm@11.15.1",
   "scripts": {
+    "dev": "concurrently -k -n web,api -c cyan,magenta \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev:all": "concurrently -k -n web,api,worker -c cyan,magenta,yellow \"pnpm dev:web\" \"pnpm dev:api\" \"pnpm dev:worker\"",
     "dev:web": "pnpm --filter web dev",
     "dev:api": "cd apps/api && uv run uvicorn app.main:app --reload --port 8003",
+    "dev:worker": "cd apps/api && uv run python -m app.worker",
     "lint:web": "pnpm --filter web lint",
     "typecheck:web": "pnpm --filter web exec next typegen && pnpm --filter web exec tsc --noEmit",
     "test:web": "pnpm --filter web test",
     "test:api": "cd apps/api && uv run pytest",
     "lint:api": "cd apps/api && uv run ruff check ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
   }
 }
